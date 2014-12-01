@@ -29,9 +29,7 @@ describe Halite::Loader do
     let(:gem_name) { 'test1' }
     its(:name) { is_expected.to eq 'test1' }
     its(:version) { is_expected.to eq '1.2.3' }
-    its(:files) { is_expected.to include '' }
-    it 'asdf' do
-      require 'pry'; binding.pry
-    end
+    its(:files) { is_expected.to include 'test1.gemspec' }
+    its(:files) { is_expected.to include 'lib/test1.rb' }
   end
 end
