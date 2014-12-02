@@ -10,6 +10,8 @@ describe Halite::Loader do
     its(:name) { is_expected.to eq 'halite' }
     its(:version) { is_expected.to eq Halite::VERSION }
     its(:description) { is_expected.to be_a String }
+    its(:files) { is_expected.to include 'halite.gemspec' }
+    its(:files) { is_expected.to include 'lib/halite/loader.rb' }
   end
 
   context 'when loading halite with a version' do
@@ -31,5 +33,6 @@ describe Halite::Loader do
     its(:version) { is_expected.to eq '1.2.3' }
     its(:files) { is_expected.to include 'test1.gemspec' }
     its(:files) { is_expected.to include 'lib/test1.rb' }
+    its(:license_header) { is_expected.to eq "# coding: utf-8\n# Awesome license\n" }
   end
 end
