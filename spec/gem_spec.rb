@@ -11,7 +11,7 @@ describe Halite::Gem do
     its(:version) { is_expected.to eq Halite::VERSION }
     its(:description) { is_expected.to be_a String }
     its(:files) { is_expected.to include 'halite.gemspec' }
-    its(:files) { is_expected.to include 'lib/halite/loader.rb' }
+    its(:files) { is_expected.to include 'lib/halite/gem.rb' }
   end
 
   context 'when loading halite with a version' do
