@@ -24,4 +24,14 @@ version "1.0.0"
 EOH
     end # /context with a license header
   end # /describe #generate
+
+  describe '#write' do
+    let(:output) { double('output') } # sentinel
+    before { allow(described_class).to receive(:generate).and_return(output) }
+
+    it 'should write out metadata' do
+      expect(IO).to receive(:write).with('/test/metadata.rb', output)
+      described_class.write(nil, '/test')
+    end
+  end # /describe #write
 end
