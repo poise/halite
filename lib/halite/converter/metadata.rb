@@ -10,7 +10,7 @@ module Halite
       end
 
       def self.write(spec, base_path)
-        IO.write(File.join(base_path, 'metadata.rb'), generate_metadata(spec))
+        IO.write(File.join(base_path, 'metadata.rb'), generate(spec))
       end
 
     end
