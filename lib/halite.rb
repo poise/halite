@@ -1,7 +1,7 @@
 require 'logify'
 
 require 'halite/converter'
-require 'halite/loader'
+require 'halite/gem'
 
 module Halite
   include Logify

@@ -1,12 +1,12 @@
 module Halite
-  class Loader
+  class Gem
     def initialize(name, version=nil)
       @name = name
       @version = version
     end
 
     def spec
-      @spec ||= Gem::Dependency.new(@name, Gem::Requirement.new(@version)).matching_specs.max_by { |s| s.version }
+      @spec ||= ::Gem::Dependency.new(@name, ::Gem::Requirement.new(@version)).matching_specs.max_by { |s| s.version }
     end
 
     def method_missing(*args)
@@ -24,6 +24,21 @@ module Halite
 
     def license_header
       IO.readlines(spec_file).take_while { |line| line.strip.empty? || line.strip.start_with?('#') }.join('')
+    end
+
+    def each_library_file(&block)
+      files = []
+      spec.files.each do |path|
+        spec.require_paths.each do |req_path|
+          if path.start_with?(req_path)
+            full_path = File.join(spec.full_gem_path, path)
+            files << full_path
+            block.call(full_path) if block
+            break
+          end
+        end
+      end
+      files
     end
   end
 end

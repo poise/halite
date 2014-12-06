@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'halite/version'
 
-describe Halite::Loader do
+describe Halite::Gem do
   subject { described_class.new(gem_name, gem_version) }
   let(:gem_name) { 'halite' }
   let(:gem_version) { nil }
@@ -34,5 +34,9 @@ describe Halite::Loader do
     its(:files) { is_expected.to include 'test1.gemspec' }
     its(:files) { is_expected.to include 'lib/test1.rb' }
     its(:license_header) { is_expected.to eq "# coding: utf-8\n# Awesome license\n" }
+    its(:each_library_file) { is_expected.to eq [
+      File.expand_path('../data/gems/test1/lib/test1.rb', __FILE__),
+      File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__),
+    ] }
   end
 end
