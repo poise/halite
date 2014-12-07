@@ -38,5 +38,25 @@ describe Halite::Gem do
       [File.expand_path('../data/gems/test1/lib/test1.rb', __FILE__), 'test1.rb'],
       [File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__), 'test1/version.rb'],
     ] }
-  end
+
+    describe '#each_file' do
+      context 'with no prefixes' do
+        it 'returns all files' do
+          expect(subject.each_file).to eq [
+            [File.expand_path('../data/gems/test1/lib/test1.rb', __FILE__), 'lib/test1.rb'],
+            [File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__), 'lib/test1/version.rb'],
+            [File.expand_path('../data/gems/test1/test1.gemspec', __FILE__), 'test1.gemspec'],
+          ]
+        end
+      end
+
+      context 'with a prefix that overlaps a filename' do
+        it 'returns only files in that folder' do
+          expect(subject.each_file('lib/test1')).to eq [
+            [File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__), 'version.rb'],
+          ]
+        end
+      end
+    end
+  end # /context when loading test1
 end

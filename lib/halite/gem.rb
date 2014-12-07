@@ -26,19 +26,28 @@ module Halite
       IO.readlines(spec_file).take_while { |line| line.strip.empty? || line.strip.start_with?('#') }.join('')
     end
 
-    def each_library_file(&block)
+    def each_file(prefix_paths=nil, &block)
       files = []
       spec.files.each do |path|
-        spec.require_paths.each do |req_path|
-          if path.start_with?(req_path)
-            full_path = File.join(spec.full_gem_path, path)
-            files << [full_path, path[req_path.length+1..-1]]
-            block.call(full_path, path[req_path.length+1..-1]) if block
-            break
-          end
+        prefix = if prefix_paths
+          Array(prefix_paths).map {|p| p.end_with?('/') ? p : p + '/' }.find {|p| path.start_with?(p) }
+        else
+          ''
         end
+        next unless prefix # No match
+        value = [
+          File.join(spec.full_gem_path, path), # Full path
+          path[prefix.length..-1], # Relative path
+        ]
+        files << value
+        block.call(*value) if block
       end
       files
+    end
+
+    # Special case of the above using spec's require paths
+    def each_library_file(&block)
+      each_file(spec.require_paths, &block)
     end
   end
 end
