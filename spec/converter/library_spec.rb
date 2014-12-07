@@ -82,7 +82,7 @@ EOH
     context 'with a single file' do
       let(:library_files) { ['mygem.rb'] }
 
-      it do
+      it 'writes a single file' do
         expect(Dir).to receive(:mkdir).with('/test/libraries')
         expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
         described_class.write(spec, '/test')
@@ -92,7 +92,7 @@ EOH
     context 'with multiple files' do
       let(:library_files) { ['mygem.rb', 'mygem/one.rb', 'mygem/two.rb'] }
 
-      it do
+      it 'writes multiple files' do
         expect(Dir).to receive(:mkdir).with('/test/libraries')
         expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
         expect(IO).to receive(:write).with('/test/libraries/mygem__one.rb', output[1])
@@ -104,7 +104,7 @@ EOH
     context 'with an explicit entry point name' do
       let(:library_files) { ['mygem.rb', 'other.rb'] }
 
-      it do
+      it 'selects the correct entry point' do
         expect(Dir).to receive(:mkdir).with('/test/libraries')
         expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
         expect(IO).to receive(:write).with('/test/libraries/other.rb', output[1])
@@ -115,7 +115,7 @@ EOH
     context 'with an explicit entry point name ending in .rb' do
       let(:library_files) { ['mygem.rb', 'other.rb'] }
 
-      it do
+      it 'selects the correct entry point' do
         expect(Dir).to receive(:mkdir).with('/test/libraries')
         expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
         expect(IO).to receive(:write).with('/test/libraries/other.rb', output[1])
