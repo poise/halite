@@ -82,11 +82,46 @@ EOH
     context 'with a single file' do
       let(:library_files) { ['mygem.rb'] }
 
-      it 'should write library files' do
+      it do
         expect(Dir).to receive(:mkdir).with('/test/libraries')
         expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
         described_class.write(spec, '/test')
       end
     end # /context with a single file
+
+    context 'with multiple files' do
+      let(:library_files) { ['mygem.rb', 'mygem/one.rb', 'mygem/two.rb'] }
+
+      it do
+        expect(Dir).to receive(:mkdir).with('/test/libraries')
+        expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
+        expect(IO).to receive(:write).with('/test/libraries/mygem__one.rb', output[1])
+        expect(IO).to receive(:write).with('/test/libraries/mygem__two.rb', output[2])
+        described_class.write(spec, '/test')
+      end
+    end # /context with multiple files
+
+    context 'with an explicit entry point name' do
+      let(:library_files) { ['mygem.rb', 'other.rb'] }
+
+      it do
+        expect(Dir).to receive(:mkdir).with('/test/libraries')
+        expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
+        expect(IO).to receive(:write).with('/test/libraries/other.rb', output[1])
+        described_class.write(spec, '/test', 'mygem')
+      end
+    end # /context with an explicit entry point name
+
+    context 'with an explicit entry point name ending in .rb' do
+      let(:library_files) { ['mygem.rb', 'other.rb'] }
+
+      it do
+        expect(Dir).to receive(:mkdir).with('/test/libraries')
+        expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
+        expect(IO).to receive(:write).with('/test/libraries/other.rb', output[1])
+        described_class.write(spec, '/test', 'mygem.rb')
+      end
+    end # /context with an explicit entry point name
+
   end # /describe #write
 end
