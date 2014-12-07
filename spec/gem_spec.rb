@@ -35,8 +35,8 @@ describe Halite::Gem do
     its(:files) { is_expected.to include 'lib/test1.rb' }
     its(:license_header) { is_expected.to eq "# coding: utf-8\n# Awesome license\n" }
     its(:each_library_file) { is_expected.to eq [
-      File.expand_path('../data/gems/test1/lib/test1.rb', __FILE__),
-      File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__),
+      [File.expand_path('../data/gems/test1/lib/test1.rb', __FILE__), 'test1.rb'],
+      [File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__), 'test1/version.rb'],
     ] }
   end
 end

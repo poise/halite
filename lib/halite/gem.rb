@@ -32,7 +32,7 @@ module Halite
         spec.require_paths.each do |req_path|
           if path.start_with?(req_path)
             full_path = File.join(spec.full_gem_path, path)
-            files << full_path
+            files << [full_path, path[req_path.length+1..-1]]
             block.call(full_path, path[req_path.length+1..-1]) if block
             break
           end
