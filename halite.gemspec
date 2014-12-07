@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec-its', '~> 1.1.0'
   spec.add_development_dependency 'fuubar', '~> 2.0.0'
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'simplecov', '~> 0.9.1'
 end

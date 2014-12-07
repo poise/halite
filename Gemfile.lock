@@ -18,12 +18,14 @@ GEM
       mime-types
     coderay (1.1.0)
     diff-lcs (1.2.5)
+    docile (1.1.5)
     fuubar (2.0.0)
       rspec (~> 3.0)
       ruby-progressbar (~> 1.4)
     logify (0.2.0)
     method_source (0.8.2)
     mime-types (2.4.3)
+    multi_json (1.10.1)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -44,6 +46,11 @@ GEM
       rspec-support (~> 3.1.0)
     rspec-support (3.1.2)
     ruby-progressbar (1.7.0)
+    simplecov (0.9.1)
+      docile (~> 1.1.0)
+      multi_json (~> 1.0)
+      simplecov-html (~> 0.8.0)
+    simplecov-html (0.8.0)
     slop (3.6.0)
     stove (3.2.3)
       chef-api (~> 0.5)
@@ -59,4 +66,5 @@ DEPENDENCIES
   pry
   rspec (~> 3.1.0)
   rspec-its (~> 1.1.0)
+  simplecov (~> 0.9.1)
   test1!

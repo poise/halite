@@ -1,5 +1,8 @@
 require 'rspec'
 require 'rspec/its'
+require 'simplecov'
+SimpleCov.start
+
 require 'halite'
 
 RSpec.configure do |config|
