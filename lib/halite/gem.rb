@@ -3,6 +3,7 @@ module Halite
     def initialize(name, version=nil)
       @name = name
       @version = version
+      raise "Gem #{name}#{version ? " v#{version}" : ''} not found" unless spec
     end
 
     def spec
