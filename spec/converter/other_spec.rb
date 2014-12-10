@@ -18,7 +18,7 @@ describe Halite::Converter::Other do
       files.each do |path|
         input_sentinel = double("content of #{path}")
         output_sentinel = double("generated output for #{path}")
-        allow(IO).to receive(:open).with(File.join('/source', path)).and_yield(input_sentinel)
+        allow(File).to receive(:open).with(File.join('/source', path), 'rb').and_yield(input_sentinel)
         input << input_sentinel
         output << output_sentinel
       end
@@ -29,7 +29,7 @@ describe Halite::Converter::Other do
 
       it 'writes a single file' do
         expect(FileUtils).to receive(:mkdir_p).with('/test/recipes')
-        expect(IO).to receive(:open).with('/test/recipes/default.rb').and_yield(output[0])
+        expect(File).to receive(:open).with('/test/recipes/default.rb', 'wb').and_yield(output[0])
         expect(IO).to receive(:copy_stream).with(input[0], output[0])
         described_class.write(spec, '/test')
       end
@@ -41,11 +41,11 @@ describe Halite::Converter::Other do
       it 'writes multiple files' do
         expect(FileUtils).to receive(:mkdir_p).with('/test/recipes')
         expect(FileUtils).to receive(:mkdir_p).with('/test/templates/default')
-        expect(IO).to receive(:open).with('/test/attributes.rb').and_yield(output[0])
+        expect(File).to receive(:open).with('/test/attributes.rb', 'wb').and_yield(output[0])
         expect(IO).to receive(:copy_stream).with(input[0], output[0])
-        expect(IO).to receive(:open).with('/test/recipes/default.rb').and_yield(output[1])
+        expect(File).to receive(:open).with('/test/recipes/default.rb', 'wb').and_yield(output[1])
         expect(IO).to receive(:copy_stream).with(input[1], output[1])
-        expect(IO).to receive(:open).with('/test/templates/default/conf.erb').and_yield(output[2])
+        expect(File).to receive(:open).with('/test/templates/default/conf.erb', 'wb').and_yield(output[2])
         expect(IO).to receive(:copy_stream).with(input[2], output[2])
         described_class.write(spec, '/test')
       end
