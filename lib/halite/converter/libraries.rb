@@ -18,7 +18,7 @@ module Halite
       def self.write(spec, base_path, entry_point_name=nil)
         entry_point_name ||= spec.name
         # Handle both cases, with .rb and without
-        entry_point_name << '.rb' unless entry_point_name.end_with?('.rb')
+        entry_point_name += '.rb' unless entry_point_name.end_with?('.rb')
         lib_path = File.join(base_path, 'libraries')
         # Create cookbook's libraries folder
         Dir.mkdir(lib_path) unless File.directory?(lib_path)
