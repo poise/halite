@@ -1,6 +1,6 @@
 module Halite
   module Converter
-    module Library
+    module Libraries
 
       # Chef doesn't allow subfolders under libraries/ currently
       def self.flatten_filename(path)

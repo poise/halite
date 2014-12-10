@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Halite::Converter::Library do
+describe Halite::Converter::Libraries do
 
   describe '#generate' do
     let(:data) { '' }
