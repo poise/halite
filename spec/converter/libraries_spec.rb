@@ -62,7 +62,7 @@ EOH
     let(:spec) do
       spec = double(name: 'mygem')
       allow(spec).to receive(:each_library_file) do |&block|
-        library_files.each {|path| block.call(File.join('/test', path), path) }
+        library_files.each {|path| block.call(File.join('/source', path), path) }
       end
       spec
     end
@@ -71,7 +71,7 @@ EOH
       library_files.each do |path|
         input_sentinel = double("content of #{path}")
         output_sentinel = double("generated output for #{path}")
-        allow(IO).to receive(:read).with(File.join('/test', path)).and_return(input_sentinel)
+        allow(IO).to receive(:read).with(File.join('/source', path)).and_return(input_sentinel)
         allow(described_class).to receive(:generate).with(spec, input_sentinel, first).and_return(output_sentinel)
         first = false
         output << output_sentinel
