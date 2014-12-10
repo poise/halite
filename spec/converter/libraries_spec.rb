@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'halite/converter/libraries'
 
 describe Halite::Converter::Libraries do
 

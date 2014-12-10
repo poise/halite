@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'halite/gem'
 require 'halite/version'
 
 describe Halite::Gem do

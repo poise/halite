@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'halite/converter/metadata'
 
 describe Halite::Converter::Metadata do
   describe '#generate' do

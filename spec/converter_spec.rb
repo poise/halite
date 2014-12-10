@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'halite/converter'
 
 describe Halite::Converter do
   describe '#write' do
