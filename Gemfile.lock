@@ -6,14 +6,14 @@ PATH
       stove (~> 3.2.3)
 
 PATH
-  remote: spec/data/gems/test2
-  specs:
-    test2 (4.5.6)
-
-PATH
   remote: spec/data/gems/test1
   specs:
     test1 (1.2.3)
+
+PATH
+  remote: spec/data/gems/test2
+  specs:
+    test2 (4.5.6)
 
 GEM
   remote: https://rubygems.org/
