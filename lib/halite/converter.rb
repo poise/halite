@@ -1,5 +1,6 @@
 require 'halite/converter/libraries'
 require 'halite/converter/metadata'
+require 'halite/converter/other'
 
 module Halite
   module Converter
@@ -7,6 +8,7 @@ module Halite
     def self.write(spec, base_path)
       Metadata.write(spec, base_path)
       Libraries.write(spec, base_path)
+      Other.write(spec, base_path)
     end
 
   end
