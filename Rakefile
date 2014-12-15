@@ -5,6 +5,14 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = [].tap do |a|
     a.push('--color')
     a.push('--format Fuubar')
+    a.push('--tag ~slow')
+  end.join(' ')
+end
+
+RSpec::Core::RakeTask.new(:integration) do |t|
+  t.rspec_opts = [].tap do |a|
+    a.push('--color')
+    a.push('--format Fuubar')
   end.join(' ')
 end
 
