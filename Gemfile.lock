@@ -35,6 +35,7 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    rake (10.4.2)
     rspec (3.1.0)
       rspec-core (~> 3.1.0)
       rspec-expectations (~> 3.1.0)
@@ -69,6 +70,7 @@ DEPENDENCIES
   fuubar (~> 2.0.0)
   halite!
   pry
+  rake (~> 10.4.2)
   rspec (~> 3.1.0)
   rspec-its (~> 1.1.0)
   simplecov (~> 0.9.1)

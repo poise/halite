@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'stove', '~> 3.2.3'
   spec.add_dependency 'logify', '~> 0.2.0'
 
+  spec.add_development_dependency 'rake', '~> 10.4.2'
   spec.add_development_dependency 'bundler', '~> 1.6'
   spec.add_development_dependency 'rspec', '~> 3.1.0'
   spec.add_development_dependency 'rspec-its', '~> 1.1.0'
