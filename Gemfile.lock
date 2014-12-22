@@ -9,11 +9,20 @@ PATH
   remote: spec/data/gems/test1
   specs:
     test1 (1.2.3)
+      halite
 
 PATH
   remote: spec/data/gems/test2
   specs:
     test2 (4.5.6)
+      halite
+
+PATH
+  remote: spec/data/gems/test3
+  specs:
+    test3 (7.8.9)
+      halite
+      test2
 
 GEM
   remote: https://rubygems.org/
@@ -140,3 +149,4 @@ DEPENDENCIES
   simplecov (~> 0.9.1)
   test1!
   test2!
+  test3!

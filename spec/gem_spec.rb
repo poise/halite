@@ -39,6 +39,7 @@ describe Halite::Gem do
       [File.expand_path('../data/gems/test1/lib/test1.rb', __FILE__), 'test1.rb'],
       [File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__), 'test1/version.rb'],
     ] }
+    its(:cookbook_dependencies) { is_expected.to eq [] }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -73,6 +74,7 @@ describe Halite::Gem do
       [File.expand_path('../data/gems/test2/lib/test2/resource.rb', __FILE__), 'test2/resource.rb'],
       [File.expand_path('../data/gems/test2/lib/test2/version.rb', __FILE__), 'test2/version.rb'],
     ] }
+    its(:cookbook_dependencies) { is_expected.to eq [['testdep', '>= 0']] }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -100,5 +102,10 @@ describe Halite::Gem do
       end
     end
   end # /context when loading test2
+
+  context 'when loading test3' do
+    let(:gem_name) { 'test3' }
+    its(:cookbook_dependencies) { is_expected.to eq [['test2', '>= 0']] }
+  end # /context when loading test3
 
 end
