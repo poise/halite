@@ -1,3 +1,5 @@
+require 'halite/dependencies'
+
 module Halite
   class Gem
     def initialize(name, version=nil)
@@ -52,24 +54,7 @@ module Halite
     end
 
     def cookbook_dependencies
-      deps = []
-      # Find any simple dependencies
-      deps += spec.requirements
-      # Fine any dependencies in the metadata, must be a string so split on comma
-      deps += spec.metadata['halite_dependencies'].split(/,/) if spec.metadata.include?('halite_dependencies')
-      # Find any gem dependencies (anything that depends directly on halite and doesn't have the ignore flag)
-      deps += spec.dependencies.select do |dep|
-        dep_spec = dep.to_spec
-        dep_spec.dependencies.any? {|subspec| subspec.name == 'halite'} && !dep_spec.metadata.include?('halite_ignore')
-      end.map {|dep| [dep.name] + dep.requirements_list}
-      # Convert all deps to [[name, version], ...] format
-      deps.map do |dep|
-        dep = Array(dep).map {|obj| obj.to_s.strip }
-        dep = dep.first.split(/\s+/, 2) if dep.length == 1 # Unpack single strings like 'foo >= 1.0'
-        dep << ::Gem::Requirement.default.to_s if dep.length == 1 # Default version constraint to match rubygems behavior when sourcing from simple strings
-        raise "Chef only supports a single version constraint on each dependency" if dep.length > 2 # ಠ_ಠ
-        dep
-      end
+      Dependencies.extract(spec)
     end
   end
 end
