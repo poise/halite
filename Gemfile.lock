@@ -22,7 +22,7 @@ PATH
   specs:
     test3 (7.8.9)
       halite
-      test2
+      test2 (~> 4.5.6)
 
 GEM
   remote: https://rubygems.org/

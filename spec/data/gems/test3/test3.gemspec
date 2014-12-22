@@ -19,5 +19,5 @@ Gem::Specification.new do |spec|
   spec.require_paths = %w{lib}
 
   spec.add_dependency 'halite'
-  spec.add_dependency 'test2'
+  spec.add_dependency 'test2', '~> 4.5.6'
 end

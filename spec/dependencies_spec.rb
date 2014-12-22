@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'halite/dependencies'
 
-describe Halite::Dependencies, focus:true do
+describe Halite::Dependencies do
   before do
     allow(Gem::Specification).to receive(:stubs).and_return([
       Gem::Specification.new {|s| s.name = 'gem1'; s.version = Gem::Version.new('1.0.0') },
