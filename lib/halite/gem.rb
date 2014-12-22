@@ -7,7 +7,7 @@ module Halite
     end
 
     def spec
-      @spec ||= ::Gem::Dependency.new(@name, ::Gem::Requirement.new(@version)).matching_specs.max_by { |s| s.version }
+      @spec ||= ::Gem::Dependency.new(@name, ::Gem::Requirement.new(@version)).to_spec
     end
 
     def method_missing(*args)
