@@ -62,4 +62,9 @@ describe 'integration tests' do
     it_should_behave_like 'an integration test'
   end
 
+  context 'with test3 gem', integration: true do
+    let(:gem_name) { 'test3' }
+    it_should_behave_like 'an integration test'
+  end
+
 end

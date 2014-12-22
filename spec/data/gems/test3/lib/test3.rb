@@ -1,4 +1,4 @@
-require 'test2/dsl'
+require 'test3/dsl'
 
 module Test3
 end
