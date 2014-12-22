@@ -6,7 +6,8 @@ describe Halite::Converter::Metadata do
     let(:gem_name) { 'mygem' }
     let(:version) { '1.0.0' }
     let(:license_header) { '' }
-    let(:spec) { double(name: gem_name, version: version, license_header: license_header) }
+    let(:cookbook_dependencies) { [] }
+    let(:spec) { double(name: gem_name, version: version, license_header: license_header, cookbook_dependencies: cookbook_dependencies) }
     subject { described_class.generate(spec) }
 
     context 'with simple data' do
@@ -24,6 +25,25 @@ name "mygem"
 version "1.0.0"
 EOH
     end # /context with a license header
+
+    context 'with one dependency' do
+      let(:cookbook_dependencies) { [['other', '>= 0']] }
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+depends "other", ">= 0"
+EOH
+    end # /context with one dependency
+
+    context 'with two dependencies' do
+      let(:cookbook_dependencies) { [['other', '~> 1.0'], ['another', '~> 2.0.0']] }
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+depends "other", "~> 1.0"
+depends "another", "~> 2.0.0"
+EOH
+    end # /context with two dependencies
   end # /describe #generate
 
   describe '#write' do
