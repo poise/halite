@@ -1,6 +1,8 @@
+require 'halite/error'
+
 module Halite
   module Dependencies
-    class InvalidDependencyError < Exception; end
+    class InvalidDependencyError < Error; end
 
     def self.extract(spec)
       deps = []
