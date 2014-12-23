@@ -1,7 +1,9 @@
+require 'test2/version'
+
 module Test3
   module DSL
     def test3_method
-      '!!!!!!!!!!test3'
+      "!!!!!!!!!!test3#{Test2::VERSION}"
     end
   end
 end

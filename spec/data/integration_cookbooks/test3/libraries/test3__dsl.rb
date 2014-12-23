@@ -1,7 +1,9 @@
-if ENV['HALITE_LOAD']; module Test3
+if ENV['HALITE_LOAD']; require_relative '../../test2/libraries/test2__version'
+
+module Test3
   module DSL
     def test3_method
-      '!!!!!!!!!!test3'
+      "!!!!!!!!!!test3#{Test2::VERSION}"
     end
   end
 end
