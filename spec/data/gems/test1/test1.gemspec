@@ -20,4 +20,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = %w{lib}
 
   spec.add_dependency 'halite'
+
+  spec.add_development_dependency 'rake'
 end
