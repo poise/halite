@@ -14,8 +14,11 @@ describe 'integration tests' do
     example.metadata[:halite_temp_path]
   end
   let(:gem_name) { '' }
+  let(:stub_cookbooks) { [] }
+  let(:extra_gems) { [] }
   let(:recipes) { [] }
   let(:fixture_path) { File.expand_path("../data/integration_cookbooks/#{gem_name}", __FILE__) }
+  let(:expect_output) { nil }
 
   shared_examples 'an integration test' do
     it 'matches the fixture' do
@@ -41,14 +44,25 @@ describe 'integration tests' do
       IO.write(File.join(runner_path, 'metadata.rb'), "name 'runner'\ndepends '#{gem_name}'")
       Dir.mkdir(File.join(runner_path, 'recipes'))
       IO.write(File.join(runner_path, 'recipes', 'default.rb'), '')
-      # Convert gem
-      cookbook_path = File.join(temp_path, gem_name)
-      Dir.mkdir(cookbook_path)
-      Halite.convert(gem_name, cookbook_path)
+      # Write out a stub cookbooks for dependency testing
+      stub_cookbooks.each do |(stub_name, stub_version)|
+        stub_path = File.join(temp_path, stub_name)
+        Dir.mkdir(stub_path)
+        IO.write(File.join(stub_path, 'metadata.rb'), "name '#{stub_name}'\nversion '#{stub_version}'")
+      end
+      # Convert gems
+      ([gem_name] + extra_gems).each do |name|
+        cookbook_path = File.join(temp_path, name)
+        Dir.mkdir(cookbook_path)
+        Halite.convert(name, cookbook_path)
+      end
       # Run solo
-      cmd = Mixlib::ShellOut.new("bundle exec chef-solo -c #{solo_rb} -o #{(['runner']+recipes).map{|r| "recipe[#{r}]"}.join(',')}", cwd: File.expand_path('../..', __FILE__))
+      cmd = Mixlib::ShellOut.new("bundle exec chef-solo -l debug -c #{solo_rb} -o #{(['runner']+recipes).map{|r| "recipe[#{r}]"}.join(',')}", cwd: File.expand_path('../..', __FILE__))
       cmd.run_command
       expect(cmd.error?).to be_falsey, "Running #{cmd.command} failed (#{cmd.exitstatus} #{cmd.error?}):\n#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
+      Array(expect_output).each do |output|
+        expect(cmd.stdout).to include(output), "'#{output}' not found in the output of #{cmd.command}:\n#{cmd.stdout}"
+      end
     end
   end
 
@@ -59,11 +73,16 @@ describe 'integration tests' do
 
   context 'with test2 gem', integration: true do
     let(:gem_name) { 'test2' }
+    let(:stub_cookbooks) { [['testdep', '1.0.0']] }
     it_should_behave_like 'an integration test'
   end
 
   context 'with test3 gem', integration: true do
     let(:gem_name) { 'test3' }
+    let(:extra_gems) { ['test2'] }
+    let(:stub_cookbooks) { [['testdep', '1.0.0']] }
+    let(:recipes) { ['test3'] }
+    let(:expect_output) { '!!!!!!!!!!test34.5.6' }
     it_should_behave_like 'an integration test'
   end
 
