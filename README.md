@@ -32,3 +32,27 @@ automatically converted to cookbook dependencies.
 
 Any files under `chef/` in the gem will be written as is in to the cookbook.
 For example you can add a recipe to your gem via `chef/recipes/default.rb`.
+
+## Rake Tasks
+
+The `halite/rake_tasks` module provides quick defaults. Gem name will be
+auto-detected from the `.gemspec` file and the cookbook name will be based
+on the gem name.
+
+### `rake build`
+
+The build command will convert the gem to a cookbook and write it to the `pkg/`
+folder.
+
+### Advanced Usage
+
+You can also pass custom arguments to the Rake tasks. All parameters are
+optional:
+
+```ruby
+require 'halite/rake_helper'
+Halite::RakeHelper.install_tasks(
+  gem_name: 'name', # Name of the gem to convert
+  base: File.basename(__FILE__), # Base folder for the gem
+)
+```
