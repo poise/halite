@@ -45,7 +45,7 @@ module Halite
         files << value
         block.call(*value) if block
       end
-      files
+      files.sort! # To be safe
     end
 
     # Special case of the above using spec's require paths

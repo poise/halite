@@ -22,8 +22,8 @@ describe 'integration tests' do
 
   shared_examples 'an integration test' do
     def directories_match(temp_path, fixture_path)
-      temp_files = Dir[File.join(temp_path, '**', '*')]
-      fixture_files = Dir[File.join(fixture_path, '**', '*')]
+      temp_files = Dir[File.join(temp_path, '**', '*')].sort
+      fixture_files = Dir[File.join(fixture_path, '**', '*')].sort
       expect(temp_files.map {|path| path[temp_path.length..-1] }).to eq fixture_files.map {|path| path[fixture_path.length..-1] }
       temp_files.zip(fixture_files).each do |temp_file, fixture_file|
         next unless File.file?(temp_file)
