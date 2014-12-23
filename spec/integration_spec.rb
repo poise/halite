@@ -21,10 +21,7 @@ describe 'integration tests' do
   let(:expect_output) { nil }
 
   shared_examples 'an integration test' do
-    it 'matches the fixture' do
-      # Convert gem
-      Halite.convert(gem_name, temp_path)
-      # Check that all files match the fixture data
+    def directories_match(temp_path, fixture_path)
       temp_files = Dir[File.join(temp_path, '**', '*')]
       fixture_files = Dir[File.join(fixture_path, '**', '*')]
       expect(temp_files.map {|path| path[temp_path.length..-1] }).to eq fixture_files.map {|path| path[fixture_path.length..-1] }
@@ -32,6 +29,13 @@ describe 'integration tests' do
         next unless File.file?(temp_file)
         expect(IO.read(temp_file)).to eq IO.read(fixture_file)
       end
+    end
+
+    it 'matches the fixture' do
+      # Convert gem
+      Halite.convert(gem_name, temp_path)
+      # Check that conversion matches the fixture
+      directories_match(temp_path, fixture_path)
     end
 
     it 'is a valid cookbook', slow: true do
@@ -57,12 +61,23 @@ describe 'integration tests' do
         Halite.convert(name, cookbook_path)
       end
       # Run solo
-      cmd = Mixlib::ShellOut.new("bundle exec chef-solo -l debug -c #{solo_rb} -o #{(['runner']+recipes).map{|r| "recipe[#{r}]"}.join(',')}", cwd: File.expand_path('../..', __FILE__))
+      cmd = Mixlib::ShellOut.new("bundle exec chef-solo -l debug -c #{solo_rb} -o #{(['runner']+recipes).map{|r| "recipe[#{r}]"}.join(',')}", cwd: temp_path)
       cmd.run_command
       expect(cmd.error?).to be_falsey, "Running #{cmd.command} failed (#{cmd.exitstatus} #{cmd.error?}):\n#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
       Array(expect_output).each do |output|
         expect(cmd.stdout).to include(output), "'#{output}' not found in the output of #{cmd.command}:\n#{cmd.stdout}"
       end
+    end
+
+    it 'can run rake build', slow: true do
+      # Copy the test gem to the temp path
+      FileUtils.cp_r(File.join(File.expand_path(File.join('..', 'data', 'gems', gem_name), __FILE__), '.'), temp_path)
+      # Run rake build
+      cmd = Mixlib::ShellOut.new("bundle exec rake build", cwd: temp_path)
+      cmd.run_command
+      expect(cmd.error?).to be_falsey, "Running #{cmd.command} failed (#{cmd.exitstatus} #{cmd.error?}):\n#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
+      # Check that conversion matches the fixture
+      directories_match(File.join(temp_path, 'pkg'), fixture_path)
     end
   end
 

@@ -20,4 +20,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'halite'
   spec.add_dependency 'test2', '~> 4.5.6'
+  spec.add_development_dependency 'rake'
 end
