@@ -39,7 +39,7 @@ module Halite
       # Unpack single strings like 'foo >= 1.0'
       dep = dep.first.split(/\s+/, 2) if dep.length == 1
       # Default version constraint to match rubygems behavior when sourcing from simple strings
-      dep << ::Gem::Requirement.default if dep.length == 1
+      dep << '>= 0' if dep.length == 1
       raise InvalidDependencyError.new("Chef only supports a single version constraint on each dependency: #{dep}") if dep.length > 2 # ಠ_ಠ
       dep[1] = clean_requirement(dep[1])
       dep
