@@ -81,6 +81,7 @@ describe Halite::Gem do
       context 'with no prefixes' do
         it 'returns all files' do
           expect(subject.each_file).to eq [
+            [File.expand_path('../data/gems/test2/Rakefile', __FILE__), 'Rakefile'],
             [File.expand_path('../data/gems/test2/chef/attributes.rb', __FILE__), 'chef/attributes.rb'],
             [File.expand_path('../data/gems/test2/chef/recipes/default.rb', __FILE__), 'chef/recipes/default.rb'],
             [File.expand_path('../data/gems/test2/chef/templates/default/conf.erb', __FILE__), 'chef/templates/default/conf.erb'],
