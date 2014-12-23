@@ -2,4 +2,4 @@ language: ruby
 rvm:
 - 2.1.2
 - 2.0.0
-script: rake integration
+script: bundle exec rake integration
