@@ -56,6 +56,29 @@ end
 end
 EOH
     end # /context with a big script
+
+    context 'with external dependencies' do
+      let(:cookbook_dependencies) { ['other'] }
+      let(:data) { <<-EOH }
+require 'mygem/something'
+require 'mygem/utils'
+require "mygem"
+require 'other'
+class Resource
+  attribute :source
+end
+EOH
+      it { is_expected.to eq <<-EOH }
+if ENV['HALITE_LOAD']; require_relative 'mygem__something'
+require_relative 'mygem__utils'
+require_relative 'mygem'
+require_relative '../../other/libraries/other'
+class Resource
+  attribute :source
+end
+end
+EOH
+    end # /context with a big script
   end # /describe #generate
 
   describe '#write' do

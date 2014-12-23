@@ -10,7 +10,15 @@ module Halite
       def self.generate(spec, data, entry_point=false)
         # No newline on the header so that line numbers in the files aren't changed.
         buf = (entry_point ? "ENV['HALITE_LOAD'] = '1'; begin; " : "if ENV['HALITE_LOAD']; ")
-        buf << data.gsub(/require ['"](#{spec.name}[^'"]+)['"]/) { "require_relative '#{flatten_filename($1)}'" }.rstrip
+        # Rewrite requires to require_relative as needed.
+        data = data.gsub(/require ['"](#{spec.name}[^'"]*)['"]/) { "require_relative '#{flatten_filename($1)}'" }
+        spec.cookbook_dependencies.each do |dep|
+          next unless dep.type == :dependencies
+          # This is kind of gross, but not sure what else to do
+          data = data.gsub(/require ['"](#{dep.name}[^'"]*)['"]/) { "require_relative '../../#{dep.name}/libraries/#{flatten_filename($1)}'" }
+        end
+        buf << data.rstrip
+        # Match up with the header. All files get one line longer. ¯\_(ツ)_/¯
         buf << (entry_point ? "\nensure; ENV.delete('HALITE_LOAD'); end\n" : "\nend\n")
         buf
       end
