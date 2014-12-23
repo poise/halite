@@ -54,7 +54,7 @@ module Halite
     end
 
     def cookbook_dependencies
-      Dependencies.extract(spec)
+      @cookbook_dependencies ||= Dependencies.extract(spec)
     end
   end
 end
