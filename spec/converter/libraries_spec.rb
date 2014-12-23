@@ -6,7 +6,8 @@ describe Halite::Converter::Libraries do
   describe '#generate' do
     let(:data) { '' }
     let(:entry_point) { false }
-    subject { described_class.generate(double(name: 'mygem'), data, entry_point) }
+    let(:cookbook_dependencies) { [] }
+    subject { described_class.generate(double(name: 'mygem', cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(dep, nil, :dependencies) }), data, entry_point) }
 
     context 'with a single require' do
       let(:data) { "x = 1\nrequire 'mygem/version'\n" }

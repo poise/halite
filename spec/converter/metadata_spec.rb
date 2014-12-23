@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'halite/converter/metadata'
+require 'halite/dependencies'
 
 describe Halite::Converter::Metadata do
   describe '#generate' do
@@ -7,7 +8,7 @@ describe Halite::Converter::Metadata do
     let(:version) { '1.0.0' }
     let(:license_header) { '' }
     let(:cookbook_dependencies) { [] }
-    let(:spec) { double(name: gem_name, version: version, license_header: license_header, cookbook_dependencies: cookbook_dependencies) }
+    let(:spec) { double(name: gem_name, version: version, license_header: license_header, cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(*dep) }) }
     subject { described_class.generate(spec) }
 
     context 'with simple data' do

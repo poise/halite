@@ -4,12 +4,14 @@ module Halite
   module Dependencies
     class InvalidDependencyError < Error; end
 
+    Dependency = Struct.new(:name, :requirement, :type)
+
     def self.extract(spec)
       deps = []
-      deps += extract_from_requirements(spec)
-      deps += extract_from_metadata(spec)
-      deps += extract_from_dependencies(spec)
-      deps.map {|dep| clean(dep) }
+      deps += clean_and_tag(extract_from_requirements(spec), :requirements)
+      deps += clean_and_tag(extract_from_metadata(spec), :metadata)
+      deps += clean_and_tag(extract_from_dependencies(spec), :dependencies)
+      deps
     end
 
     def self.extract_from_requirements(spec)
@@ -32,6 +34,14 @@ module Halite
         [dep.name] + dep.requirements_list
       end
     end
+
+    def self.clean_and_tag(deps, tag)
+      deps.map do |dep|
+        dep = clean(dep)
+        Dependency.new(dep[0], dep[1], tag)
+      end
+    end
+
 
     def self.clean(dep)
       # Convert to an array of strings
