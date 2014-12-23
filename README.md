@@ -1,5 +1,7 @@
 # Halite
 
+[![Build Status](https://travis-ci.org/coderanger/halite.svg?branch=master)](https://travis-ci.org/coderanger/halite)
+
 Write as a gem, release as a cookbook.
 
 ## Quick Start
