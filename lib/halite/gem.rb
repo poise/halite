@@ -9,7 +9,6 @@ module Halite
         raise Error.new("Cannot pass version when using an explicit specficiation") if version
         @spec = name
         @name = spec.name
-        @version = spec.version.to_s
       else
         @name = name
         @version = version
