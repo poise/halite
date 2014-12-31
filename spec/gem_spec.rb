@@ -33,6 +33,7 @@ describe Halite::Gem do
     let(:gem_name) { 'test1' }
     its(:name) { is_expected.to eq 'test1' }
     its(:version) { is_expected.to eq '1.2.3' }
+    its(:cookbook_name) { is_expected.to eq 'test1' }
     its(:files) { is_expected.to include 'test1.gemspec' }
     its(:files) { is_expected.to include 'lib/test1.rb' }
     its(:license_header) { is_expected.to eq "# coding: utf-8\n# Awesome license\n" }
@@ -69,6 +70,7 @@ describe Halite::Gem do
     let(:gem_name) { 'test2' }
     its(:name) { is_expected.to eq 'test2' }
     its(:version) { is_expected.to eq '4.5.6' }
+    its(:cookbook_name) { is_expected.to eq 'test2' }
     its(:files) { is_expected.to include 'test2.gemspec' }
     its(:files) { is_expected.to include 'lib/test2.rb' }
     its(:license_header) { is_expected.to eq "# coding: utf-8\n" }
@@ -110,7 +112,53 @@ describe Halite::Gem do
 
   context 'when loading test3' do
     let(:gem_name) { 'test3' }
+    its(:cookbook_name) { is_expected.to eq 'test3' }
     its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('test2', '~> 4.5.6', :dependencies)] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
   end # /context when loading test3
+
+  describe '#cookbook_name' do
+    let(:metadata) { {} }
+    subject { described_class.new(Gem::Specification.new {|s| s.name = gem_name; s.metadata.update(metadata) }).cookbook_name }
+
+    context 'with a gem named mygem' do
+      let(:gem_name) { 'mygem' }
+      it { is_expected.to eq 'mygem' }
+    end
+
+    context 'with a gem with an override' do
+      let(:metadata) { {'halite_name' => 'other' } }
+      it { is_expected.to eq 'other' }
+    end
+
+    context 'with a gem named chef-mygem' do
+      let(:gem_name) { 'chef-mygem' }
+      it { is_expected.to eq 'mygem' }
+    end
+
+    context 'with a gem named cookbook-mygem' do
+      let(:gem_name) { 'cookbook-mygem' }
+      it { is_expected.to eq 'mygem' }
+    end
+
+    context 'with a gem named mygem-chef' do
+      let(:gem_name) { 'mygem-chef' }
+      it { is_expected.to eq 'mygem' }
+    end
+
+    context 'with a gem named mygem-cookbook' do
+      let(:gem_name) { 'mygem-cookbook' }
+      it { is_expected.to eq 'mygem' }
+    end
+
+    context 'with a gem named chef-mygem-cookbook' do
+      let(:gem_name) { 'chef-mygem-cookbook' }
+      it { is_expected.to eq 'mygem' }
+    end
+
+    context 'with a gem named mycompany-mygem' do
+      let(:gem_name) { 'mycompany-mygem' }
+      it { is_expected.to eq 'mycompany-mygem' }
+    end
+  end
 end

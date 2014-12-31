@@ -28,6 +28,14 @@ module Halite
       spec.version.to_s
     end
 
+    def cookbook_name
+      if spec.metadata.include?('halite_name')
+        spec.metadata['halite_name']
+      else
+        spec.name.gsub(/(^(chef|cookbook)[_-])|([_-](chef|cookbook))$/, '')
+      end
+    end
+
     # The Rubygems API is shit and just assumes the file layout
     def spec_file
       File.join(spec.full_gem_path, spec.name + '.gemspec')
