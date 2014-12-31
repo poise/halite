@@ -2,10 +2,19 @@ require 'halite/dependencies'
 
 module Halite
   class Gem
+    # name can be either a string name, Gem::Dependency, or Gem::Specification
     def initialize(name, version=nil)
-      @name = name
-      @version = version
-      raise "Gem #{name}#{version ? " v#{version}" : ''} not found" unless spec
+      name = name.to_spec if name.is_a?(::Gem::Dependency) # Allow passing either
+      if name.is_a?(::Gem::Specification)
+        raise Error.new("Cannot pass version when using an explicit specficiation") if version
+        @spec = name
+        @name = spec.name
+        @version = spec.version.to_s
+      else
+        @name = name
+        @version = version
+        raise Error.new("Gem #{name}#{version ? " v#{version}" : ''} not found") unless spec
+      end
     end
 
     def spec
