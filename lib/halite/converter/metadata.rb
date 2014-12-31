@@ -4,7 +4,7 @@ module Halite
 
       def self.generate(spec)
         buf = spec.license_header
-        buf << "name #{spec.name.inspect}\n"
+        buf << "name #{spec.cookbook_name.inspect}\n"
         buf << "version #{spec.version.inspect}\n"
         spec.cookbook_dependencies.each do |dep|
           buf << "depends #{dep.name.inspect}, #{dep.requirement.inspect}\n"

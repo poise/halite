@@ -5,10 +5,11 @@ require 'halite/dependencies'
 describe Halite::Converter::Metadata do
   describe '#generate' do
     let(:gem_name) { 'mygem' }
+    let(:cookbook_name) { gem_name }
     let(:version) { '1.0.0' }
     let(:license_header) { '' }
     let(:cookbook_dependencies) { [] }
-    let(:spec) { double(name: gem_name, version: version, license_header: license_header, cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(*dep) }) }
+    let(:spec) { double(name: gem_name, cookbook_name: cookbook_name, version: version, license_header: license_header, cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(*dep) }) }
     subject { described_class.generate(spec) }
 
     context 'with simple data' do

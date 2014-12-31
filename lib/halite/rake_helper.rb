@@ -12,12 +12,11 @@ module Halite
 
     attr_accessor :gem_name, :base, :cookbook_name
 
-    def initialize(gem_name=nil, base=nil, cookbook_name=nil)
+    def initialize(gem_name=nil, base=nil)
       if gem_name.is_a?(Hash)
         opts = gem_name.inject({}) {|memo, (key, value)| memo[key.to_s] = value; memo }
         gem_name = opts['gem_name']
         base = opts['base']
-        cookbook_name = opts['cookbook_name']
       end
       # Order is important, find_gem_name needs base to be set
       @base = base || if defined? Rake
@@ -26,7 +25,6 @@ module Halite
         Dir.pwd
       end
       @gem_name = gem_name || find_gem_name
-      @cookbook_name = cookbook_name
     end
 
     def find_gem_name
