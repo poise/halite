@@ -26,6 +26,7 @@ describe Halite::Gem do
     let(:gem_name) { 'rspec' }
     its(:name) { is_expected.to eq 'rspec' }
     its(:description) { is_expected.to be_a String }
+    its(:is_halite_cookbook?) { is_expected.to be_falsey }
   end
 
   context 'when loading test1' do
@@ -40,6 +41,7 @@ describe Halite::Gem do
       [File.expand_path('../data/gems/test1/lib/test1/version.rb', __FILE__), 'test1/version.rb'],
     ] }
     its(:cookbook_dependencies) { is_expected.to eq [] }
+    its(:is_halite_cookbook?) { is_expected.to be_truthy }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -76,6 +78,7 @@ describe Halite::Gem do
       [File.expand_path('../data/gems/test2/lib/test2/version.rb', __FILE__), 'test2/version.rb'],
     ] }
     its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('testdep', '>= 0.0', :requirements)] }
+    its(:is_halite_cookbook?) { is_expected.to be_truthy }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -108,5 +111,6 @@ describe Halite::Gem do
   context 'when loading test3' do
     let(:gem_name) { 'test3' }
     its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('test2', '~> 4.5.6', :dependencies)] }
+    its(:is_halite_cookbook?) { is_expected.to be_truthy }
   end # /context when loading test3
 end
