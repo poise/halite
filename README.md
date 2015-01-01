@@ -58,3 +58,14 @@ Halite::RakeHelper.install_tasks(
   base: File.basename(__FILE__), # Base folder for the gem
 )
 ```
+
+## Berkshelf Extension
+
+Halite includes a Berkshelf extension to pull in any gem-based cookbooks that
+are available on the system.
+
+To activate it, include the extension in your `Berksfile`:
+
+```ruby
+extension 'halite'
+```
