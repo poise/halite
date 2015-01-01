@@ -37,7 +37,7 @@ module Halite
           old_sources = instance_method(:sources)
           define_method(:sources) do
             original_sources = begin
-              old_sources.bind(self).()
+              old_sources.bind(self).call
             rescue ::Berkshelf::NoAPISourcesDefined
               # We don't care, there will be a source
               []
@@ -57,7 +57,7 @@ module Halite
               Halite.convert(remote_cookbook.location_path, tmp_dir)
               tmp_dir
             else
-              old_try_download.bind(self).()
+              old_try_download.bind(self).call(source, name, version)
             end
           end
         end
