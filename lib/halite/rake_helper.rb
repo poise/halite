@@ -12,11 +12,12 @@ module Halite
 
     attr_accessor :gem_name, :base, :cookbook_name
 
-    def initialize(gem_name=nil, base=nil)
+    def initialize(gem_name=nil, base=nil, no_rspec=nil)
       if gem_name.is_a?(Hash)
         opts = gem_name.inject({}) {|memo, (key, value)| memo[key.to_s] = value; memo }
         gem_name = opts['gem_name']
         base = opts['base']
+        no_rspec = opts['no_rspec']
       end
       # Order is important, find_gem_name needs base to be set
       @base = base || if defined? Rake
@@ -25,6 +26,7 @@ module Halite
         Dir.pwd
       end
       @gem_name = gem_name || find_gem_name
+      @no_rspec = no_rspec
     end
 
     def find_gem_name
@@ -34,10 +36,44 @@ module Halite
     end
 
     def install
-      desc 'Convert the gem to a cookbook in the pkg directory'
-      task 'build' do
-        build_cookbook
+      # Core Halite tasks
+      namespace 'chef' do
+        desc 'Convert the gem to a cookbook in the pkg directory'
+        task 'build' do
+          build_cookbook
+        end
       end
+
+      # If any spec folders exist, try to install the RSpec tasks.
+      spec_exists = File.exists?(File.join(@base, 'spec'))
+      test_spec_exists = File.exists?(File.join(@base, 'test', 'spec'))
+      if !@no_rspec && (spec_exists || test_spec_exists)
+        install_rspec
+      end
+    end
+
+    def install_rspec
+      require 'rspec/core/rake_task'
+      namespace 'chef' do
+        RSpec::Core::RakeTask.new(:spec) do |t|
+          t.rspec_opts = [].tap do |a|
+            a << '--color'
+            a << '--format Fuubar'
+            a << '--tag ~slow'
+            a << '--pattern spec/*_spec.rb'
+            a << '--pattern spec/**/*_spec.rb'
+            a << '--pattern test/spec/**/*_spec.rb'
+            a << "-I #{File.join(@base, 'test', 'spec')}"
+            a << '--backtrace'
+          end.join(' ')
+        end
+      end
+
+      # Only set a description if the task doesn't already exist
+      desc 'Run all tests' unless Rake.application.lookup('test')
+      task :test => ['chef:spec']
+    rescue LoadError
+      # RSpec not loadable, ignoring
     end
 
     def build_cookbook

@@ -69,11 +69,11 @@ describe 'integration tests' do
       end
     end
 
-    it 'can run rake build', slow: true do
+    it 'can run rake chef:build', slow: true do
       # Copy the test gem to the temp path
       FileUtils.cp_r(File.join(File.expand_path(File.join('..', 'data', 'gems', gem_name), __FILE__), '.'), temp_path)
       # Run rake build
-      cmd = Mixlib::ShellOut.new("bundle exec rake build", cwd: temp_path)
+      cmd = Mixlib::ShellOut.new("bundle exec rake chef:build", cwd: temp_path)
       cmd.run_command
       expect(cmd.error?).to be_falsey, "Running #{cmd.command} failed (#{cmd.exitstatus} #{cmd.error?}):\n#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
       # Check that conversion matches the fixture
