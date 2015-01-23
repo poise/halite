@@ -1,4 +1,6 @@
 # Much inspiration from Bundler's GemHelper. Thanks!
+require 'tmpdir'
+
 require 'halite'
 require 'halite/error'
 
@@ -12,12 +14,13 @@ module Halite
 
     attr_accessor :gem_name, :base, :cookbook_name
 
-    def initialize(gem_name=nil, base=nil, no_gem=nil, no_rspec=nil, no_kitchen=nil)
+    def initialize(gem_name=nil, base=nil, no_gem=nil, no_foodcritic=nil, no_rspec=nil, no_kitchen=nil)
       if gem_name.is_a?(Hash)
         opts = gem_name.inject({}) {|memo, (key, value)| memo[key.to_s] = value; memo }
         gem_name = opts['gem_name']
         base = opts['base']
         no_gem = opts['no_gem']
+        no_foodcritic = opts['no_foodcritic']
         no_rspec = opts['no_rspec']
         no_kitchen = opts['no_kitchen']
       end
@@ -29,6 +32,7 @@ module Halite
       end
       @gem_name = gem_name || find_gem_name
       @no_gem = no_gem
+      @no_foodcritic = no_foodcritic
       @no_rspec = no_rspec
       @no_kitchen = no_kitchen
     end
@@ -48,6 +52,11 @@ module Halite
         end
       end
 
+      # Foodcritic doesn't have a config file, so just always try to add it.
+      if !@no_foodcritic
+        install_foodcritic
+      end
+
       # If any spec folders exist, try to install the RSpec tasks.
       spec_exists = File.exists?(File.join(@base, 'spec'))
       test_spec_exists = File.exists?(File.join(@base, 'test', 'spec'))
@@ -58,6 +67,24 @@ module Halite
       # If a .kitchen.yml exists, install the Test Kitchen tasks.
       if !@no_kitchen && File.exists?(File.join(@base, '.kitchen.yml'))
         install_kitchen
+      end
+    end
+
+    def install_foodcritic
+      require 'foodcritic'
+
+      desc 'Run Foodcritic linter'
+      task 'chef:foodcritic' do
+        Dir.mktmpdir('halite_test') do |path|
+          Halite.convert(gem_name, path)
+          sh("foodcritic -f any '#{path}'")
+        end
+      end
+
+      add_test_task('chef:foodcritic')
+    rescue LoadError
+      task 'chef:foodcritic' do
+        raise "Foodcritic is not available. You can use Halite::RakeHelper.install_tasks(no_foodcritic: true) to disable it."
       end
     end
 
