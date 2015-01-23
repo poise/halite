@@ -62,26 +62,23 @@ module Halite
     end
 
     def install_rspec
-      namespace 'chef' do
-        begin
-          require 'rspec/core/rake_task'
-          RSpec::Core::RakeTask.new(:spec) do |t|
-            t.rspec_opts = [].tap do |a|
-              a << '--color'
-              a << '--format Fuubar'
-              a << '--tag ~slow'
-              a << '--pattern spec/*_spec.rb'
-              a << '--pattern spec/**/*_spec.rb'
-              a << '--pattern test/spec/**/*_spec.rb'
-              a << "-I #{File.join(@base, 'test', 'spec')}"
-              a << '--backtrace' # Should probably remove this or somehow make it optional before release. Env var?
-            end.join(' ')
-          end
-        rescue LoadError
-          # RSpec not loadable, make a fake task
-          task :spec do
-            raise "RSpec is not available. You can use Halite::RakeHelper.install_tasks(no_rspec: true) to disable it."
-          end
+      begin
+        require 'rspec/core/rake_task'
+        RSpec::Core::RakeTask.new('chef:spec') do |t|
+          t.rspec_opts = [].tap do |a|
+            a << '--color'
+            # Allow either spec/ or test/spec/ to match how Test Kitchen stores tests.
+            # Basically I'm just cranky about having both spec/ and test/ at the top level.
+            a << '--pattern spec/*_spec.rb'
+            a << '--pattern spec/**/*_spec.rb'
+            a << '--pattern test/spec/**/*_spec.rb'
+            a << "-I #{File.join(@base, 'test', 'spec')}"
+          end.join(' ')
+        end
+      rescue LoadError
+        # RSpec not loadable, make a fake task
+        task 'chef:spec' do
+          raise "RSpec is not available. You can use Halite::RakeHelper.install_tasks(no_rspec: true) to disable it."
         end
       end
 
