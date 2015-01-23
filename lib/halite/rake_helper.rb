@@ -12,12 +12,14 @@ module Halite
 
     attr_accessor :gem_name, :base, :cookbook_name
 
-    def initialize(gem_name=nil, base=nil, no_rspec=nil)
+    def initialize(gem_name=nil, base=nil, no_gem=nil, no_rspec=nil, no_kitchen=nil)
       if gem_name.is_a?(Hash)
         opts = gem_name.inject({}) {|memo, (key, value)| memo[key.to_s] = value; memo }
         gem_name = opts['gem_name']
         base = opts['base']
+        no_gem = opts['no_gem']
         no_rspec = opts['no_rspec']
+        no_kitchen = opts['no_kitchen']
       end
       # Order is important, find_gem_name needs base to be set
       @base = base || if defined? Rake
@@ -26,7 +28,9 @@ module Halite
         Dir.pwd
       end
       @gem_name = gem_name || find_gem_name
+      @no_gem = no_gem
       @no_rspec = no_rspec
+      @no_kitchen = no_kitchen
     end
 
     def find_gem_name
@@ -49,6 +53,11 @@ module Halite
       test_spec_exists = File.exists?(File.join(@base, 'test', 'spec'))
       if !@no_rspec && (spec_exists || test_spec_exists)
         install_rspec
+      end
+
+      # If a .kitchen.yml exists, install the Test Kitchen tasks.
+      if !@no_kitchen && File.exists?(File.join(@base, '.kitchen.yml'))
+        install_kitchen
       end
     end
 
@@ -79,6 +88,17 @@ module Halite
       # Only set a description if the task doesn't already exist
       desc 'Run all tests' unless Rake.application.lookup('test')
       task :test => ['chef:spec']
+    end
+
+    def install_kitchen
+      desc 'Run all Test Kitchen tests'
+      task 'chef:kitchen' do
+        sh 'kitchen test -d always'
+      end
+
+      # Only set a description if the task doesn't already exist
+      desc 'Run all tests' unless Rake.application.lookup('test')
+      task :test => ['chef:kitchen']
     end
 
     def build_cookbook
