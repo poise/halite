@@ -85,9 +85,7 @@ module Halite
         end
       end
 
-      # Only set a description if the task doesn't already exist
-      desc 'Run all tests' unless Rake.application.lookup('test')
-      task :test => ['chef:spec']
+      add_test_task('chef:spec')
     end
 
     def install_kitchen
@@ -96,9 +94,13 @@ module Halite
         sh 'kitchen test -d always'
       end
 
+      add_test_task('chef:kitchen')
+    end
+
+    def add_test_task(name)
       # Only set a description if the task doesn't already exist
       desc 'Run all tests' unless Rake.application.lookup('test')
-      task :test => ['chef:kitchen']
+      task :test => [name]
     end
 
     def build_cookbook
