@@ -77,7 +77,7 @@ describe 'integration tests' do
       cmd.run_command
       expect(cmd.error?).to be_falsey, "Running #{cmd.command} failed (#{cmd.exitstatus} #{cmd.error?}):\n#{cmd.stderr.empty? ? cmd.stdout : cmd.stderr}"
       # Check that conversion matches the fixture
-      directories_match(File.join(temp_path, 'pkg'), fixture_path)
+      directories_match(Dir[File.join(temp_path, 'pkg', '*')].first, fixture_path)
     end
   end
 
