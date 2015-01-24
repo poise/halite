@@ -9,3 +9,7 @@ group :development, :test do
   end
   gem 'berkshelf'
 end
+
+group :travis do
+  gem 'codeclimate-test-reporter'
+end

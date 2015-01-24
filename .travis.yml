@@ -5,3 +5,6 @@ rvm:
 - 2.1.2
 - 2.0.0
 script: bundle exec rake integration
+env:
+  global:
+    secure: bNxYOvi85lnPIPO1qR6NnhfqlREfMXSjmd+xCH01e/gg3x00D+3uyQIotQtglgHRItVIR36GqX70q2g/reudxBsCjfUhH2vDgbtmrWe1ow78rt1xZRlFMQs7JfBpfWKkox5i9mrdzZDekZACA0HUMI1pRM0MYQmkuol/oZw5H4A=

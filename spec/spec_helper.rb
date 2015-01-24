@@ -1,7 +1,17 @@
 require 'rspec'
 require 'rspec/its'
 require 'simplecov'
-SimpleCov.start
+
+# If we have a token, use codeclimate
+if ENV['CODECLIMATE_REPO_TOKEN']
+  require 'codeclimate-test-reporter'
+  SimpleCov.formatter = CodeClimate::TestReporter::Formatter
+end
+
+SimpleCov.start do
+  # Don't get coverage on the test cases themselves
+  add_filter '/test/'
+end
 
 require 'halite'
 
