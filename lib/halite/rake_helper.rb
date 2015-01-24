@@ -1,5 +1,6 @@
 # Much inspiration from Bundler's GemHelper. Thanks!
 require 'tmpdir'
+require 'thor/shell'
 
 require 'halite'
 require 'halite/error'
@@ -14,14 +15,13 @@ module Halite
 
     attr_accessor :gem_name, :base, :cookbook_name
 
-    def initialize(gem_name=nil, base=nil, no_gem=nil, no_foodcritic=nil, no_rspec=nil, no_kitchen=nil)
+    def initialize(gem_name=nil, base=nil, no_gem=nil, no_foodcritic=nil, no_kitchen=nil)
       if gem_name.is_a?(Hash)
         opts = gem_name.inject({}) {|memo, (key, value)| memo[key.to_s] = value; memo }
         gem_name = opts['gem_name']
         base = opts['base']
         no_gem = opts['no_gem']
         no_foodcritic = opts['no_foodcritic']
-        no_rspec = opts['no_rspec']
         no_kitchen = opts['no_kitchen']
       end
       # Order is important, find_gem_name needs base to be set
@@ -31,37 +31,51 @@ module Halite
         Dir.pwd
       end
       @gem_name = gem_name || find_gem_name
+      @gemspec = Bundler.load_gemspec(@gem_name+'.gemspec')
       @no_gem = no_gem
       @no_foodcritic = no_foodcritic
-      @no_rspec = no_rspec
       @no_kitchen = no_kitchen
     end
 
     def find_gem_name
       specs = Dir[File.join(base, '*.gemspec')]
-      raise Error.new("Unable to automatically determine gem name from specs in #{base}. Please set the gem name via Halite::GemHelper.install_tasks(gem_name: 'name').") if specs.length != 1
+      raise Error.new("Unable to automatically determine gem name from specs in #{base}. Please set the gem name via Halite::RakeHelper.install_tasks(gem_name: 'name').") if specs.length != 1
       File.basename(specs.first, '.gemspec')
+    end
+
+    def pkg_path
+      @pkg_path ||= File.join(base, 'pkg', "#{@gem_name}-#{@gemspec.version}")
+    end
+
+    def shell
+      @shell ||= if @no_color || !STDOUT.tty?
+        Thor::Shell::Basic
+      else
+        Thor::Base.shell
+      end.new
     end
 
     def install
       # Core Halite tasks
-      namespace 'chef' do
-        desc 'Convert the gem to a cookbook in the pkg directory'
-        task 'build' do
-          build_cookbook
-        end
+      desc "Convert #{@gem_name}-#{@gemspec.version} to a cookbook in the pkg directory"
+      task 'chef:build' do
+        build_cookbook
+      end
+
+      desc "Push #{@gem_name}-#{@gemspec.version} to Supermarket"
+      task 'chef:release' => ['chef:build'] do
+        release_cookbook
+      end
+
+      # Patch the core gem tasks to run ours too
+      if !@no_gem
+        task 'build' => ['chef:build']
+        task 'release' => ['chef:release']
       end
 
       # Foodcritic doesn't have a config file, so just always try to add it.
       if !@no_foodcritic
         install_foodcritic
-      end
-
-      # If any spec folders exist, try to install the RSpec tasks.
-      spec_exists = File.exists?(File.join(@base, 'spec'))
-      test_spec_exists = File.exists?(File.join(@base, 'test', 'spec'))
-      if !@no_rspec && (spec_exists || test_spec_exists)
-        install_rspec
       end
 
       # If a .kitchen.yml exists, install the Test Kitchen tasks.
@@ -88,30 +102,6 @@ module Halite
       end
     end
 
-    def install_rspec
-      begin
-        require 'rspec/core/rake_task'
-        RSpec::Core::RakeTask.new('chef:spec') do |t|
-          t.rspec_opts = [].tap do |a|
-            a << '--color'
-            # Allow either spec/ or test/spec/ to match how Test Kitchen stores tests.
-            # Basically I'm just cranky about having both spec/ and test/ at the top level.
-            a << '--pattern spec/*_spec.rb'
-            a << '--pattern spec/**/*_spec.rb'
-            a << '--pattern test/spec/**/*_spec.rb'
-            a << "-I #{File.join(@base, 'test', 'spec')}"
-          end.join(' ')
-        end
-      rescue LoadError
-        # RSpec not loadable, make a fake task
-        task 'chef:spec' do
-          raise "RSpec is not available. You can use Halite::RakeHelper.install_tasks(no_rspec: true) to disable it."
-        end
-      end
-
-      add_test_task('chef:spec')
-    end
-
     def install_kitchen
       desc 'Run all Test Kitchen tests'
       task 'chef:kitchen' do
@@ -128,11 +118,17 @@ module Halite
     end
 
     def build_cookbook
-      # Make sure pkg/ exists and is empty
-      pkg_path = File.join(base, 'pkg')
+      # Make sure pkg/name-version exists and is empty
       FileUtils.mkdir_p(pkg_path)
       remove_files_in_folder(pkg_path)
       Halite.convert(gem_name, pkg_path)
+      shell.say("#{@gem_name} #{@gemspec.version} converted to pkg/#{@gem_name}-#{@gemspec.version}/.", :green)
+    end
+
+    def release_cookbook
+      Dir.chdir(pkg_path) do
+        #sh('stove --sign')
+      end
     end
 
     # Remove everything in a path, but not the directory itself
