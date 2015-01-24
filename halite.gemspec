@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version = Halite::VERSION
   spec.authors = ['Noah Kantrowitz']
   spec.email = %w{noah@coderanger.net}
-  spec.description = %q||
-  spec.summary = %q||
+  spec.description = 'A set of helpers to write Chef cookbooks as Ruby gems.'
+  spec.summary = spec.description
   spec.homepage = 'https://github.com/coderanger/halite'
   spec.license = 'Apache 2.0'
 
