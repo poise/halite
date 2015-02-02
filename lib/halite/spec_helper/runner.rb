@@ -15,6 +15,7 @@
 #
 
 require 'chef/recipe'
+require 'chefspec/solo_runner'
 
 module Halite
   module SpecHelper

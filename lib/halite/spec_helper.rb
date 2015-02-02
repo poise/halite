@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+require 'chefspec'
 require 'halite/spec_helper/runner'
 
 module Halite
@@ -37,7 +38,7 @@ module Halite
         # Remove it before setting to avoid the redefinition warning
         mod.send(:remove_const, class_name)
       end
-      # Tag our objects so we know we are allows to overwrite those, but not other stuff.
+      # Tag our objects so we know we are allowed to overwrite those, but not other stuff.
       obj.instance_variable_set(:@poise_spec_helper, true)
       mod.const_set(class_name, obj)
       begin
@@ -54,6 +55,24 @@ module Halite
         # Keep the actual logic in a let in case I want to define the subject as something else
         let(:chef_run) { Halite::SpecHelper::Runner.new(step_into: step_into).converge(&block) }
         subject { chef_run }
+      end
+
+      def step_into(name)
+        resource_class = if name.is_a?(Class)
+          name
+        else
+          Chef::Resource.const_get(Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s))
+        end
+        resource_name = Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
+
+        # Figure out the available actions
+        resource_class.new(nil, nil).allowed_actions.each do |action|
+          define_method("#{action}_#{resource_name}") do |instance_name|
+            ChefSpec::Matchers::ResourceMatcher.new(name, action, instance_name)
+          end
+        end
+
+        before { step_into << resource_name }
       end
 
       # A note about the :parent option below: You can't use resources that
@@ -81,16 +100,10 @@ module Halite
           end
         end
 
-        # Figure out the available actions
-        resource_class.new(nil, nil).allowed_actions.each do |action|
-          define_method("#{action}_#{name}") do |resource_name|
-            ChefSpec::Matchers::ResourceMatcher.new(name, action, resource_name)
-          end
-        end
+        # Automatically step in to our new resource
+        step_into(resource_class)
 
         around do |ex|
-          # Automatically step in to our new resource
-          step_into << name
           # Patch the resource in to Chef
           patch_module(Chef::Resource, name, resource_class) { ex.run }
         end
