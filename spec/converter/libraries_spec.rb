@@ -115,11 +115,42 @@ EOH
     end # /context with a big script
   end # /describe #generate
 
+  describe '#default_entry_point' do
+    let(:library_files) { [] }
+    let(:spec) do
+      spec = double(name: 'mygem', metadata: {})
+      allow(spec).to receive(:each_library_file) do |&block|
+        library_files.each {|path| block.call(File.join('lib', path), path) }
+      end
+      spec
+    end
+    subject { described_class.default_entry_point(spec) }
+
+    context 'with an explicit entry point' do
+      let(:spec) { double(metadata: {'halite_entry_point' => 'openseasame'}) }
+      it { is_expected.to eq 'openseasame' }
+    end # /context with an explicit entry point
+
+    context 'with a single top-level file' do
+      let(:library_files) { %w{mygem.rb mygem/version.rb} }
+      it { is_expected.to eq 'mygem.rb' }
+    end # /context with a single top-level file
+
+    context 'with two top-level files' do
+      let(:library_files) { %w{my-gem.rb my_gem.rb my_gem/version.rb} }
+      it { expect { subject }.to raise_error Halite::UnknownEntryPointError }
+    end # /context with two top-level files
+
+    context 'with no files' do
+      it { expect { subject }.to raise_error Halite::UnknownEntryPointError }
+    end # /context with no files
+  end # /describe #default_entry_point
+
   describe '#write' do
     let(:library_files) { [] }
     let(:output) { [] }
     let(:spec) do
-      spec = double(name: 'mygem', metadata: {})
+      spec = double(name: 'mygem')
       allow(spec).to receive(:each_library_file) do |&block|
         library_files.each {|path| block.call(File.join('/source', path), path) }
       end
@@ -136,6 +167,7 @@ EOH
         output << output_sentinel
       end
       allow(File).to receive(:directory?).and_return(false) # Always blank
+      allow(described_class).to receive(:default_entry_point).and_return(library_files.first) # As above, first is always the entry point
     end
 
     context 'with a single file' do
