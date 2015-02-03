@@ -57,22 +57,24 @@ module Halite
         subject { chef_run }
       end
 
-      def step_into(name)
-        resource_class = if name.is_a?(Class)
-          name
-        else
-          Chef::Resource.const_get(Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s))
-        end
-        resource_name = Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
-
-        # Figure out the available actions
-        resource_class.new(nil, nil).allowed_actions.each do |action|
-          define_method("#{action}_#{resource_name}") do |instance_name|
-            ChefSpec::Matchers::ResourceMatcher.new(name, action, instance_name)
+      def step_into(*names)
+        names.each do |name|
+          resource_class = if name.is_a?(Class)
+            name
+          else
+            Chef::Resource.const_get(Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s))
           end
-        end
+          resource_name = Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
 
-        before { step_into << resource_name }
+          # Figure out the available actions
+          resource_class.new(nil, nil).allowed_actions.each do |action|
+            define_method("#{action}_#{resource_name}") do |instance_name|
+              ChefSpec::Matchers::ResourceMatcher.new(name, action, instance_name)
+            end
+          end
+
+          before { step_into << resource_name }
+        end
       end
 
       # A note about the :parent option below: You can't use resources that
