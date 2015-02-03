@@ -80,7 +80,7 @@ describe Halite::Dependencies do
 
     context 'with [name, = 1.0.0, = 1.0.0]' do
       let(:dependency) { ['name', '= 1.0.0', '= 1.0.0'] }
-      it { expect { subject }.to raise_error Halite::Dependencies::InvalidDependencyError }
+      it { expect { subject }.to raise_error Halite::InvalidDependencyError }
     end
   end # /describe #clean
 
@@ -151,12 +151,12 @@ describe Halite::Dependencies do
 
     context 'with 1.0.a' do
       let(:version) { '1.0.a' }
-      it { expect { subject }.to raise_error Halite::Dependencies::InvalidDependencyError }
+      it { expect { subject }.to raise_error Halite::InvalidDependencyError }
     end
 
     context 'with 1.2.3.4' do
       let(:version) { '1.2.3.4' }
-      it { expect { subject }.to raise_error Halite::Dependencies::InvalidDependencyError }
+      it { expect { subject }.to raise_error Halite::InvalidDependencyError }
     end
 
     context 'with 1.2.3' do

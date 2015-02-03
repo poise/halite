@@ -1,9 +1,9 @@
 require 'halite/error'
 
 module Halite
-  module Dependencies
-    class InvalidDependencyError < Error; end
+  class InvalidDependencyError < Error; end
 
+  module Dependencies
     Dependency = Struct.new(:name, :requirement, :type) do
       def spec
         Gem.new(name, requirement)
