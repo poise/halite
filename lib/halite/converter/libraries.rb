@@ -1,4 +1,24 @@
+#
+# Copyright 2015, Noah Kantrowitz
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+require 'halite/error'
+
 module Halite
+  class UnknownEntryPointError < Error; end
+
   module Converter
     module Libraries
 
@@ -35,8 +55,23 @@ module Halite
         buf
       end
 
+      def self.default_entry_point(spec)
+        if spec.metadata.include?('halite_entry_point')
+          # Explicit default
+          spec.metadata['halite_entry_point']
+        else
+          # Try to find a single file in the lib/ folder
+          root_files = []
+          spec.each_library_file do |full_path, rel_path|
+            root_files << rel_path if rel_path == File.basename(rel_path)
+          end
+          raise UnknownEntryPointError.new("Unable to find entry point for #{spec.name}. Please set metadata['halite_entry_point'] in the gemspec.") unless root_files.length == 1
+          root_files.first
+        end
+      end
+
       def self.write(spec, base_path, entry_point_name=nil)
-        entry_point_name ||= spec.name
+        entry_point_name ||= default_entry_point(spec)
         # Handle both cases, with .rb and without
         entry_point_name += '.rb' unless entry_point_name.end_with?('.rb')
         lib_path = File.join(base_path, 'libraries')

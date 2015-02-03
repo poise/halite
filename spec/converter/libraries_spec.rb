@@ -99,7 +99,7 @@ EOH
     let(:library_files) { [] }
     let(:output) { [] }
     let(:spec) do
-      spec = double(name: 'mygem')
+      spec = double(name: 'mygem', metadata: {})
       allow(spec).to receive(:each_library_file) do |&block|
         library_files.each {|path| block.call(File.join('/source', path), path) }
       end
