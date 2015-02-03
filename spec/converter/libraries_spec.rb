@@ -3,6 +3,26 @@ require 'halite/converter/libraries'
 
 describe Halite::Converter::Libraries do
 
+  describe '#lib_path' do
+    let(:path) { }
+    subject { described_class.lib_path(path) }
+
+    context 'with foo.rb' do
+      let(:path) { 'foo.rb' }
+      it { is_expected.to eq 'foo' }
+    end # /context with foo.rb
+
+    context 'with foo' do
+      let(:path) { 'foo' }
+      it { is_expected.to eq 'foo' }
+    end # /context with foo
+
+    context 'with foo/bar.rb' do
+      let(:path) { 'foo/bar.rb' }
+      it { is_expected.to eq 'foo/bar' }
+    end # /context with foo/bar.rb
+  end # /describe #lib_path
+
   describe '#generate' do
     let(:data) { '' }
     let(:entry_point) { false }
