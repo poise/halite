@@ -7,15 +7,27 @@ module Halite
         path.gsub(/\//, '__')
       end
 
+      def self.lib_path(path)
+        if path.end_with?('.rb')
+          path[0..-4]
+        else
+          path
+        end
+      end
+
       def self.generate(spec, data, entry_point=false)
         # No newline on the header so that line numbers in the files aren't changed.
-        buf = (entry_point ? "ENV['HALITE_LOAD'] = '1'; begin; " : "if ENV['HALITE_LOAD']; ")
+        buf = (entry_point ? "ENV['HALITE_LOAD'] = '#{spec.name}'; begin; " : "if ENV['HALITE_LOAD'] == '#{spec.name}'; ")
         # Rewrite requires to require_relative as needed.
-        data = data.gsub(/require ['"](#{spec.name}[^'"]*)['"]/) { "require_relative '#{flatten_filename($1)}'" }
+        spec.each_library_file do |full_path, rel_path|
+          data = data.gsub(/require ['"](#{lib_path(rel_path)})['"]/) { "require_relative '#{flatten_filename($1)}'" }
+        end
         spec.cookbook_dependencies.each do |dep|
           next unless dep.type == :dependencies
           # This is kind of gross, but not sure what else to do
-          data = data.gsub(/require ['"](#{dep.name}[^'"]*)['"]/) { "require_relative '../../#{dep.name}/libraries/#{flatten_filename($1)}'" }
+          dep.spec.each_library_file do |full_path, rel_path|
+            data = data.gsub(/require ['"]#{lib_path(rel_path)}['"]/) { "# #{$&}" }
+          end
         end
         buf << data.rstrip
         # Match up with the header. All files get one line longer. ¯\_(ツ)_/¯

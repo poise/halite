@@ -1,4 +1,4 @@
-ENV['HALITE_LOAD'] = '1'; begin; require_relative 'test2__resource'
+ENV['HALITE_LOAD'] = 'test2'; begin; require_relative 'test2__resource'
 
 module Test2
 end

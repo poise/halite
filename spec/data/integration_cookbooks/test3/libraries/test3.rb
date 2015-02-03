@@ -1,4 +1,4 @@
-ENV['HALITE_LOAD'] = '1'; begin; require_relative 'test3__dsl'
+ENV['HALITE_LOAD'] = 'test3'; begin; require_relative 'test3__dsl'
 
 module Test3
 end

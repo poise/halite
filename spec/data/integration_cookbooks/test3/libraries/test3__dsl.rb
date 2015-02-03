@@ -1,4 +1,4 @@
-if ENV['HALITE_LOAD']; require_relative '../../test2/libraries/test2__version'
+if ENV['HALITE_LOAD'] == 'test3'; # require 'test2/version'
 
 module Test3
   module DSL

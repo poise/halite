@@ -7,12 +7,26 @@ describe Halite::Converter::Libraries do
     let(:data) { '' }
     let(:entry_point) { false }
     let(:cookbook_dependencies) { [] }
-    subject { described_class.generate(double(name: 'mygem', cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(dep, nil, :dependencies) }), data, entry_point) }
+    let(:cookbook_files) { %w{mygem.rb mygem/version.rb mygem/something.rb mygem/utils.rb mygem/foo/bar.rb} }
+    subject do
+      deps = cookbook_dependencies.map do |dep|
+        dep_spec = double(name: dep)
+        allow(dep_spec).to receive(:each_library_file).and_yield("lib/#{dep}.rb", "#{dep}.rb")
+        double(name: dep, requirement: nil, type: :dependencies, spec: dep_spec)
+      end
+      spec = double(name: 'mygem', cookbook_dependencies: deps)
+      allow(spec).to receive(:each_library_file) do |&block|
+        cookbook_files.each do |path|
+          block.call("lib/#{path}", path)
+        end
+      end
+      described_class.generate(spec, data, entry_point)
+    end
 
     context 'with a single require' do
       let(:data) { "x = 1\nrequire 'mygem/version'\n" }
       it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD']; x = 1
+if ENV['HALITE_LOAD'] == 'mygem'; x = 1
 require_relative 'mygem__version'
 end
 EOH
@@ -21,7 +35,7 @@ EOH
     context 'with two requires' do
       let(:data) { "require 'mygem/foo/bar'\nrequire 'another'" }
       it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD']; require_relative 'mygem__foo__bar'
+if ENV['HALITE_LOAD'] == 'mygem'; require_relative 'mygem__foo__bar'
 require 'another'
 end
 EOH
@@ -31,7 +45,7 @@ EOH
       let(:data) { "x = 1\nrequire 'mygem/version'\n" }
       let(:entry_point) { true }
       it { is_expected.to eq <<-EOH }
-ENV['HALITE_LOAD'] = '1'; begin; x = 1
+ENV['HALITE_LOAD'] = 'mygem'; begin; x = 1
 require_relative 'mygem__version'
 ensure; ENV.delete('HALITE_LOAD'); end
 EOH
@@ -47,7 +61,7 @@ class Resource
 end
 EOH
       it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD']; require_relative 'mygem__something'
+if ENV['HALITE_LOAD'] == 'mygem'; require_relative 'mygem__something'
 require_relative 'mygem__utils'
 require 'activesupport' # ಠ_ಠ
 class Resource
@@ -69,10 +83,10 @@ class Resource
 end
 EOH
       it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD']; require_relative 'mygem__something'
+if ENV['HALITE_LOAD'] == 'mygem'; require_relative 'mygem__something'
 require_relative 'mygem__utils'
 require_relative 'mygem'
-require_relative '../../other/libraries/other'
+# require 'other'
 class Resource
   attribute :source
 end

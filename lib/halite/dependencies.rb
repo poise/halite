@@ -4,7 +4,11 @@ module Halite
   module Dependencies
     class InvalidDependencyError < Error; end
 
-    Dependency = Struct.new(:name, :requirement, :type)
+    Dependency = Struct.new(:name, :requirement, :type) do
+      def spec
+        Gem.new(name, requirement)
+      end
+    end
 
     def self.extract(spec)
       deps = []
