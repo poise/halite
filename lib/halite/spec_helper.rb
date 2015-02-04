@@ -57,24 +57,22 @@ module Halite
         subject { chef_run }
       end
 
-      def step_into(*names)
-        names.each do |name|
-          resource_class = if name.is_a?(Class)
-            name
-          else
-            Chef::Resource.const_get(Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s))
-          end
-          resource_name = Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
-
-          # Figure out the available actions
-          resource_class.new(nil, nil).allowed_actions.each do |action|
-            define_method("#{action}_#{resource_name}") do |instance_name|
-              ChefSpec::Matchers::ResourceMatcher.new(name, action, instance_name)
-            end
-          end
-
-          before { step_into << resource_name }
+      def step_into(name, resource_name=nil)
+        resource_class = if name.is_a?(Class)
+          name
+        else
+          Chef::Resource.const_get(Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s))
         end
+        resource_name ||= Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
+
+        # Figure out the available actions
+        resource_class.new(nil, nil).allowed_actions.each do |action|
+          define_method("#{action}_#{resource_name}") do |instance_name|
+            ChefSpec::Matchers::ResourceMatcher.new(resource_name, action, instance_name)
+          end
+        end
+
+        before { step_into << resource_name }
       end
 
       # A note about the :parent option below: You can't use resources that
@@ -103,7 +101,7 @@ module Halite
         end
 
         # Automatically step in to our new resource
-        step_into(resource_class)
+        step_into(resource_class, name)
 
         around do |ex|
           # Patch the resource in to Chef
