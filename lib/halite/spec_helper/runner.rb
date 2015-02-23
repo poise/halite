@@ -17,19 +17,41 @@
 require 'chef/recipe'
 require 'chefspec/solo_runner'
 
+require 'halite/error'
+
 module Halite
   module SpecHelper
     class Runner < ChefSpec::SoloRunner
-      def self.converge(&block)
-        new.tap do |instance|
-          instance.converge(&block)
+      def self.converge(*recipe_names, &block)
+        options = if recipe_names.last.is_a?(Hash)
+          # Was called with options
+          recipe_names.pop
+        else
+          {}
+        end
+        new(options).tap do |instance|
+          instance.converge(*recipe_names, &block)
         end
       end
 
-      def converge(&block)
-        super do
-          recipe = Chef::Recipe.new(nil, nil, run_context)
-          recipe.instance_exec(&block)
+      def initialize(options={})
+        super(options) do |node|
+          # Allow inserting arbitrary attribute data in to the node
+          node.attributes.default = Chef::Mixin::DeepMerge.merge(node.attributes.default, options[:default_attributes]) if options[:default_attributes]
+          node.attributes.normal = Chef::Mixin::DeepMerge.merge(node.attributes.normal, options[:normal_attributes]) if options[:normal_attributes]
+          node.attributes.override = Chef::Mixin::DeepMerge.merge(node.attributes.override, options[:override_attributes]) if options[:override_attributes]
+        end
+      end
+
+      def converge(*recipe_names, &block)
+        raise Halite::Error.new('Cannot pass both recipe names and a recipe block to converge') if !recipe_names.empty? && block
+        if block
+          super() do
+            recipe = Chef::Recipe.new(nil, nil, run_context)
+            recipe.instance_exec(&block)
+          end
+        else
+          super
         end
       end
 
