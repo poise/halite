@@ -24,8 +24,17 @@ module Halite
     let(:default_attributes) { Hash.new }
     let(:normal_attributes) { Hash.new }
     let(:override_attributes) { Hash.new }
-    let(:ohai_platform) { nil }
-    let(:ohai_platform_version) { nil }
+    let(:chefspec_options) { Hash.new }
+    let(:chef_runner) do
+      Halite::SpecHelper::Runner.new(
+        {
+          step_into: step_into,
+          default_attributes: default_attributes,
+          normal_attributes: normal_attributes,
+          override_attributes: override_attributes,
+        }.merge(chefspec_options)
+      )
+    end
 
     # An alias for slightly more semantic meaning, just forces the lazy #subject to run.
     def run_chef
@@ -56,18 +65,9 @@ module Halite
     end
 
     module ClassMethods
-      def recipe(&block)
+      def recipe(*recipe_names, &block)
         # Keep the actual logic in a let in case I want to define the subject as something else
-        let(:chef_run) do
-          Halite::SpecHelper::Runner.new(
-            step_into: step_into,
-            platform: ohai_platform,
-            version: ohai_platform_version,
-            default_attributes: default_attributes,
-            normal_attributes: normal_attributes,
-            override_attributes: override_attributes,
-          ).converge(&block)
-        end
+        let(:chef_run) { chef_runner.converge(*recipe_names, &block) }
         subject { chef_run }
       end
 

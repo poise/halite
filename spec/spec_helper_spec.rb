@@ -22,11 +22,23 @@ describe Halite::SpecHelper do
   include Halite::SpecHelper
 
   describe '#recipe' do
-    recipe do
-      ruby_block 'test'
-    end
+    context 'with a block' do
+      recipe do
+        ruby_block 'test'
+      end
 
-    it { is_expected.to run_ruby_block('test') }
+      it { is_expected.to run_ruby_block('test') }
+    end # /context with a block
+
+    context 'with a recipe' do
+      let(:chefspec_options) { {dry_run: true} }
+      recipe 'test'
+
+      it do
+        expect(chef_runner).to receive(:converge).with('test').and_call_original
+        chef_run
+      end
+    end # /context with a recipe
   end # /describe #recipe
 
 end
