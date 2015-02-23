@@ -8,6 +8,7 @@ group :development, :test do
     gem File.basename(path), path: path
   end
   gem 'berkshelf'
+  gem 'chefspec'
 end
 
 group :travis do
