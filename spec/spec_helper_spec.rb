@@ -35,18 +35,38 @@ describe Halite::SpecHelper do
       recipe 'test'
 
       it do
-        expect(chef_runner).to receive(:converge).with('test').and_call_original
+        expect(chef_runner).to receive(:converge).with('test')
         chef_run
       end
     end # /context with a recipe
-
-    context 'with both a recipe and a block' do
-      recipe 'test' do
-        ruby_block 'test'
-      end
-
-      it { expect { chef_run }.to raise_error(Halite::Error) }
-    end # /context with both a recipe and a block
   end # /describe #recipe
 
+  describe '#resource' do
+    subject { Chef::Resource::HaliteTest }
+
+    context 'with defaults' do
+      resource(:halite_test)
+      it { is_expected.to be_a(Class) }
+      it { is_expected.to be < Chef::Resource }
+      it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
+      it { expect(subject.new(nil, nil).action).to eq(:run) }
+      it { expect(subject.new(nil, nil).allowed_actions).to eq([:nothing, :run]) }
+    end # /context with defaults
+
+    context 'with auto:false' do
+      resource(:halite_test, auto: false)
+      it { is_expected.to be_a(Class) }
+      it { is_expected.to be < Chef::Resource }
+      it { expect(subject.new(nil, nil).resource_name).to be_nil }
+      it { expect(subject.new(nil, nil).action).to eq(:nothing) }
+      it { expect(subject.new(nil, nil).allowed_actions).to eq([:nothing]) }
+    end # /context with auto:false
+
+    context 'with a parent' do
+      resource(:halite_test, parent: Chef::Resource::File)
+      it { is_expected.to be_a(Class) }
+      it { is_expected.to be < Chef::Resource }
+      it { is_expected.to be < Chef::Resource::File }
+    end # /context with a parent
+  end # /describe #resource
 end
