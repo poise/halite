@@ -14,7 +14,9 @@
 # limitations under the License.
 #
 
+require 'chef/mixin/shell_out' # ಠ_ಠ Missing upstream require
 require 'chef/recipe'
+require 'chefspec/mixins/normalize' # ಠ_ಠ Missing upstream require
 require 'chefspec/solo_runner'
 
 require 'halite/error'
