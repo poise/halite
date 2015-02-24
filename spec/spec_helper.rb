@@ -2,10 +2,20 @@ require 'rspec'
 require 'rspec/its'
 require 'simplecov'
 
-# If we have a token, use codeclimate
+# Check for coverage stuffs
+formatters = []
 if ENV['CODECLIMATE_REPO_TOKEN']
   require 'codeclimate-test-reporter'
-  SimpleCov.formatter = CodeClimate::TestReporter::Formatter
+  formatters << CodeClimate::TestReporter::Formatter
+end
+
+if ENV['CODECOV_TOKEN']
+  require 'codecov'
+  formatters << SimpleCov::Formatter::Codecov
+end
+
+unless formatters.empty?
+  SimpleCov.formatters = formatters
 end
 
 SimpleCov.start do
