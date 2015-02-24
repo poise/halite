@@ -39,6 +39,14 @@ describe Halite::SpecHelper do
         chef_run
       end
     end # /context with a recipe
+
+    context 'with both a recipe and a block' do
+      recipe 'test' do
+        ruby_block 'test'
+      end
+
+      it { expect { chef_run }.to raise_error(Halite::Error) }
+    end # /context with both a recipe and a block
   end # /describe #recipe
 
 end
