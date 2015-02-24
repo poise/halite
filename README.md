@@ -3,7 +3,7 @@
 [![Build Status](https://img.shields.io/travis/coderanger/halite.svg)](https://travis-ci.org/coderanger/halite)
 [![Gem Version](https://img.shields.io/gem/v/halite.svg)](https://rubygems.org/gems/halite)
 [![Code Climate](https://img.shields.io/codeclimate/github/coderanger/halite.svg)](https://codeclimate.com/github/coderanger/halite)
-[![Coverage](https://img.shields.io/codecov/c/github/coderanger/halite.svg)](https://codeclimate.com/github/coderanger/halite)
+[![Coverage](https://img.shields.io/codecov/c/github/coderanger/halite.svg)](https://codecov.io/github/coderanger/halite)
 [![Gemnasium](https://img.shields.io/gemnasium/coderanger/halite.svg)](https://gemnasium.com/coderanger/halite)
 [![License](https://img.shields.io/badge/license-Apache_2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
