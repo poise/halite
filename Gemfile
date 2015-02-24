@@ -13,4 +13,5 @@ end
 
 group :travis do
   gem 'codeclimate-test-reporter'
+  gem 'codecov'
 end
