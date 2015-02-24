@@ -19,8 +19,11 @@ unless formatters.empty?
 end
 
 SimpleCov.start do
-  # Don't get coverage on the test cases themselves
+  # Don't get coverage on the test cases themselves.
+  add_filter '/spec/'
   add_filter '/test/'
+  # Codecov doesn't automatically ignore vendored files.
+  add_filter '/vendor/'
 end
 
 require 'halite'
