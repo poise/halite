@@ -1,17 +1,38 @@
+#
+# Copyright 2015, Noah Kantrowitz
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 source 'https://rubygems.org/'
 
 gemspec
 
-# Test fixture gems
-group :development, :test do
-  Dir[File.expand_path('../spec/data/gems/*', __FILE__)].each do |path|
-    gem File.basename(path), path: path
+def dev_gem(name, path: nil, github: nil)
+  path ||= File.join('..', name)
+  github ||= "#{name.include?('poise') ? 'poise' : 'coderanger'}/#{name}"
+  github = "#{github}/#{name}" unless github.include?('/')
+  path = File.expand_path(File.join('..', path), __FILE__)
+  if File.exist?(path)
+    gem name, path: path
+  else
+    gem name, github: github
   end
-  gem 'berkshelf'
-  gem 'chefspec'
 end
 
-group :travis do
-  gem 'codeclimate-test-reporter'
-  gem 'codecov'
+dev_gem 'poise-boiler'
+
+# Test fixture gems
+Dir[File.expand_path('../spec/data/gems/*', __FILE__)].each do |path|
+  gem File.basename(path), path: path
 end
