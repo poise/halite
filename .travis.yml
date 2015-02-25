@@ -2,10 +2,19 @@ sudo: false
 cache: bundler
 language: ruby
 rvm:
-- 2.1.2
-- 2.0.0
-script: bundle exec rake integration
+- "2.0"
+- "2.1"
+- "2.2"
 env:
   global:
+  - USE_SYSTEM_GECODE=true
   - secure: bNxYOvi85lnPIPO1qR6NnhfqlREfMXSjmd+xCH01e/gg3x00D+3uyQIotQtglgHRItVIR36GqX70q2g/reudxBsCjfUhH2vDgbtmrWe1ow78rt1xZRlFMQs7JfBpfWKkox5i9mrdzZDekZACA0HUMI1pRM0MYQmkuol/oZw5H4A=
   - secure: ecX52GLF7IHCiaPEDzPtztiEmu2mNPfyyPrM7aaNsufat7DdsZqPP9LKpCTOoJC+Jgz9sdbQ6Hf61CeZAsrqZ8sKKdiXUoBUXdcBhvuPdpIbfwq97hjOoqQV7rLSD4EW58fipJU8Rl5P1ijFJizHIyxNB+VWBow3niIMGjIEUSE=
+before_install:
+- curl -o ~/gecode.tar.gz https://poise-gecode.s3.amazonaws.com/gecode-3.7.3-ubuntu12.04-x86_64.tar.gz
+- tar xzf ~/gecode.tar.gz -C ~
+- rm ~/gecode.tar.gz
+- bundle config build.dep_selector "--with-cflags=\"-I$HOME/gecode-3.7.3/include\"
+  --with-cppflags=\"-I$HOME/gecode-3.7.3/include\" --with-ldflags=\"-L$HOME/gecode-3.7.3/lib
+  -Wl,-rpath=$HOME/gecode-3.7.3/lib\""
+script: bundle exec rake integration
