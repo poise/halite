@@ -215,7 +215,7 @@ module Halite
         end
 
         # Store for use up with the parent system
-        (metadata['halite_resources'] ||= {})[name.to_sym] = resource_class
+        halite_helpers[:resources][name.to_sym] = resource_class
 
         # Automatically step in to our new resource
         step_into(resource_class, name)
@@ -284,7 +284,7 @@ module Halite
         end
 
         # Store for use up with the parent system
-        (metadata['halite_providers'] ||= {})[name.to_sym] = provider_class
+        halite_helpers[:providers][name.to_sym] = provider_class
 
         around do |ex|
           patch_module(Chef::Provider, name, provider_class) { ex.run }
@@ -297,23 +297,44 @@ module Halite
         klass.extend ClassMethods
       end
 
+      # Protected because we need to call these on superclasses too, but other
+      # than that they are basically private.
       protected
+
+      # Storage for helper-defined resources and providers to find them for
+      # parent lookups if needed.
+      #
+      # @return [Hash<Symbol, Hash<Symbol, Class>>]
+      # @!visibility private
+      def halite_helpers
+        @halite_helpers ||= {resources: {}, providers: {}}
+      end
 
       # Find all helper-defined resources in the current context and parents.
       #
       # @return [Hash<Symbol, Class>]
+      # @!visibility private
       def resources
         ([self] + parent_groups).reverse.inject({}) do |memo, group|
-          memo.update(group.metadata['halite_resources'] || {})
+          begin
+            memo.merge(group.halite_helpers[:resources] || {})
+          rescue NoMethodError
+            memo
+          end
         end
       end
 
       # Find all helper-defined providers in the current context and parents.
       #
       # @return [Hash<Symbol, Class>]
+      # @!visibility private
       def providers
         ([self] + parent_groups).reverse.inject({}) do |memo, group|
-          memo.update(group.metadata['halite_providers'] || {})
+          begin
+            memo.merge(group.halite_helpers[:providers] || {})
+          rescue NoMethodError
+            memo
+          end
         end
       end
     end

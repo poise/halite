@@ -86,5 +86,28 @@ describe Halite::SpecHelper do
         it { is_expected.to be < Chef::Resource::HaliteParent }
       end
     end # /context with a helper-defined parent in an enclosing context
+
+    # Long name is long but ¯\_(ツ)_/¯
+    context 'regression test for finding the wrong parent in a sibling context' do
+      resource(:halite_parent) do
+        def value
+          :parent
+        end
+      end
+
+      context 'sibling' do
+        resource(:halite_parent) do
+          def value
+            :sibling
+          end
+        end
+      end
+
+      context 'inner' do
+        resource(:halite_test, parent: :halite_parent)
+        subject { Chef::Resource::HaliteTest.new(nil, nil).value }
+        it { is_expected.to eq(:parent) }
+      end
+    end # /context regression test for finding the wrong parent in a sibling context
   end # /describe #resource
 end
