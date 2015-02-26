@@ -194,6 +194,9 @@ module Halite
         raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless options[:parent].is_a?(Class)
         # Create the resource class
         resource_class = Class.new(options[:parent]) do
+          define_singleton_method(:name) do
+            'Chef::Resource::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
+          end
           class_exec(&block) if block
           # Wrap some stuff around initialize because I'm lazy
           if options[:auto]
@@ -271,6 +274,10 @@ module Halite
             # Blank action because I do that so much
             def action_run
             end
+          end
+
+          define_singleton_method(:name) do
+            'Chef::Provider::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
           end
 
           class_exec(&block) if block
