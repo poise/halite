@@ -31,6 +31,7 @@ def dev_gem(name, path: nil, github: nil)
 end
 
 dev_gem 'poise-boiler'
+dev_gem 'yard-classmethods'
 
 # Test fixture gems
 Dir[File.expand_path('../spec/data/gems/*', __FILE__)].each do |path|
