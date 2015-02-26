@@ -68,5 +68,23 @@ describe Halite::SpecHelper do
       it { is_expected.to be < Chef::Resource }
       it { is_expected.to be < Chef::Resource::File }
     end # /context with a parent
+
+    context 'with a helper-defined parent' do
+      resource(:halite_parent)
+      resource(:halite_test, parent: :halite_parent)
+      it { is_expected.to be_a(Class) }
+      it { is_expected.to be < Chef::Resource }
+      it { is_expected.to be < Chef::Resource::HaliteParent }
+    end # /context with a helper-defined parent
+
+    context 'with a helper-defined parent in an enclosing context' do
+      resource(:halite_parent)
+      context 'inner' do
+        resource(:halite_test, parent: :halite_parent)
+        it { is_expected.to be_a(Class) }
+        it { is_expected.to be < Chef::Resource }
+        it { is_expected.to be < Chef::Resource::HaliteParent }
+      end
+    end # /context with a helper-defined parent in an enclosing context
   end # /describe #resource
 end
