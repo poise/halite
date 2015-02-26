@@ -224,8 +224,8 @@ module Halite
       end
 
       # Define a provider class for use in an example group. By default a :run
-      # action will be created and load_current_resource will be defined as a
-      # no-op.
+      # action will be created, load_current_resource will be defined as a
+      # no-op, and the RSpec matchers will be available inside the provider.
       #
       # @param name [Symbol] Name for the provider in snake-case.
       # @param options [Hash] Provider options.
@@ -234,6 +234,8 @@ module Halite
       #   resource defined via this helper.
       # @option options [Boolean] :auto (true) Create action_run and
       #   load_current_resource.
+      # @option options [Boolean] :rspec (true) Include RSpec matchers in the
+      #   provider.
       # @param block [Proc] Body of the provider class. Optional.
       # @example
       #   describe MyMixin do
