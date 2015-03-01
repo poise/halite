@@ -189,7 +189,7 @@ module Halite
       #     it { is_expected.to run_my_resource('test').with(path: '/tmp') }
       #   end
       def resource(name, options={}, &block)
-        options = {auto: true, parent: Chef::Resource}.merge(options)
+        options = {auto: true, parent: Chef::Resource, step_into: true}.merge(options)
         options[:parent] = resources[options[:parent]] if options[:parent].is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless options[:parent].is_a?(Class)
         # Create the resource class
@@ -218,7 +218,7 @@ module Halite
         halite_helpers[:resources][name.to_sym] = resource_class
 
         # Automatically step in to our new resource
-        step_into(resource_class, name)
+        step_into(resource_class, name) if options[:step_into]
 
         around do |ex|
           # Patch the resource in to Chef
