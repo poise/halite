@@ -109,5 +109,24 @@ describe Halite::SpecHelper do
         it { is_expected.to eq(:parent) }
       end
     end # /context regression test for finding the wrong parent in a sibling context
+
+    context 'with step_into:false' do
+      resource(:halite_test, step_into: false)
+      provider(:halite_test) do
+        def action_run
+          ruby_block 'inner'
+        end
+      end
+      recipe do
+        halite_test 'test'
+      end
+      # Have to create this because step_into normally handles that
+      def run_halite_test(resource_name)
+        ChefSpec::Matchers::ResourceMatcher.new(:halite_test, :run, resource_name)
+      end
+
+      it { is_expected.to run_halite_test('test') }
+      it { is_expected.to_not run_ruby_block('inner') }
+    end # /context with step_into:false
   end # /describe #resource
 end
