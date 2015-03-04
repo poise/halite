@@ -48,7 +48,7 @@ describe Halite::Converter::Libraries do
       deps = cookbook_dependencies.map do |dep|
         dep_spec = double(name: dep)
         allow(dep_spec).to receive(:each_library_file).and_yield("lib/#{dep}.rb", "#{dep}.rb")
-        double(name: dep, requirement: nil, type: :dependencies, spec: dep_spec)
+        double(name: dep, requirement: nil, type: :dependencies, spec: double(), cookbook: dep_spec)
       end
       spec = double(name: 'mygem', cookbook_dependencies: deps)
       allow(spec).to receive(:each_library_file) do |&block|

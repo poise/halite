@@ -20,9 +20,15 @@ module Halite
   class InvalidDependencyError < Error; end
 
   module Dependencies
-    Dependency = Struct.new(:name, :requirement, :type) do
-      def spec
-        Gem.new(name, requirement)
+    Dependency = Struct.new(:name, :requirement, :type, :spec) do
+      def ==(other)
+        self.name == other.name && \
+        self.requirement == other.requirement && \
+        self.type == other.type
+      end
+
+      def cookbook
+        Gem.new(spec) if spec
       end
     end
 
@@ -50,27 +56,33 @@ module Halite
       spec.dependencies.select do |dep|
         Gem.new(dep).is_halite_cookbook?
       end.map do |dep|
-        [Gem.new(dep).cookbook_name] + dep.requirements_list
+        gem = Gem.new(dep)
+        [gem.cookbook_name] + dep.requirements_list + [gem.spec]
       end
     end
 
     def self.clean_and_tag(deps, tag)
       deps.map do |dep|
         dep = clean(dep)
-        Dependency.new(dep[0], dep[1], tag)
+        Dependency.new(dep[0], dep[1], tag, dep[2])
       end
     end
 
-
     def self.clean(dep)
-      # Convert to an array of strings
-      dep = Array(dep).map {|obj| obj.to_s.strip }
+      # Convert to an array of strings, remove the spec to be re-added later.
+      dep = Array(dep)
+      spec = if dep.last.is_a?(::Gem::Specification)
+        dep.pop
+      end
+      dep = Array(dep).map {|obj| obj.is_a?(::Gem::Specification) ? obj : obj.to_s.strip }
       # Unpack single strings like 'foo >= 1.0'
       dep = dep.first.split(/\s+/, 2) if dep.length == 1
       # Default version constraint to match rubygems behavior when sourcing from simple strings
       dep << '>= 0' if dep.length == 1
       raise InvalidDependencyError.new("Chef only supports a single version constraint on each dependency: #{dep}") if dep.length > 2 # ಠ_ಠ
       dep[1] = clean_requirement(dep[1])
+      # Re-add the spec
+      dep << spec if spec
       dep
     end
 

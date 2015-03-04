@@ -17,10 +17,17 @@
 require 'halite/dependencies'
 
 module Halite
+  # A model for a gem/cookbook within Halite.
+  #
+  # @since 1.0.0
+  # @example
+  #   g = Halite::Gem.new('chef-mycookbook', '1.1.0')
+  #   puts(g.cookbook_name) #=> mycookbook
   class Gem
     # name can be either a string name, Gem::Dependency, or Gem::Specification
+    # @param name [String, Gem::Dependency, Gem::Specification]
     def initialize(name, version=nil)
-      name = name.to_spec if name.is_a?(::Gem::Dependency) # Allow passing either
+      name = name.to_spec if name.is_a?(::Gem::Dependency) # Allow passing a Dependency by just grabbing its spec.
       if name.is_a?(::Gem::Specification)
         raise Error.new("Cannot pass version when using an explicit specficiation") if version
         @spec = name

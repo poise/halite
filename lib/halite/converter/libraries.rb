@@ -43,9 +43,9 @@ module Halite
           data = data.gsub(/require ['"](#{lib_path(rel_path)})['"]/) { "require_relative '#{flatten_filename($1)}'" }
         end
         spec.cookbook_dependencies.each do |dep|
-          next unless dep.type == :dependencies
+          next unless dep.spec
           # This is kind of gross, but not sure what else to do
-          dep.spec.each_library_file do |full_path, rel_path|
+          dep.cookbook.each_library_file do |full_path, rel_path|
             data = data.gsub(/require ['"]#{lib_path(rel_path)}['"]/) { "# #{$&}" }
           end
         end
