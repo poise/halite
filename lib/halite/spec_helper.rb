@@ -20,7 +20,7 @@ require 'halite/spec_helper/runner'
 module Halite
   # A helper module for RSpec tests of resource-based cookbooks.
   #
-  # @since 1.0
+  # @since 1.0.0
   # @example
   #   describe MyMixin do
   #     resource(:my_thing) do
@@ -45,11 +45,42 @@ module Halite
   #   end
   module SpecHelper
     extend RSpec::SharedContext
+    # @!attribute [r] step_into
+    #   Resource names to step in to when running this example.
+    #   @see https://github.com/sethvargo/chefspec#testing-lwrps
+    #   @return [Array<Symbol>]
+    #   @example
+    #     before do
+    #       step_into << :my_lwrp
+    #     end
     let(:step_into) { [] }
+    # @!attribute [r] default_attributes
+    #   Hash to use as default-level node attributes for this example.
+    #   @return [Hash]
+    #   @example
+    #     before do
+    #       default_attributes['myapp']['url'] = 'http://testserver'
+    #     end
     let(:default_attributes) { Hash.new }
+    # @!attribute [r] normal_attributes
+    #   Hash to use as normal-level node attributes for this example.
+    #   @return [Hash]
+    #   @see #default_attributes
     let(:normal_attributes) { Hash.new }
+    # @!attribute [r] override_attributes
+    #   Hash to use as override-level node attributes for this example.
+    #   @return [Hash]
+    #   @see #default_attributes
     let(:override_attributes) { Hash.new }
+    # @!attribute [r] chefspec_options
+    #   Options hash for the ChefSpec runner instance.
+    #   @return [Hash<Symbol, Object>]
+    #   @example Enable Fauxhai attributes
+    #     let(:chefspec_options) { {platform: 'ubuntu', version: '12.04'} }
     let(:chefspec_options) { Hash.new }
+    # @!attribute [r] chef_runner
+    #   ChefSpec runner for this example.
+    #   @return [ChefSpec::SoloRunner]
     let(:chef_runner) do
       Halite::SpecHelper::Runner.new(
         {
@@ -291,7 +322,6 @@ module Halite
         end
       end
 
-      # @!visibility private
       def included(klass)
         super
         klass.extend ClassMethods
