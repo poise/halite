@@ -14,90 +14,49 @@
 # limitations under the License.
 #
 
-# Much inspiration from Bundler's GemHelper. Thanks!
+
 require 'tmpdir'
-require 'thor/shell'
 
 require 'halite'
 require 'halite/error'
+require 'halite/helper_base'
 
 module Halite
-  class RakeHelper
-    include Rake::DSL if defined? Rake::DSL
-
-    def self.install_tasks(*args)
-      new(*args).install
-    end
-
-    attr_accessor :gem_name, :base, :cookbook_name
-
-    def initialize(gem_name=nil, base=nil, no_gem=nil, no_foodcritic=nil, no_kitchen=nil)
-      if gem_name.is_a?(Hash)
-        opts = gem_name.inject({}) {|memo, (key, value)| memo[key.to_s] = value; memo }
-        gem_name = opts['gem_name']
-        base = opts['base']
-        no_gem = opts['no_gem']
-        no_foodcritic = opts['no_foodcritic']
-        no_kitchen = opts['no_kitchen']
-      end
-      # Order is important, find_gem_name needs base to be set
-      @base = base || if defined? Rake
-        Rake.original_dir
-      else
-        Dir.pwd
-      end
-      @gem_name = gem_name || find_gem_name
-      @gemspec = Bundler.load_gemspec(@gem_name+'.gemspec')
-      @no_gem = no_gem
-      @no_foodcritic = no_foodcritic
-      @no_kitchen = no_kitchen
-    end
-
-    def find_gem_name
-      specs = Dir[File.join(base, '*.gemspec')]
-      raise Error.new("Unable to automatically determine gem name from specs in #{base}. Please set the gem name via Halite::RakeHelper.install_tasks(gem_name: 'name').") if specs.length != 1
-      File.basename(specs.first, '.gemspec')
-    end
-
-    def pkg_path
-      @pkg_path ||= File.join(base, 'pkg', "#{@gem_name}-#{@gemspec.version}")
-    end
-
-    def shell
-      @shell ||= if @no_color || !STDOUT.tty?
-        Thor::Shell::Basic
-      else
-        Thor::Base.shell
-      end.new
-    end
-
+  class RakeHelper < HelperBase
     def install
+      extend Rake::DSL
       # Core Halite tasks
-      desc "Convert #{@gem_name}-#{@gemspec.version} to a cookbook in the pkg directory"
+      desc "Convert #{gemspec.name}-#{gemspec.version} to a cookbook in the pkg directory"
       task 'chef:build' do
         build_cookbook
       end
 
-      desc "Push #{@gem_name}-#{@gemspec.version} to Supermarket"
+      desc "Push #{gemspec.name}-#{gemspec.version} to Supermarket"
       task 'chef:release' => ['chef:build'] do
         release_cookbook
       end
 
       # Patch the core gem tasks to run ours too
-      if !@no_gem
+      unless options[:no_gem]
         task 'build' => ['chef:build']
         task 'release' => ['chef:release']
       end
 
       # Foodcritic doesn't have a config file, so just always try to add it.
-      if !@no_foodcritic
+      unless options[:no_foodcritic]
         install_foodcritic
       end
 
       # If a .kitchen.yml exists, install the Test Kitchen tasks.
-      if !@no_kitchen && File.exists?(File.join(@base, '.kitchen.yml'))
+      unless options[:no_kitchen] || !File.exists?(File.join(@base, '.kitchen.yml'))
         install_kitchen
       end
+    end
+
+    private
+
+    def pkg_path
+      @pkg_path ||= File.join(base, 'pkg', "#{gemspec.name}-#{gemspec.version}")
     end
 
     def install_foodcritic
@@ -106,7 +65,7 @@ module Halite
       desc 'Run Foodcritic linter'
       task 'chef:foodcritic' do
         Dir.mktmpdir('halite_test') do |path|
-          Halite.convert(gem_name, path)
+          Halite.convert(gemspec, path)
           sh("foodcritic -f any '#{path}'")
         end
       end
@@ -138,7 +97,7 @@ module Halite
       FileUtils.mkdir_p(pkg_path)
       remove_files_in_folder(pkg_path)
       Halite.convert(gem_name, pkg_path)
-      shell.say("#{@gem_name} #{@gemspec.version} converted to pkg/#{@gem_name}-#{@gemspec.version}/.", :green)
+      shell.say("#{gemspec.name} #{gemspec.version} converted to pkg/#{gemspec.name}-#{gemspec.version}/.", :green)
     end
 
     def release_cookbook
