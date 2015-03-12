@@ -14,15 +14,18 @@
 # limitations under the License.
 #
 
+
 # Much inspiration from Bundler's GemHelper. Thanks!
 require 'bundler'
 require 'thor/shell'
 
 require 'halite/error'
+require 'halite/gem'
 
 module Halite
   # Base class for helpers like Rake tasks.
   #
+  # @api semipublic
   # @since 1.0.0
   class HelperBase
     # Class method helper to install the tasks.
@@ -35,15 +38,14 @@ module Halite
       new(*args).install
     end
 
-    # @!attribute [r] gem_name
     # Name of the gem to use in these Rake tasks.
     # @return [String]
     attr_reader :gem_name
-    # @!attribute [r] base
+
     # Base folder of the gem.
     # @return [String]
     attr_reader :base
-    # @!attribute [r] options
+
     # Helper options.
     # @return [Hash<Symbol, Object>]
     attr_reader :options
@@ -101,7 +103,7 @@ module Halite
       File.basename(spec, '.gemspec') if spec
     end
 
-    # Specification for the current gem.
+    # Gem specification for the current gem.
     #
     # @return [Gem::Specification]
     def gemspec
@@ -109,6 +111,13 @@ module Halite
         raise Error.new("Unable to automatically determine gem name from specs in #{base}. Please set the gem name via #{self.class.name}.install_tasks(gem_name: 'name')") unless gem_name
         Bundler.load_gemspec(File.join(base, gem_name+'.gemspec'))
       end
+    end
+
+    # Cookbook model for the current gem.
+    #
+    # @return [Halite::Gem]
+    def cookbook
+      @cookbook ||= Halite::Gem.new(gemspec)
     end
   end
 end
