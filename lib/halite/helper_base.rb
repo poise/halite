@@ -109,7 +109,12 @@ module Halite
     def gemspec
       @gemspec ||= begin
         raise Error.new("Unable to automatically determine gem name from specs in #{base}. Please set the gem name via #{self.class.name}.install_tasks(gem_name: 'name')") unless gem_name
-        Bundler.load_gemspec(File.join(base, gem_name+'.gemspec'))
+        g = Bundler.load_gemspec(File.join(base, gem_name+'.gemspec'))
+        # This is returning the path it would be in if installed normally,
+        # override so we get the local path. Also for reasons that are entirely
+        # beyond me, #tap makes Gem::Specification flip out so do it old-school.
+        g.full_gem_path = base
+        g
       end
     end
 

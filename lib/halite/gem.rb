@@ -65,11 +65,7 @@ module Halite
     end
 
     def license_header
-      if File.exists?(spec_file)
-        IO.readlines(spec_file).take_while { |line| line.strip.empty? || line.strip.start_with?('#') }.join('')
-      else
-        ''
-      end
+      IO.readlines(spec_file).take_while { |line| line.strip.empty? || line.strip.start_with?('#') }.join('')
     end
 
     def each_file(prefix_paths=nil, &block)
