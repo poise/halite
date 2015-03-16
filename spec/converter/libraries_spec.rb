@@ -157,6 +157,11 @@ EOH
       it { expect { subject }.to raise_error Halite::UnknownEntryPointError }
     end # /context with two top-level files
 
+    context 'with two top-level files and one that matches the gem name' do
+      let(:library_files) { %w{my_gem.rb mygem.rb my_gem/version.rb} }
+      it { is_expected.to eq 'mygem.rb' }
+    end # /context with two top-level files and one that matches the gem name
+
     context 'with no files' do
       it { expect { subject }.to raise_error Halite::UnknownEntryPointError }
     end # /context with no files

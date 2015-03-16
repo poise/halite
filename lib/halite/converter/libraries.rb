@@ -65,6 +65,10 @@ module Halite
           spec.each_library_file do |full_path, rel_path|
             root_files << rel_path if rel_path == File.basename(rel_path)
           end
+          # Try to weed out cases of lib/my_app.rb and lib/my-app.rb
+          if root_files.include?("#{spec.name}.rb")
+            return "#{spec.name}.rb"
+          end
           raise UnknownEntryPointError.new("Unable to find entry point for #{spec.name}. Please set metadata['halite_entry_point'] in the gemspec.") unless root_files.length == 1
           root_files.first
         end
