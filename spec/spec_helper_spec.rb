@@ -42,7 +42,7 @@ describe Halite::SpecHelper do
   end # /describe #recipe
 
   describe '#resource' do
-    subject { Chef::Resource::HaliteTest }
+    subject { resource(:halite_test) }
 
     context 'with defaults' do
       resource(:halite_test)
@@ -83,7 +83,7 @@ describe Halite::SpecHelper do
         resource(:halite_test, parent: :halite_parent)
         it { is_expected.to be_a(Class) }
         it { is_expected.to be < Chef::Resource }
-        it { is_expected.to be < Chef::Resource::HaliteParent }
+        it { is_expected.to be < resource(:halite_parent) }
       end
     end # /context with a helper-defined parent in an enclosing context
 
@@ -105,7 +105,7 @@ describe Halite::SpecHelper do
 
       context 'inner' do
         resource(:halite_test, parent: :halite_parent)
-        subject { Chef::Resource::HaliteTest.new(nil, nil).value }
+        subject { resource(:halite_test).new(nil, nil).value }
         it { is_expected.to eq(:parent) }
       end
     end # /context regression test for finding the wrong parent in a sibling context

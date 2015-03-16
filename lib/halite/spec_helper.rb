@@ -14,8 +14,12 @@
 # limitations under the License.
 #
 
+require 'chef/node'
+require 'chef/resource'
 require 'chefspec'
+
 require 'halite/spec_helper/runner'
+
 
 module Halite
   # A helper module for RSpec tests of resource-based cookbooks.
@@ -102,7 +106,27 @@ module Halite
     #     it { run_chef }
     #   end
     def run_chef
-      subject
+      chef_run
+    end
+
+    # Return a helper-defined resource.
+    #
+    # @param name [Symbol] Name of the resource.
+    # @return [Class]
+    # @example
+    #    subject { resource(:my_resource) }
+    def resource(name)
+      self.class.resources[name.to_sym]
+    end
+
+    # Return a helper-defined provider.
+    #
+    # @param name [Symbol] Name of the provider.
+    # @return [Class]
+    # @example
+    #    subject { provider(:my_provider) }
+    def provider(name)
+      self.class.providers[name.to_sym]
     end
 
     private
@@ -179,10 +203,20 @@ module Halite
       def step_into(name, resource_name=nil)
         resource_class = if name.is_a?(Class)
           name
+        elsif resources[name.to_sym]
+          # Handle cases where the resource has defined via a helper with
+          # step_into:false but a nested example wants to step in.
+          resources[name.to_sym]
         else
-          Chef::Resource.const_get(Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s))
+          # Won't see platform/os specific resources but not sure how to fix
+          # that. I need the class here for the matcher creation below.
+          Chef::Resource.resource_for_node(name.to_sym, Chef::Node.new)
         end
-        resource_name ||= Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
+        resource_name ||= if resource_class.respond_to?(:resource_name)
+          resource_class.resource_name
+        else
+          Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
+        end
 
         # Figure out the available actions
         resource_class.new(nil, nil).allowed_actions.each do |action|
@@ -327,23 +361,19 @@ module Halite
         klass.extend ClassMethods
       end
 
-      # Protected because we need to call these on superclasses too, but other
-      # than that they are basically private.
-      protected
-
       # Storage for helper-defined resources and providers to find them for
       # parent lookups if needed.
       #
+      # @api private
       # @return [Hash<Symbol, Hash<Symbol, Class>>]
-      # @!visibility private
       def halite_helpers
         @halite_helpers ||= {resources: {}, providers: {}}
       end
 
       # Find all helper-defined resources in the current context and parents.
       #
+      # @api private
       # @return [Hash<Symbol, Class>]
-      # @!visibility private
       def resources
         ([self] + parent_groups).reverse.inject({}) do |memo, group|
           begin
@@ -356,8 +386,8 @@ module Halite
 
       # Find all helper-defined providers in the current context and parents.
       #
+      # @api private
       # @return [Hash<Symbol, Class>]
-      # @!visibility private
       def providers
         ([self] + parent_groups).reverse.inject({}) do |memo, group|
           begin
