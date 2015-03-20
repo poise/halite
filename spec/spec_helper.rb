@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-require 'poise_boiler'
-PoiseBoiler.include_halite_spec_helper = false
-require 'poise_boiler/spec_helper'
+require 'poise_boiler/helpers/spec_helper'
+PoiseBoiler::Helpers::SpecHelper.install(no_halite: true)
 require 'halite'
