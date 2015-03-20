@@ -76,6 +76,8 @@ module Halite
     #   @return [Hash]
     #   @see #default_attributes
     let(:override_attributes) { Hash.new }
+    # @todo docs
+    let(:halite_gemspec) { nil }
     # @!attribute [r] chefspec_options
     #   Options hash for the ChefSpec runner instance.
     #   @return [Hash<Symbol, Object>]
@@ -92,6 +94,7 @@ module Halite
           default_attributes: default_attributes,
           normal_attributes: normal_attributes,
           override_attributes: override_attributes,
+          halite_gemspec: halite_gemspec,
         }.merge(chefspec_options)
       )
     end
@@ -400,5 +403,26 @@ module Halite
     end
 
     extend ClassMethods
+  end
+
+  def self.SpecHelper(gemspec)
+    # Create a new anonymous module
+    mod = Module.new
+
+    # Fake the name
+    def mod.name
+      super || 'Halite::SpecHelper'
+    end
+
+    mod.define_singleton_method(:included) do |klass|
+      super(klass)
+      # Pull in the main helper to cover most of the needed logic
+      klass.class_exec do
+        include Halite::SpecHelper
+        let(:halite_gemspec) { gemspec }
+      end
+    end
+
+    mod
   end
 end

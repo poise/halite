@@ -20,6 +20,8 @@ require 'chefspec/mixins/normalize' # ಠ_ಠ Missing upstream require
 require 'chefspec/solo_runner'
 
 require 'halite/error'
+require 'halite/gem'
+
 
 module Halite
   module SpecHelper
@@ -42,18 +44,22 @@ module Halite
           node.attributes.default = Chef::Mixin::DeepMerge.merge(node.attributes.default, options[:default_attributes]) if options[:default_attributes]
           node.attributes.normal = Chef::Mixin::DeepMerge.merge(node.attributes.normal, options[:normal_attributes]) if options[:normal_attributes]
           node.attributes.override = Chef::Mixin::DeepMerge.merge(node.attributes.override, options[:override_attributes]) if options[:override_attributes]
+          # Store the gemspec for later use
+          @halite_gemspec = options[:halite_gemspec]
         end
       end
 
       def converge(*recipe_names, &block)
         raise Halite::Error.new('Cannot pass both recipe names and a recipe block to converge') if !recipe_names.empty? && block
-        if block
-          super() do
+        super(*recipe_names) do
+          if @halite_gemspec
+            cook = Halite::Gem.new(@halite_gemspec)
+            run_context.cookbook_collection[cook.cookbook_name] = cook.as_cookbook_version
+          end
+          if block
             recipe = Chef::Recipe.new(nil, nil, run_context)
             recipe.instance_exec(&block)
           end
-        else
-          super
         end
       end
 
