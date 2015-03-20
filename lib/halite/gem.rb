@@ -14,7 +14,10 @@
 # limitations under the License.
 #
 
+require 'chef/cookbook_version'
+
 require 'halite/dependencies'
+
 
 module Halite
   # A model for a gem/cookbook within Halite.
@@ -99,6 +102,28 @@ module Halite
     # Is this gem really a cookbook? (anything that depends directly on halite and doesn't have the ignore flag)
     def is_halite_cookbook?
       spec.dependencies.any? {|subdep| subdep.name == 'halite'} && !spec.metadata.include?('halite_ignore')
+    end
+
+    # Create a Chef::CookbookVersion object that represents this gem. This can
+    # be injected in to Chef to simulate the cookbook being available.
+    #
+    # @return [Chef::CookbookVersion]
+    # @example
+    #   run_context.cookbook_collection[gem.cookbook_name] = gem.as_cookbook_version
+    def as_cookbook_version
+      # Put this in a local variable for a closure below.
+      path = spec.full_gem_path
+      Chef::CookbookVersion.new(cookbook_name, File.join(path, 'chef')).tap do |c|
+        c.attribute_filenames = each_file('chef/attributes').map(&:first)
+        c.file_filenames = each_file('chef/files').map(&:first)
+        c.recipe_filenames = each_file('chef/recipes').map(&:first)
+        c.template_filenames = each_file('chef/templates').map(&:first)
+        # Haxx, rewire the filevendor for this cookbook to look up in our folder.
+        # This is touching two different internal interfaces, but ¯\_(ツ)_/¯
+        c.send(:file_vendor).define_singleton_method(:get_filename) do |filename|
+          File.join(path, 'chef', filename)
+        end
+      end
     end
 
   end
