@@ -17,6 +17,8 @@
 
 require 'tmpdir'
 
+require 'chef/version'
+
 require 'halite'
 require 'halite/error'
 require 'halite/helper_base'
@@ -66,7 +68,7 @@ module Halite
       task 'chef:foodcritic' do
         Dir.mktmpdir('halite_test') do |path|
           Halite.convert(gemspec, path)
-          sh("foodcritic -f any '#{path}'")
+          sh("foodcritic --chef-version #{Chef::VERSION} --epic-fail any '#{path}'")
         end
       end
 
