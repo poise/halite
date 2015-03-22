@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'bundler' # Used for Bundler.load_gemspec
   spec.add_dependency 'thor' # Used for Thor::Shell
 
+  spec.add_development_dependency 'poise', '~> 1.1'
   spec.add_development_dependency 'poise-boiler', '~> 1.0'
   spec.add_development_dependency 'mixlib-shellout', '~> 2.0'
 end

@@ -228,6 +228,22 @@ module Halite
           end
         end
 
+        # Patch notifying_block from Poise::Provider to just run directly.
+        # This is not a great solution but it is better than nothing for right
+        # now. In the future this should maybe do an internal converge but using
+        # ChefSpec somehow?
+        old_provider_for_action = resource_class.instance_method(:provider_for_action)
+        resource_class.send(:define_method, :provider_for_action) do |*args|
+          old_provider_for_action.bind(self).call(*args).tap do |provider|
+            if provider.respond_to?(:notifying_block, true)
+              provider.define_singleton_method(:notifying_block) do |&block|
+                block.call
+              end
+            end
+          end
+        end
+
+        # Add to the let variable passed in to ChefSpec.
         before { step_into << resource_name }
       end
 

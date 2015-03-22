@@ -129,4 +129,40 @@ describe Halite::SpecHelper do
       it { is_expected.to_not run_ruby_block('inner') }
     end # /context with step_into:false
   end # /describe #resource
+
+  describe '#step_into' do
+    context 'with a simple HWRP' do
+      recipe do
+        halite_test_simple 'test'
+      end
+
+      context 'with step_into' do
+        step_into(:halite_test_simple)
+        it { is_expected.to run_halite_test_simple('test') }
+        it { is_expected.to run_ruby_block('test') }
+      end # /context with step_into
+
+      context 'without step_into' do
+        it { is_expected.to ChefSpec::Matchers::ResourceMatcher.new('halite_test_simple', 'run', 'test') }
+        it { is_expected.to_not run_ruby_block('test') }
+      end # /context without step_into
+    end # /context with a simple HWRP
+
+    context 'with a Poise resource' do
+      recipe do
+        halite_test_poise 'test'
+      end
+
+      context 'with step_into' do
+        step_into(:halite_test_poise)
+        it { is_expected.to run_halite_test_poise('test') }
+        it { is_expected.to run_ruby_block('test') }
+      end # /context with step_into
+
+      context 'without step_into' do
+        it { is_expected.to ChefSpec::Matchers::ResourceMatcher.new('halite_test_poise', 'run', 'test') }
+        it { is_expected.to_not run_ruby_block('test') }
+      end # /context without step_into
+    end # /context with a Poise resource
+  end # /describe #step_into
 end

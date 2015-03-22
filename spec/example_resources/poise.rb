@@ -14,8 +14,29 @@
 # limitations under the License.
 #
 
-require 'poise_boiler/helpers/spec_helper'
-PoiseBoiler::Helpers::SpecHelper.install(no_halite: true)
-require 'halite'
-require 'example_resources/simple'
-require 'example_resources/poise'
+require 'chef/resource'
+require 'chef/provider'
+require 'poise'
+
+
+# A `halite_test_poise` resource for use in Halite's unit tests.
+module HaliteTestPoise
+  class Resource < Chef::Resource
+    include Poise
+    provides(:halite_test_poise)
+    actions(:run)
+  end
+
+  class Provider < Chef::Provider
+    include Poise
+    provides(:halite_test_poise)
+
+    def action_run
+      notifying_block do
+        ruby_block new_resource.name do
+          block { }
+        end
+      end
+    end
+  end
+end

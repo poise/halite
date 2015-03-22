@@ -30,6 +30,7 @@ def dev_gem(name, path: nil, github: nil)
   end
 end
 
+dev_gem 'poise'
 dev_gem 'poise-boiler'
 dev_gem 'yard-classmethods'
 
