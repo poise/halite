@@ -169,6 +169,8 @@ module Halite
       #
       # @param recipe_names [Array<String>] Recipe names to converge for this test.
       # @param block [Proc] Recipe to converge for this test.
+      # @param subject [Boolean] If true, this recipe should be the subject of
+      #   this test.
       # @example Using a recipe block
       #   describe 'my recipe' do
       #     recipe do
@@ -181,10 +183,10 @@ module Halite
       #     recipe 'my_recipe'
       #     it { is_expected.to run_ruby_block('test') }
       #   end
-      def recipe(*recipe_names, &block)
+      def recipe(*recipe_names, subject: true, &block)
         # Keep the actual logic in a let in case I want to define the subject as something else
         let(:chef_run) { chef_runner.converge(*recipe_names, &block) }
-        subject { chef_run }
+        subject { chef_run } if subject
       end
 
       # Configure ChefSpec to step in to a resource/provider. This will also
