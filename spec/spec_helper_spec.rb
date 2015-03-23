@@ -39,6 +39,15 @@ describe Halite::SpecHelper do
         chef_run
       end
     end # /context with a recipe
+
+    context 'with subject:false' do
+      subject { 42 }
+      recipe(subject: false) do
+        ruby_block 'test'
+      end
+
+      it { is_expected.to eq 42 }
+    end # /context with subject:false
   end # /describe #recipe
 
   describe '#resource' do
