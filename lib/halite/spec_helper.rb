@@ -98,6 +98,12 @@ module Halite
         }.merge(chefspec_options)
       )
     end
+    # @!attribute [r] chef_run
+    #   Trigger a Chef converge. By default no resources are converged. This is
+    #   normally overwritten by the {#recipe} helper.
+    #   @return [ChefSpec::SoloRunner]
+    #   @see #recipe
+    let(:chef_run) { chef_runner.converge() }
 
     # An alias for slightly more semantic meaning, just forces the lazy #subject
     # to run.
