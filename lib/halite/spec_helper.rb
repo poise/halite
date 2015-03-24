@@ -211,7 +211,7 @@ module Halite
       #     end
       #     it { is_expected.to run_ruby_block('test') }
       #   end
-      def step_into(name, resource_name=nil)
+      def step_into(name, resource_name=nil, unwrap_notifying_block: true)
         resource_class = if name.is_a?(Class)
           name
         elsif resources[name.to_sym]
@@ -229,7 +229,10 @@ module Halite
           Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
         end
 
-        # Figure out the available actions
+        # Add a resource-level matcher to ChefSpec.
+        ChefSpec.define_matcher(resource_name)
+
+        # Figure out the available actions and create ChefSpec matchers.
         resource_class.new(nil, nil).allowed_actions.each do |action|
           define_method("#{action}_#{resource_name}") do |instance_name|
             ChefSpec::Matchers::ResourceMatcher.new(resource_name, action, instance_name)
@@ -240,12 +243,14 @@ module Halite
         # This is not a great solution but it is better than nothing for right
         # now. In the future this should maybe do an internal converge but using
         # ChefSpec somehow?
-        old_provider_for_action = resource_class.instance_method(:provider_for_action)
-        resource_class.send(:define_method, :provider_for_action) do |*args|
-          old_provider_for_action.bind(self).call(*args).tap do |provider|
-            if provider.respond_to?(:notifying_block, true)
-              provider.define_singleton_method(:notifying_block) do |&block|
-                block.call
+        if unwrap_notifying_block
+          old_provider_for_action = resource_class.instance_method(:provider_for_action)
+          resource_class.send(:define_method, :provider_for_action) do |*args|
+            old_provider_for_action.bind(self).call(*args).tap do |provider|
+              if provider.respond_to?(:notifying_block, true)
+                provider.define_singleton_method(:notifying_block) do |&block|
+                  block.call
+                end
               end
             end
           end
@@ -280,18 +285,17 @@ module Halite
       #     end
       #     it { is_expected.to run_my_resource('test').with(path: '/tmp') }
       #   end
-      def resource(name, options={}, &block)
-        options = {auto: true, parent: Chef::Resource, step_into: true}.merge(options)
-        options[:parent] = resources[options[:parent]] if options[:parent].is_a?(Symbol)
-        raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless options[:parent].is_a?(Class)
+      def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, &block)
+        parent = resources[parent] if parent.is_a?(Symbol)
+        raise Halite::Error.new("Parent class for #{name} is not a class: #{parent.inspect}") unless parent.is_a?(Class)
         # Create the resource class
-        resource_class = Class.new(options[:parent]) do
+        resource_class = Class.new(parent) do
           define_singleton_method(:name) do
             'Chef::Resource::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
           end
           class_exec(&block) if block
           # Wrap some stuff around initialize because I'm lazy
-          if options[:auto]
+          if auto
             old_init = instance_method(:initialize)
             define_method(:initialize) do |*args|
               # Fill in the resource name because I know it
@@ -310,7 +314,7 @@ module Halite
         halite_helpers[:resources][name.to_sym] = resource_class
 
         # Automatically step in to our new resource
-        step_into(resource_class, name) if options[:step_into]
+        step_into(resource_class, name, unwrap_notifying_block: unwrap_notifying_block) if step_into
 
         around do |ex|
           # Patch the resource in to Chef
