@@ -149,9 +149,11 @@ describe Halite::SpecHelper do
         step_into(:halite_test_simple)
         it { is_expected.to run_halite_test_simple('test') }
         it { is_expected.to run_ruby_block('test') }
+        it { expect(chef_run.halite_test_simple('test')).to be_a(Chef::Resource) }
       end # /context with step_into
 
       context 'without step_into' do
+        # Can't use the nice matcher because step_into is what would create that.
         it { is_expected.to ChefSpec::Matchers::ResourceMatcher.new('halite_test_simple', 'run', 'test') }
         it { is_expected.to_not run_ruby_block('test') }
       end # /context without step_into
@@ -166,12 +168,38 @@ describe Halite::SpecHelper do
         step_into(:halite_test_poise)
         it { is_expected.to run_halite_test_poise('test') }
         it { is_expected.to run_ruby_block('test') }
+        it { expect(chef_run.halite_test_poise('test')).to be_a(Chef::Resource) }
       end # /context with step_into
 
       context 'without step_into' do
-        it { is_expected.to ChefSpec::Matchers::ResourceMatcher.new('halite_test_poise', 'run', 'test') }
+        it { is_expected.to run_halite_test_poise('test') }
         it { is_expected.to_not run_ruby_block('test') }
+        it { expect(chef_run.halite_test_poise('test')).to be_a(Chef::Resource) }
       end # /context without step_into
     end # /context with a Poise resource
+
+    describe 'without step-into there should be no ChefSpec resource-level matcher' do
+      provider(:halite_test_help)
+
+      context 'helper-created resource' do
+        resource(:halite_test_helper, step_into:false)
+        recipe do
+          halite_test_helper 'test'
+        end
+        it { expect { chef_run.halite_test_helper('test' ) }.to raise_error NoMethodError }
+      end # /context helper-created resource
+
+      context 'helper-created resource with Poise' do
+        resource(:halite_test_helper_poise, step_into:false) do
+          include Poise
+          def self.constantize(name); end # I don't actually care, just testing.
+          provides(:halite_test_helper_poise)
+        end
+        recipe do
+          halite_test_helper_poise 'test'
+        end
+        it { expect(chef_run.halite_test_helper_poise('test' )).to be_a(Chef::Resource) }
+      end # /context helper-created resource with Poise
+    end # describe without step-into there should be no ChefSpec resource-level matcher
   end # /describe #step_into
 end
