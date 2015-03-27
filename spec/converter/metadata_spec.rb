@@ -49,7 +49,7 @@ EOH
       it { is_expected.to eq <<-EOH }
 name "mygem"
 version "1.0.0"
-depends "other", ">= 0"
+depends "other"
 EOH
     end # /context with one dependency
 

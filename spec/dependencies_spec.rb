@@ -162,7 +162,12 @@ describe Halite::Dependencies do
 
     context 'with 0' do
       let(:version) { '0' }
-      it { is_expected.to eq '0.0' }
+      it { is_expected.to eq '0' }
+    end
+
+    context 'with 0.0' do
+      let(:version) { '0.0' }
+      it { is_expected.to eq '0' }
     end
 
     context 'with 1.0.a' do

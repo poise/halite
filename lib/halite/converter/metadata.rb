@@ -23,7 +23,9 @@ module Halite
         buf << "name #{spec.cookbook_name.inspect}\n"
         buf << "version #{spec.version.inspect}\n"
         spec.cookbook_dependencies.each do |dep|
-          buf << "depends #{dep.name.inspect}, #{dep.requirement.inspect}\n"
+          buf << "depends #{dep.name.inspect}"
+          buf << ", #{dep.requirement.inspect}" if dep.requirement != '>= 0'
+          buf << "\n"
         end
         buf
       end

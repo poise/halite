@@ -98,6 +98,7 @@ module Halite
       raise InvalidDependencyError.new("Chef only supports two or three version segments: #{ver}") if segments.length < 1 || segments.length > 3
       segments.each {|s| raise InvalidDependencyError.new("Chef does not support pre-release version numbers: #{ver}") unless s.is_a?(Integer) }
       segments << 0 if segments.length == 1
+      segments = [0] if segments.all? {|s| s == 0 }
       ::Gem::Version.new(segments.join('.'))
     end
   end
