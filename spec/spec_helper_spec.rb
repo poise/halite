@@ -139,6 +139,17 @@ describe Halite::SpecHelper do
     end # /context with step_into:false
   end # /describe #resource
 
+  describe '#provider' do
+    subject { provider(:halite_test) }
+
+    context 'with defaults' do
+      provider(:halite_test)
+      it { is_expected.to be_a(Class) }
+      it { is_expected.to be < Chef::Provider }
+      its(:instance_methods) { are_expected.to include(:action_run) }
+    end # /context with defaults
+  end # /describe #provider
+
   describe '#step_into' do
     context 'with a simple HWRP' do
       recipe do
