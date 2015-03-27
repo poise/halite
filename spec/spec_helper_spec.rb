@@ -192,7 +192,6 @@ describe Halite::SpecHelper do
       context 'helper-created resource with Poise' do
         resource(:halite_test_helper_poise, step_into:false) do
           include Poise
-          def self.constantize(name); end # I don't actually care, just testing.
           provides(:halite_test_helper_poise)
         end
         recipe do
