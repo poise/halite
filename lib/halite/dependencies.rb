@@ -54,7 +54,7 @@ module Halite
     def self.extract_from_dependencies(spec)
       # Find any gem dependencies that are cookbooks in disguise.
       spec.dependencies.select do |dep|
-        Gem.new(dep).is_halite_cookbook?
+        dep.type == :runtime && Gem.new(dep).is_halite_cookbook?
       end.map do |dep|
         gem = Gem.new(dep)
         [gem.cookbook_name] + dep.requirements_list + [gem.spec]
