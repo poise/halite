@@ -95,7 +95,7 @@ describe Halite::Gem do
       [File.expand_path('../data/gems/test2/lib/test2/resource.rb', __FILE__), 'test2/resource.rb'],
       [File.expand_path('../data/gems/test2/lib/test2/version.rb', __FILE__), 'test2/version.rb'],
     ] }
-    its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('testdep', '>= 0.0', :requirements)] }
+    its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('testdep', '>= 0', :requirements)] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
 
     describe '#each_file' do
