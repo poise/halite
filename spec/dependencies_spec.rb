@@ -18,16 +18,29 @@ require 'spec_helper'
 require 'halite/dependencies'
 
 describe Halite::Dependencies do
+  def fake_gem(name='name', version='1.0.0', &block)
+    Gem::Specification.new do |s|
+      s.name = name
+      s.version = Gem::Version.new(version)
+      block.call(s) if block
+    end
+  end
+
+  let(:gem_stubs) do
+    [
+      fake_gem('gem1'),
+      fake_gem('gem2') {|s| s.requirements << 'dep2' },
+      fake_gem('gem3') {|s| s.add_dependency 'halite' },
+    ]
+  end
+
   before do
-    allow(Gem::Specification).to receive(:stubs).and_return([
-      Gem::Specification.new {|s| s.name = 'gem1'; s.version = Gem::Version.new('1.0.0') },
-      Gem::Specification.new {|s| s.name = 'gem2'; s.version = Gem::Version.new('1.0.0'); s.requirements << 'dep2' },
-    ])
+    allow(Gem::Specification).to receive(:stubs).and_return(gem_stubs)
   end
 
   describe '#extract_from_requirements' do
     let(:requirements) { [] }
-    subject { described_class.extract_from_requirements(Gem::Specification.new {|s| s.name = 'name'; s.version = Gem::Version.new('1.0.0'); s.requirements += requirements }) }
+    subject { described_class.extract_from_requirements(fake_gem {|s| s.requirements += requirements }) }
 
     context 'with []' do
       it { is_expected.to eq [] }
@@ -47,7 +60,7 @@ describe Halite::Dependencies do
 
   describe '#extract_from_metadata' do
     let(:metadata) { nil }
-    subject { described_class.extract_from_metadata(Gem::Specification.new {|s| s.name = 'name'; s.version = Gem::Version.new('1.0.0'); s.metadata = {'halite_dependencies' => metadata} if metadata}) }
+    subject { described_class.extract_from_metadata(fake_gem {|s| s.metadata = {'halite_dependencies' => metadata} if metadata }) }
 
     context 'with no metadata' do
       it { is_expected.to eq [] }
