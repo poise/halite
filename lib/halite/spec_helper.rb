@@ -15,6 +15,7 @@
 #
 
 require 'chef/node'
+require 'chef/provider'
 require 'chef/resource'
 require 'chefspec'
 
