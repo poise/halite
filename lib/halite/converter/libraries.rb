@@ -14,76 +14,76 @@
 # limitations under the License.
 #
 
-require 'halite/error'
+require 'fileutils'
+
 
 module Halite
-  class UnknownEntryPointError < Error; end
-
   module Converter
+    # Converter methods for gem library code (ex. files under lib/).
+    #
+    # @since 1.0.0
     module Libraries
-
-      # Chef doesn't allow subfolders under libraries/ currently
-      def self.flatten_filename(path)
-        path.gsub(/\//, '__')
-      end
-
-      def self.lib_path(path)
-        if path.end_with?('.rb')
-          path[0..-4]
-        else
-          path
-        end
-      end
-
-      def self.generate(spec, data, entry_point=false)
-        # No newline on the header so that line numbers in the files aren't changed.
-        buf = (entry_point ? "ENV['HALITE_LOAD'] = '#{spec.name}'; begin; " : "if ENV['HALITE_LOAD'] == '#{spec.name}'; ")
-        # Rewrite requires to require_relative as needed.
-        spec.each_library_file do |full_path, rel_path|
-          data = data.gsub(/require ['"](#{lib_path(rel_path)})['"]/) { "require_relative '#{flatten_filename($1)}'" }
-        end
-        spec.cookbook_dependencies.each do |dep|
-          next unless dep.spec
-          # This is kind of gross, but not sure what else to do
-          dep.cookbook.each_library_file do |full_path, rel_path|
-            data = data.gsub(/require ['"]#{lib_path(rel_path)}['"]/) { "# #{$&}" }
+      # Generate the bootstrap code for the Chef cookbook.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @param entry_points [Array<String>] Zero or more entry points to be
+      #   automatically loaded.
+      # @return [String]
+      def self.generate_bootstrap(gem_data, entry_points)
+        ''.tap do |buf|
+          buf << gem_data.license_header
+          buf << <<-EOH
+raise 'Halite is not compatible with no_lazy_load false, please set no_lazy_load true in your Chef configuration file.' unless Chef::Config[:no_lazy_load]
+$LOAD_PATH << File.expand_path('../../files/halite_gem', __FILE__)
+EOH
+          entry_points.each do |entry_point|
+            buf << "require #{entry_point.inspect}\n"
           end
         end
-        buf << data.rstrip
-        # Match up with the header. All files get one line longer. ¯\_(ツ)_/¯
-        buf << (entry_point ? "\nensure; ENV.delete('HALITE_LOAD'); end\n" : "\nend\n")
-        buf
       end
 
-      def self.default_entry_point(spec)
-        if spec.metadata.include?('halite_entry_point')
-          # Explicit default
-          spec.metadata['halite_entry_point']
-        else
-          # Try to find a single file in the lib/ folder
-          root_files = []
-          spec.each_library_file do |full_path, rel_path|
-            root_files << rel_path if rel_path == File.basename(rel_path)
-          end
-          # Try to weed out cases of lib/my_app.rb and lib/my-app.rb
-          if root_files.include?("#{spec.name}.rb")
-            return "#{spec.name}.rb"
-          end
-          raise UnknownEntryPointError.new("Unable to find entry point for #{spec.name}. Please set metadata['halite_entry_point'] in the gemspec.") unless root_files.length == 1
-          root_files.first
+      # Copy all library code to the files/halite_gem/ directory in the cookbook.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @param output_path [String] Output path for the cookbook.
+      # @return [void]
+      def self.write_libraries(gem_data, output_path)
+        dest_path = File.join(output_path, 'files', 'halite_gem')
+        FileUtils.mkdir_p(dest_path)
+        gem_data.each_library_file do |path, rel_path|
+          dir_path = File.dirname(rel_path)
+          FileUtils.mkdir_p(File.join(dest_path, dir_path)) unless dir_path == '.'
+          FileUtils.copy(path, File.join(dest_path, rel_path), preserve: true)
         end
       end
 
-      def self.write(spec, base_path, entry_point_name=nil)
-        entry_point_name ||= default_entry_point(spec)
-        # Handle both cases, with .rb and without
-        entry_point_name += '.rb' unless entry_point_name.end_with?('.rb')
-        lib_path = File.join(base_path, 'libraries')
-        # Create cookbook's libraries folder
-        Dir.mkdir(lib_path) unless File.directory?(lib_path)
-        spec.each_library_file do |path, rel_path|
-          IO.write(File.join(lib_path, flatten_filename(rel_path)), generate(spec, IO.read(path), entry_point_name == rel_path))
-        end
+      # Create the bootstrap code in the cookbook.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @param output_path [String] Output path for the cookbook.
+      # @param entry_point [String, Array<String>] Entry point(s) for the
+      #   bootstrap. These are require paths that will be loaded automatically
+      #   during a Chef converge.
+      # @return [void]
+      def self.write_bootstrap(gem_data, output_path, entry_point=nil)
+        # Default entry point.
+        entry_point ||= gem_data.spec.metadata['halite_entry_point']
+        # Parse and cast.
+        entry_point = Array(entry_point).map {|s| s.split }.flatten
+        # Write bootstrap file.
+        lib_path = File.join(output_path, 'libraries')
+        FileUtils.mkdir_p(lib_path)
+        IO.write(File.join(lib_path, 'default.rb'), generate_bootstrap(gem_data, entry_point))
+      end
+
+      # Write out the library code for the cookbook.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @param output_path [String] Output path for the cookbook.
+      # @return [void]
+      def self.write(gem_data, output_path, entry_point=nil)
+        write_libraries(gem_data, output_path)
+        write_bootstrap(gem_data, output_path, entry_point)
       end
 
     end

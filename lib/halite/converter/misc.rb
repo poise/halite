@@ -14,19 +14,25 @@
 # limitations under the License.
 #
 
+require 'fileutils'
+
+
 module Halite
   module Converter
-    module Readme
-
-      def self.write(spec, base_path)
-        readme_path = %w{README.md README README.txt readme.md readme readme.txt}.map do |name|
-          File.join(spec.full_gem_path, name)
-        end.find {|path| File.exists?(path) }
-        if readme_path
-          File.open(readme_path, 'rb') do |in_f|
-            File.open(File.join(base_path, File.basename(readme_path)), 'wb') do |out_f|
-              IO.copy_stream(in_f, out_f)
-            end
+    # Converter module for miscellanous project-level files like README.md
+    # and LICENSE.txt.
+    #
+    # @since 1.0.0
+    module Misc
+      # Copy miscellaneous project-level files.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @param output_path [String] Output path for the cookbook.
+      # @return [void]
+      def self.write(gem_data, output_path)
+        %w{Readme License Copying Contributing}.each do |name|
+          if path = gem_data.find_misc_path(name)
+            FileUtils.copy(path, File.join(output_path, File.basename(path)), preserve: true)
           end
         end
       end

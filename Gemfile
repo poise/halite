@@ -33,8 +33,9 @@ end
 dev_gem 'poise'
 dev_gem 'poise-boiler'
 dev_gem 'yard-classmethods'
+dev_gem 'rspec-command'
 
 # Test fixture gems
-Dir[File.expand_path('../spec/data/gems/*', __FILE__)].each do |path|
+Dir[File.expand_path('../spec/fixtures/gems/*', __FILE__)].each do |path|
   gem File.basename(path), path: path
 end

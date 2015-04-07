@@ -1,4 +1,4 @@
-if ENV['HALITE_LOAD'] == 'test3'; # require 'test2/version'
+require 'test2/version'
 
 module Test3
   module DSL
@@ -12,5 +12,4 @@ class Chef
   class Recipe
     include Test3::DSL
   end
-end
 end

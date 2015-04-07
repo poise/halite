@@ -14,24 +14,43 @@
 # limitations under the License.
 #
 
+
 module Halite
   module Converter
+    # Converter module to create the metadata.rb for the cookbook.
+    #
+    # @since 1.0.0
     module Metadata
-
-      def self.generate(spec)
-        buf = spec.license_header
-        buf << "name #{spec.cookbook_name.inspect}\n"
-        buf << "version #{spec.version.inspect}\n"
-        spec.cookbook_dependencies.each do |dep|
-          buf << "depends #{dep.name.inspect}"
-          buf << ", #{dep.requirement.inspect}" if dep.requirement != '>= 0'
-          buf << "\n"
+      # Generate a cookbook metadata file.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @return [String]
+      def self.generate(gem_data)
+        ''.tap do |buf|
+          buf << gem_data.license_header
+          buf << "name #{gem_data.cookbook_name.inspect}\n"
+          buf << "version #{gem_data.version.inspect}\n"
+          if gem_data.spec.description && !gem_data.spec.description.empty?
+            buf << "description #{gem_data.spec.description.inspect}\n"
+          end
+          if readme_path = gem_data.find_misc_path('Readme')
+            buf << "long_description #{IO.read(readme_path).inspect}\n"
+          end
+          gem_data.cookbook_dependencies.each do |dep|
+            buf << "depends #{dep.name.inspect}"
+            buf << ", #{dep.requirement.inspect}" if dep.requirement != '>= 0'
+            buf << "\n"
+          end
         end
-        buf
       end
 
-      def self.write(spec, base_path)
-        IO.write(File.join(base_path, 'metadata.rb'), generate(spec))
+      # Write out a cookbook metadata file.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @param output_path [String] Output path for the cookbook.
+      # @return [void]
+      def self.write(gem_data, output_path)
+        IO.write(File.join(output_path, 'metadata.rb'), generate(gem_data))
       end
 
     end

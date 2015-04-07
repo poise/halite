@@ -19,16 +19,18 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = [].tap do |a|
-    a.push('--color')
-    a.push('--format Fuubar')
-    a.push('--tag ~slow')
+    a << '--color'
+    a << '--format Fuubar'
+    a << '--tag ~slow'
+    a << '--backtrace' if ENV['DEBUG']
   end.join(' ')
 end
 
 RSpec::Core::RakeTask.new(:integration) do |t|
   t.rspec_opts = [].tap do |a|
-    a.push('--color')
-    a.push('--format Fuubar')
+    a << '--color'
+    a << '--format Fuubar'
+    a << '--backtrace' if ENV['DEBUG']
   end.join(' ')
 end
 

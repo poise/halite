@@ -18,222 +18,115 @@ require 'spec_helper'
 require 'halite/converter/libraries'
 
 describe Halite::Converter::Libraries do
+  describe '#generate_bootstrap' do
+    let(:gem_data) { instance_double('Halite::Gem', license_header: '') }
+    let(:entry_points) { [] }
+    subject { described_class.generate_bootstrap(gem_data, entry_points) }
 
-  describe '#lib_path' do
-    let(:path) { }
-    subject { described_class.lib_path(path) }
+    context 'with defaults' do
+      it { is_expected.to eq <<-EOH }
+raise 'Halite is not compatible with no_lazy_load false, please set no_lazy_load true in your Chef configuration file.' unless Chef::Config[:no_lazy_load]
+$LOAD_PATH << File.expand_path('../../files/halite_gem', __FILE__)
+EOH
+    end # /context with defaults
 
-    context 'with foo.rb' do
-      let(:path) { 'foo.rb' }
-      it { is_expected.to eq 'foo' }
-    end # /context with foo.rb
-
-    context 'with foo' do
-      let(:path) { 'foo' }
-      it { is_expected.to eq 'foo' }
-    end # /context with foo
-
-    context 'with foo/bar.rb' do
-      let(:path) { 'foo/bar.rb' }
-      it { is_expected.to eq 'foo/bar' }
-    end # /context with foo/bar.rb
-  end # /describe #lib_path
-
-  describe '#generate' do
-    let(:data) { '' }
-    let(:entry_point) { false }
-    let(:cookbook_dependencies) { [] }
-    let(:cookbook_files) { %w{mygem.rb mygem/version.rb mygem/something.rb mygem/utils.rb mygem/foo/bar.rb} }
-    subject do
-      deps = cookbook_dependencies.map do |dep|
-        dep_spec = double(name: dep)
-        allow(dep_spec).to receive(:each_library_file).and_yield("lib/#{dep}.rb", "#{dep}.rb")
-        double(name: dep, requirement: nil, type: :dependencies, spec: double(), cookbook: dep_spec)
+    context 'with a license header' do
+      before do
+        allow(gem_data).to receive(:license_header).and_return("# Copyright me.\n")
       end
-      spec = double(name: 'mygem', cookbook_dependencies: deps)
-      allow(spec).to receive(:each_library_file) do |&block|
-        cookbook_files.each do |path|
-          block.call("lib/#{path}", path)
+      it { is_expected.to eq <<-EOH }
+# Copyright me.
+raise 'Halite is not compatible with no_lazy_load false, please set no_lazy_load true in your Chef configuration file.' unless Chef::Config[:no_lazy_load]
+$LOAD_PATH << File.expand_path('../../files/halite_gem', __FILE__)
+EOH
+    end
+
+    context 'with entry points' do
+      let(:entry_points) { %w{mygem/one mygem/two} }
+      it { is_expected.to eq <<-EOH }
+raise 'Halite is not compatible with no_lazy_load false, please set no_lazy_load true in your Chef configuration file.' unless Chef::Config[:no_lazy_load]
+$LOAD_PATH << File.expand_path('../../files/halite_gem', __FILE__)
+require "mygem/one"
+require "mygem/two"
+EOH
+    end # /context with entry points
+  end # /describe #generate_bootstrap
+
+  describe '#write_libraries' do
+    let(:library_files) { [] }
+    let(:gem_data) do
+      instance_double('Halite::Gem').tap do |d|
+        allow(d).to receive(:each_library_file) do |&block|
+          library_files.each {|path| block.call(File.join('/source', path), path) }
         end
       end
-      described_class.generate(spec, data, entry_point)
     end
-
-    context 'with a single require' do
-      let(:data) { "x = 1\nrequire 'mygem/version'\n" }
-      it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD'] == 'mygem'; x = 1
-require_relative 'mygem__version'
-end
-EOH
-    end # /context with a single require
-
-    context 'with two requires' do
-      let(:data) { "require 'mygem/foo/bar'\nrequire 'another'" }
-      it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD'] == 'mygem'; require_relative 'mygem__foo__bar'
-require 'another'
-end
-EOH
-    end # /context with two requires
-
-    context 'with an entry point' do
-      let(:data) { "x = 1\nrequire 'mygem/version'\n" }
-      let(:entry_point) { true }
-      it { is_expected.to eq <<-EOH }
-ENV['HALITE_LOAD'] = 'mygem'; begin; x = 1
-require_relative 'mygem__version'
-ensure; ENV.delete('HALITE_LOAD'); end
-EOH
-    end # /context with an entry point
-
-    context 'with a big script' do
-      let(:data) { <<-EOH }
-require 'mygem/something'
-require 'mygem/utils'
-require 'activesupport' # ಠ_ಠ
-class Resource
-  attribute :source
-end
-EOH
-      it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD'] == 'mygem'; require_relative 'mygem__something'
-require_relative 'mygem__utils'
-require 'activesupport' # ಠ_ಠ
-class Resource
-  attribute :source
-end
-end
-EOH
-    end # /context with a big script
-
-    context 'with external dependencies' do
-      let(:cookbook_dependencies) { ['other'] }
-      let(:data) { <<-EOH }
-require 'mygem/something'
-require 'mygem/utils'
-require "mygem"
-require 'other'
-class Resource
-  attribute :source
-end
-EOH
-      it { is_expected.to eq <<-EOH }
-if ENV['HALITE_LOAD'] == 'mygem'; require_relative 'mygem__something'
-require_relative 'mygem__utils'
-require_relative 'mygem'
-# require 'other'
-class Resource
-  attribute :source
-end
-end
-EOH
-    end # /context with a big script
-  end # /describe #generate
-
-  describe '#default_entry_point' do
-    let(:library_files) { [] }
-    let(:spec) do
-      spec = double(name: 'mygem', metadata: {})
-      allow(spec).to receive(:each_library_file) do |&block|
-        library_files.each {|path| block.call(File.join('lib', path), path) }
-      end
-      spec
-    end
-    subject { described_class.default_entry_point(spec) }
-
-    context 'with an explicit entry point' do
-      let(:spec) { double(metadata: {'halite_entry_point' => 'openseasame'}) }
-      it { is_expected.to eq 'openseasame' }
-    end # /context with an explicit entry point
-
-    context 'with a single top-level file' do
-      let(:library_files) { %w{mygem.rb mygem/version.rb} }
-      it { is_expected.to eq 'mygem.rb' }
-    end # /context with a single top-level file
-
-    context 'with two top-level files' do
-      let(:library_files) { %w{my-gem.rb my_gem.rb my_gem/version.rb} }
-      it { expect { subject }.to raise_error Halite::UnknownEntryPointError }
-    end # /context with two top-level files
-
-    context 'with two top-level files and one that matches the gem name' do
-      let(:library_files) { %w{my_gem.rb mygem.rb my_gem/version.rb} }
-      it { is_expected.to eq 'mygem.rb' }
-    end # /context with two top-level files and one that matches the gem name
-
-    context 'with no files' do
-      it { expect { subject }.to raise_error Halite::UnknownEntryPointError }
-    end # /context with no files
-  end # /describe #default_entry_point
-
-  describe '#write' do
-    let(:library_files) { [] }
-    let(:output) { [] }
-    let(:spec) do
-      spec = double(name: 'mygem')
-      allow(spec).to receive(:each_library_file) do |&block|
-        library_files.each {|path| block.call(File.join('/source', path), path) }
-      end
-      spec
-    end
-    before do
-      first = true
-      library_files.each do |path|
-        input_sentinel = double("content of #{path}")
-        output_sentinel = double("generated output for #{path}")
-        allow(IO).to receive(:read).with(File.join('/source', path)).and_return(input_sentinel)
-        allow(described_class).to receive(:generate).with(spec, input_sentinel, first).and_return(output_sentinel)
-        first = false
-        output << output_sentinel
-      end
-      allow(File).to receive(:directory?).and_return(false) # Always blank
-      allow(described_class).to receive(:default_entry_point).and_return(library_files.first) # As above, first is always the entry point
-    end
+    subject { described_class.write_libraries(gem_data, '/test') }
 
     context 'with a single file' do
-      let(:library_files) { ['mygem.rb'] }
-
-      it 'writes a single file' do
-        expect(Dir).to receive(:mkdir).with('/test/libraries')
-        expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
-        described_class.write(spec, '/test')
+      let(:library_files) { %w{mygem.rb} }
+      it do
+        expect(FileUtils).to receive(:mkdir_p).with('/test/files/halite_gem')
+        expect(FileUtils).to receive(:copy).with('/source/mygem.rb', '/test/files/halite_gem/mygem.rb', preserve: true)
+        subject
       end
     end # /context with a single file
 
-    context 'with multiple files' do
-      let(:library_files) { ['mygem.rb', 'mygem/one.rb', 'mygem/two.rb'] }
-
-      it 'writes multiple files' do
-        expect(Dir).to receive(:mkdir).with('/test/libraries')
-        expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
-        expect(IO).to receive(:write).with('/test/libraries/mygem__one.rb', output[1])
-        expect(IO).to receive(:write).with('/test/libraries/mygem__two.rb', output[2])
-        described_class.write(spec, '/test')
+    context 'with a multiple files' do
+      let(:library_files) { %w{mygem.rb mygem/one.rb mygem/two.rb} }
+      it do
+        expect(FileUtils).to receive(:mkdir_p).with('/test/files/halite_gem')
+        expect(FileUtils).to receive(:mkdir_p).with('/test/files/halite_gem/mygem').twice
+        expect(FileUtils).to receive(:copy).with('/source/mygem.rb', '/test/files/halite_gem/mygem.rb', preserve: true)
+        expect(FileUtils).to receive(:copy).with('/source/mygem/one.rb', '/test/files/halite_gem/mygem/one.rb', preserve: true)
+        expect(FileUtils).to receive(:copy).with('/source/mygem/two.rb', '/test/files/halite_gem/mygem/two.rb', preserve: true)
+        subject
       end
-    end # /context with multiple files
+    end # /context with a multiple files
+  end # /describe #write_libraries
 
-    context 'with an explicit entry point name' do
-      let(:library_files) { ['mygem.rb', 'other.rb'] }
+  describe '#write_bootstrap' do
+    let(:entry_point) { nil }
+    let(:spec) { instance_double('Gem::Specification', metadata: {})}
+    let(:gem_data) { instance_double('Halite::Gem', spec: spec) }
+    let(:output) { double('output sentinel') }
+    subject { described_class.write_bootstrap(gem_data, '/test', entry_point) }
 
-      it 'selects the correct entry point' do
-        expect(Dir).to receive(:mkdir).with('/test/libraries')
-        expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
-        expect(IO).to receive(:write).with('/test/libraries/other.rb', output[1])
-        described_class.write(spec, '/test', 'mygem')
+    context 'with defaults' do
+      it do
+        expect(FileUtils).to receive(:mkdir_p).with('/test/libraries')
+        expect(described_class).to receive(:generate_bootstrap).with(gem_data, []).and_return(output)
+        expect(IO).to receive(:write).with('/test/libraries/default.rb', output)
+        subject
       end
-    end # /context with an explicit entry point name
+    end # /context with defaults
 
-    context 'with an explicit entry point name ending in .rb' do
-      let(:library_files) { ['mygem.rb', 'other.rb'] }
-
-      it 'selects the correct entry point' do
-        expect(Dir).to receive(:mkdir).with('/test/libraries')
-        expect(IO).to receive(:write).with('/test/libraries/mygem.rb', output[0])
-        expect(IO).to receive(:write).with('/test/libraries/other.rb', output[1])
-        described_class.write(spec, '/test', 'mygem.rb')
+    context 'with an explicit entry point' do
+      let(:entry_point) { 'mygem/one' }
+      it do
+        expect(FileUtils).to receive(:mkdir_p).with('/test/libraries')
+        expect(described_class).to receive(:generate_bootstrap).with(gem_data, ['mygem/one']).and_return(output)
+        expect(IO).to receive(:write).with('/test/libraries/default.rb', output)
+        subject
       end
-    end # /context with an explicit entry point name
+    end # /context with an explicit entry point
 
+    context 'with metadata entry points' do
+      it do
+        allow(spec).to receive(:metadata).and_return({'halite_entry_point' => 'mygem/one mygem/two'})
+        expect(FileUtils).to receive(:mkdir_p).with('/test/libraries')
+        expect(described_class).to receive(:generate_bootstrap).with(gem_data, ['mygem/one', 'mygem/two']).and_return(output)
+        expect(IO).to receive(:write).with('/test/libraries/default.rb', output)
+        subject
+      end
+    end # /context with metadata entry points
+  end # /describe #write_bootstrap
+
+  describe '#write' do
+    it do
+      expect(described_class).to receive(:write_libraries)
+      expect(described_class).to receive(:write_bootstrap)
+      described_class.write(nil, nil)
+    end
   end # /describe #write
 end

@@ -16,9 +16,16 @@
 
 require 'halite/error'
 
+
 module Halite
+  # Error class for invalid dependencies.
+  #
+  # @since 1.0.0
   class InvalidDependencyError < Error; end
 
+  # Methods to extract cookbook dependencies from a gem.
+  #
+  # @since 1.0.0
   module Dependencies
     Dependency = Struct.new(:name, :requirement, :type, :spec) do
       def ==(other)

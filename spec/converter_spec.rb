@@ -15,15 +15,14 @@
 #
 
 require 'spec_helper'
-require 'halite/converter'
 
 describe Halite::Converter do
   describe '#write' do
-    it 'should call all submodules' do
-      expect(Halite::Converter::Metadata).to receive(:write).ordered
-      expect(Halite::Converter::Libraries).to receive(:write).ordered
-      expect(Halite::Converter::Other).to receive(:write).ordered
-      expect(Halite::Converter::Readme).to receive(:write).ordered
+    it do
+      expect(Halite::Converter::Metadata).to receive(:write)
+      expect(Halite::Converter::Libraries).to receive(:write)
+      expect(Halite::Converter::Chef).to receive(:write)
+      expect(Halite::Converter::Misc).to receive(:write)
       described_class.write(nil, '/test')
     end
   end

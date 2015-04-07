@@ -27,6 +27,8 @@ module Halite
   #   g = Halite::Gem.new('chef-mycookbook', '1.1.0')
   #   puts(g.cookbook_name) #=> mycookbook
   class Gem
+    attr_reader :name
+
     # name can be either a string name, Gem::Dependency, or Gem::Specification
     # @param name [String, Gem::Dependency, Gem::Specification]
     def initialize(name, version=nil)
@@ -46,10 +48,6 @@ module Halite
       @spec ||= ::Gem::Dependency.new(@name, ::Gem::Requirement.new(@version)).to_spec
     end
 
-    def method_missing(*args)
-      spec.send(*args)
-    end
-
     def version
       spec.version.to_s
     end
@@ -62,7 +60,12 @@ module Halite
       end
     end
 
-    # The Rubygems API is shit and just assumes the file layout
+    # Path to the .gemspec for this gem. This is different from
+    # Gem::Specification#spec_file because the Rubygems API is shit and just
+    # assumes the file layout matches normal, which is not the case with Bundler
+    # and path or git sources.
+    #
+    # @return [String]
     def spec_file
       File.join(spec.full_gem_path, spec.name + '.gemspec')
     end
@@ -126,5 +129,21 @@ module Halite
       end
     end
 
+    # Search for a file like README.md or LICENSE.txt in the game.
+    #
+    # @param name [String] Basename to search for.
+    # @return [String, Array<String>]
+    # @example
+    #   gem.misc_file('Readme') => /path/to/readme.txt
+    def find_misc_path(name)
+      [name, name.upcase, name.downcase].each do |base|
+        ['.md', '', '.txt', '.html'].each do |suffix|
+          path = File.join(spec.full_gem_path, base+suffix)
+          return path if File.exists?(path)
+        end
+      end
+      # Didn't find anything
+      nil
+    end
   end
 end

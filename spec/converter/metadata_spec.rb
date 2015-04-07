@@ -15,18 +15,28 @@
 #
 
 require 'spec_helper'
-require 'halite/converter/metadata'
-require 'halite/dependencies'
 
 describe Halite::Converter::Metadata do
   describe '#generate' do
     let(:gem_name) { 'mygem' }
     let(:cookbook_name) { gem_name }
     let(:version) { '1.0.0' }
-    let(:license_header) { '' }
     let(:cookbook_dependencies) { [] }
-    let(:spec) { double(name: gem_name, cookbook_name: cookbook_name, version: version, license_header: license_header, cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(*dep) }) }
-    subject { described_class.generate(spec) }
+    let(:spec) do
+      instance_double('Gem::Specification', description: '')
+    end
+    let(:gem_data) do
+      instance_double('Halite::Gem',
+        cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(*dep) },
+        cookbook_name: cookbook_name,
+        find_misc_path: nil,
+        license_header: '',
+        name: gem_name,
+        spec: spec,
+        version: version,
+      )
+    end
+    subject { described_class.generate(gem_data) }
 
     context 'with simple data' do
       it { is_expected.to eq <<-EOH }
@@ -36,7 +46,9 @@ EOH
     end # /context with simple data
 
     context 'with a license header' do
-      let(:license_header) { "# header\n" }
+      before do
+        allow(gem_data).to receive(:license_header).and_return("# header\n")
+      end
       it { is_expected.to eq <<-EOH }
 # header
 name "mygem"
@@ -62,10 +74,35 @@ depends "other", "~> 1.0"
 depends "another", "~> 2.0.0"
 EOH
     end # /context with two dependencies
+
+    context 'with a description' do
+      before do
+        allow(spec).to receive(:description).and_return('My awesome library!')
+      end
+
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+description "My awesome library!"
+EOH
+    end # /context with a description
+
+    context 'with a readme' do
+      before do
+        allow(gem_data).to receive(:find_misc_path).and_return('/source/README.md')
+        allow(IO).to receive(:read).with('/source/README.md').and_return("My awesome readme!\nCopyright me.\n")
+      end
+
+      it { is_expected.to eq <<-'EOH' }
+name "mygem"
+version "1.0.0"
+long_description "My awesome readme!\nCopyright me.\n"
+EOH
+    end # /context with a readme
   end # /describe #generate
 
   describe '#write' do
-    let(:output) { double('output') } # sentinel
+    let(:output) { double('output sentinel') }
     before { allow(described_class).to receive(:generate).and_return(output) }
 
     it 'should write out metadata' do

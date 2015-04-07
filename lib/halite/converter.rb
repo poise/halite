@@ -14,20 +14,28 @@
 # limitations under the License.
 #
 
-require 'halite/converter/libraries'
-require 'halite/converter/metadata'
-require 'halite/converter/other'
-require 'halite/converter/readme'
 
 module Halite
+  # (see Converter.write)
   module Converter
+    autoload :Chef, 'halite/converter/chef'
+    autoload :Libraries, 'halite/converter/libraries'
+    autoload :Metadata, 'halite/converter/metadata'
+    autoload :Misc, 'halite/converter/misc'
 
-    def self.write(spec, base_path)
-      Metadata.write(spec, base_path)
-      Libraries.write(spec, base_path)
-      Other.write(spec, base_path)
-      Readme.write(spec, base_path)
+    # Convert a cookbook gem to a normal Chef cookbook.
+    #
+    # @since 1.0.0
+    # @param gem_data [Halite::Gem] Gem to convert.
+    # @param output_path [String] Output path.
+    # @return [void]
+    # @example
+    #   Halite::Converter.write(Halite::Gem.new(gemspec), 'dest')
+    def self.write(gem_data, output_path)
+      Chef.write(gem_data, output_path)
+      Libraries.write(gem_data, output_path)
+      Metadata.write(gem_data, output_path)
+      Misc.write(gem_data, output_path)
     end
-
   end
 end

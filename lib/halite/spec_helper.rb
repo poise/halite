@@ -201,7 +201,7 @@ module Halite
       #
       # @overload step_into(name)
       #   @param name [String, Symbol] Name of the resource in snake-case.
-      # @overload step_info(resource, resource_name)
+      # @overload step_into(resource, resource_name)
       #   @param resource [Class] Resource class to step in to.
       #   @param resource_name [String, Symbol, nil] Name of the given resource in snake-case.
       # @example

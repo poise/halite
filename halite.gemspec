@@ -40,5 +40,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'poise', '~> 1.1'
   spec.add_development_dependency 'poise-boiler', '~> 1.0'
-  spec.add_development_dependency 'mixlib-shellout', '~> 2.0'
+  spec.add_development_dependency 'rspec-command', '~> 1.0'
 end

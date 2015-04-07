@@ -14,7 +14,6 @@
 # limitations under the License.
 #
 
-
 require 'tmpdir'
 
 require 'chef/version'
@@ -22,6 +21,7 @@ require 'chef/version'
 require 'halite'
 require 'halite/error'
 require 'halite/helper_base'
+
 
 module Halite
   class RakeHelper < HelperBase
