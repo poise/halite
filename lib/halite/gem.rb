@@ -74,6 +74,17 @@ module Halite
       IO.readlines(spec_file).take_while { |line| line.strip.empty? || line.strip.start_with?('#') }.join('')
     end
 
+    # Iterate over all the files in the gem, with an optional prefix. Each
+    # element in the iterable will be [full_path, relative_path], where
+    # relative_path is relative to the prefix or gem path.
+    #
+    # @param prefix_paths [String, Array<String>, nil] Option prefix paths.
+    # @param block [Proc] Callable for iteration.
+    # @return [Array<Array<String>>]
+    # @example
+    #   gem_data.each_file do |full_path, rel_path|
+    #     # ...
+    #   end
     def each_file(prefix_paths=nil, &block)
       globs = if prefix_paths
         Array(prefix_paths).map {|path| File.join(spec.full_gem_path, path) }
@@ -83,17 +94,22 @@ module Halite
       [].tap do |files|
         globs.each do |glob|
           Dir[File.join(glob, '**', '*')].each do |path|
-            files << [path, path[glob.length+1..-1]] if File.file?(path)
+            next unless File.file?(path)
+            val = [path, path[glob.length+1..-1]]
+            block.call(*val) if block
+            files << val
           end
         end
         # Make sure the order is stable for my tests. Probably overkill, I think
         # Dir#[] sorts already.
         files.sort!
-        files.each(&block) if block
       end
     end
 
-    # Special case of the above using spec's require paths
+    # Special case of the {#each_file} the gem's require paths.
+    #
+    # @param block [Proc] Callable for iteration.
+    # @return [Array<Array<String>>]
     def each_library_file(&block)
       each_file(spec.require_paths, &block)
     end
