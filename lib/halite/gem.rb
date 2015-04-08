@@ -75,22 +75,22 @@ module Halite
     end
 
     def each_file(prefix_paths=nil, &block)
-      files = []
-      spec.files.each do |path|
-        prefix = if prefix_paths
-          Array(prefix_paths).map {|p| p.end_with?('/') ? p : p + '/' }.find {|p| path.start_with?(p) }
-        else
-          ''
-        end
-        next unless prefix # No match
-        value = [
-          File.join(spec.full_gem_path, path), # Full path
-          path[prefix.length..-1], # Relative path
-        ]
-        files << value
-        block.call(*value) if block
+      globs = if prefix_paths
+        Array(prefix_paths).map {|path| File.join(spec.full_gem_path, path) }
+      else
+        [spec.full_gem_path]
       end
-      files.sort! # To be safe
+      [].tap do |files|
+        globs.each do |glob|
+          Dir[File.join(glob, '**', '*')].each do |path|
+            files << [path, path[glob.length+1..-1]] if File.file?(path)
+          end
+        end
+        # Make sure the order is stable for my tests. Probably overkill, I think
+        # Dir#[] sorts already.
+        files.sort!
+        files.each(&block) if block
+      end
     end
 
     # Special case of the above using spec's require paths
