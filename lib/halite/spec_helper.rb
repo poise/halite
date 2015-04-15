@@ -289,13 +289,26 @@ module Halite
       def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, &block)
         parent = resources[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{parent.inspect}") unless parent.is_a?(Class)
-        # Create the resource class
+        # Pull out the example metadata for use in the class.
+        metadata = self.metadata
+        # Create the resource class.
         resource_class = Class.new(parent) do
+          # Make the anonymous class pretend to have a name.
           define_singleton_method(:name) do
             'Chef::Resource::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
           end
+
+          # Create magic delegators for various metadata.
+          %i{described_class}.each do |key|
+            define_method(key) { metadata[key] }
+            define_singleton_method(key) { metadata[key] }
+          end
+
+          # Evaluate the class body.
           class_exec(&block) if block
-          # Wrap some stuff around initialize because I'm lazy
+
+          # Wrap some stuff around initialize because I'm lazy. Optional for
+          # special unicorn tests.
           if auto
             old_init = instance_method(:initialize)
             define_method(:initialize) do |*args|
@@ -356,27 +369,38 @@ module Halite
         options = {auto: true, rspec: true, parent: Chef::Provider}.merge(options)
         options[:parent] = providers[options[:parent]] if options[:parent].is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless options[:parent].is_a?(Class)
+        # Pull out the example metadata for use in the class.
+        metadata = self.metadata
+        # Create the provider class.
         provider_class = Class.new(options[:parent]) do
-          # Pull in RSpec expectations
+          # Pull in RSpec expectations.
           if options[:rspec]
             include RSpec::Matchers
             include RSpec::Mocks::ExampleMethods
           end
 
           if options[:auto]
-            # Default blank impl to avoid error
+            # Default blank impl to avoid error.
             def load_current_resource
             end
 
-            # Blank action because I do that so much
+            # Blank action because I do that so much.
             def action_run
             end
           end
 
+          # Make the anonymous class pretend to have a name.
           define_singleton_method(:name) do
             'Chef::Provider::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
           end
 
+          # Create magic delegators for various metadata.
+          %i{described_class}.each do |key|
+            define_method(key) { metadata[key] }
+            define_singleton_method(key) { metadata[key] }
+          end
+
+          # Evaluate the class body.
           class_exec(&block) if block
         end
 
