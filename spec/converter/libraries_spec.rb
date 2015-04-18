@@ -85,6 +85,33 @@ EOH
     end # /context with a multiple files
   end # /describe #write_libraries
 
+  describe '#find_default_entry_points' do
+    let(:library_files) { [] }
+    let(:gem_data) do
+      instance_double('Halite::Gem').tap do |d|
+        allow(d).to receive(:each_library_file) do |&block|
+          library_files.each {|path| block.call(File.join('/source', path), path) }
+        end
+      end
+    end
+    subject { described_class.find_default_entry_points(gem_data) }
+
+    context 'with no default entry points' do
+      let(:library_files) { %w{mygem.rb} }
+      it { is_expected.to eq [] }
+    end # /context with no default entry points
+
+    context 'with a single entry point' do
+      let(:library_files) { %w{mygem.rb mygem/cheftie.rb} }
+      it { is_expected.to eq ['mygem/cheftie'] }
+    end # /context with a single entry point
+
+    context 'with multiple entry points' do
+      let(:library_files) { %w{mygem.rb mygem/cheftie.rb mygem/other.rb mygem/other/cheftie.rb} }
+      it { is_expected.to eq ['mygem/cheftie', 'mygem/other/cheftie'] }
+    end # /context with multiple entry points
+  end # /describe #find_default_entry_points
+
   describe '#write_bootstrap' do
     let(:entry_point) { nil }
     let(:spec) { instance_double('Gem::Specification', metadata: {})}
@@ -94,6 +121,7 @@ EOH
 
     context 'with defaults' do
       it do
+        expect(described_class).to receive(:find_default_entry_points).with(gem_data).and_return([])
         expect(FileUtils).to receive(:mkdir_p).with('/test/libraries')
         expect(described_class).to receive(:generate_bootstrap).with(gem_data, []).and_return(output)
         expect(IO).to receive(:write).with('/test/libraries/default.rb', output)

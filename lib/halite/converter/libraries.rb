@@ -57,6 +57,21 @@ EOH
         end
       end
 
+      # Find any default entry points (files name cheftie.rb) in the gem.
+      #
+      # @param gem_data [Halite::Gem] Gem to generate from.
+      # @return [Array<String>]
+      def self.find_default_entry_points(gem_data)
+        [].tap do |entry_points|
+          gem_data.each_library_file do |path, rel_path|
+            if File.basename(rel_path) == 'cheftie.rb'
+              # Trim the .rb for cleanliness.
+              entry_points << rel_path[0..-4]
+            end
+          end
+        end
+      end
+
       # Create the bootstrap code in the cookbook.
       #
       # @param gem_data [Halite::Gem] Gem to generate from.
@@ -67,7 +82,7 @@ EOH
       # @return [void]
       def self.write_bootstrap(gem_data, output_path, entry_point=nil)
         # Default entry point.
-        entry_point ||= gem_data.spec.metadata['halite_entry_point']
+        entry_point ||= gem_data.spec.metadata['halite_entry_point'] || find_default_entry_points(gem_data)
         # Parse and cast.
         entry_point = Array(entry_point).map {|s| s.split }.flatten
         # Write bootstrap file.
