@@ -142,6 +142,8 @@ module Halite
         c.send(:file_vendor).define_singleton_method(:get_filename) do |filename|
           File.join(path, 'chef', filename)
         end
+        # Store the true root for use in other tools.
+        c.define_singleton_method(:halite_root) { path }
       end
     end
 
