@@ -365,21 +365,20 @@ module Halite
       #     it { is_expected.to run_my_resource('test') }
       #     it { is_expected.to run_ruby_block('test') }
       #   end
-      def provider(name, options={}, &block)
-        options = {auto: true, rspec: true, parent: Chef::Provider}.merge(options)
-        options[:parent] = providers[options[:parent]] if options[:parent].is_a?(Symbol)
-        raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless options[:parent].is_a?(Class)
+      def provider(name, auto: true, rspec: true, parent: Chef::Provider, &block)
+        parent = providers[parent] if parent.is_a?(Symbol)
+        raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless parent.is_a?(Class)
         # Pull out the example metadata for use in the class.
         metadata = self.metadata
         # Create the provider class.
-        provider_class = Class.new(options[:parent]) do
+        provider_class = Class.new(parent) do
           # Pull in RSpec expectations.
-          if options[:rspec]
+          if rspec
             include RSpec::Matchers
             include RSpec::Mocks::ExampleMethods
           end
 
-          if options[:auto]
+          if auto
             # Default blank impl to avoid error.
             def load_current_resource
             end
