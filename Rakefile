@@ -23,6 +23,7 @@ RSpec::Core::RakeTask.new(:spec) do |t|
     a << '--format Fuubar'
     a << '--tag ~slow'
     a << '--backtrace' if ENV['DEBUG']
+    a << "--seed #{ENV['SEED']}" if ENV['SEED']
   end.join(' ')
 end
 
@@ -31,6 +32,7 @@ RSpec::Core::RakeTask.new(:integration) do |t|
     a << '--color'
     a << '--format Fuubar'
     a << '--backtrace' if ENV['DEBUG']
+    a << "--seed #{ENV['SEED']}" if ENV['SEED']
   end.join(' ')
 end
 
