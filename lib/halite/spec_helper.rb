@@ -168,6 +168,17 @@ module Halite
       end
     end
 
+    def patch_descendants_tracker(klass, &block)
+      begin
+        # Re-add to tracking.
+        Chef::Mixin::DescendantsTracker.store_inherited(klass.superclass, klass)
+        block.call
+      ensure
+        # Clean up after ourselves.
+        Chef::Mixin::DescendantsTracker.direct_descendants(klass.superclass).delete(klass)
+      end
+    end
+
     # @!classmethods
     module ClassMethods
       # Define a recipe to be run via ChefSpec and used as the subject of this
@@ -324,6 +335,9 @@ module Halite
           end
         end
 
+        # Remove from overall descendants tracker.
+        Chef::Mixin::DescendantsTracker.direct_descendants(parent).delete(resource_class)
+
         # Store for use up with the parent system
         halite_helpers[:resources][name.to_sym] = resource_class
 
@@ -331,8 +345,13 @@ module Halite
         step_into(resource_class, name, unwrap_notifying_block: unwrap_notifying_block) if step_into
 
         around do |ex|
-          # Patch the resource in to Chef
-          patch_module(Chef::Resource, name, resource_class) { ex.run }
+          # Patch subclass tracking.
+          patch_descendants_tracker(resource_class) do
+            # Patch the resource in to Chef.
+            patch_module(Chef::Resource, name, resource_class) do
+              ex.run
+            end
+          end
         end
       end
 
@@ -403,11 +422,16 @@ module Halite
           class_exec(&block) if block
         end
 
+        # Remove from overall descendants tracker.
+        Chef::Mixin::DescendantsTracker.direct_descendants(parent).delete(provider_class)
+
         # Store for use up with the parent system
         halite_helpers[:providers][name.to_sym] = provider_class
 
         around do |ex|
-          patch_module(Chef::Provider, name, provider_class) { ex.run }
+          patch_descendants_tracker(provider_class) do
+            patch_module(Chef::Provider, name, provider_class) { ex.run }
+          end
         end
       end
 

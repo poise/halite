@@ -212,4 +212,27 @@ describe Halite::SpecHelper do
       end # /context helper-created resource with Poise
     end # describe without step-into there should be no ChefSpec resource-level matcher
   end # /describe #step_into
+
+  describe '#patch_descendants_tracker' do
+    resource(:halite_test)
+    subject { resource(:halite_test).new('test', chef_run.run_context).provider_for_action(:run) }
+
+    context 'with a provider in scope' do
+      provider(:halite_test)
+      # Basically it just shouldn't raise an error.
+      it { is_expected.to be_truthy }
+    end # /context with a provider in scope
+
+    context 'with a named provider in scope' do
+      provider(:halite_test_other) do
+        provides(:halite_test)
+      end
+      # Basically it just shouldn't raise an error.
+      it { is_expected.to be_truthy }
+    end # /context with a named provider in scope
+
+    context 'without a provider in scope' do
+      it { expect { subject }.to raise_error ArgumentError }
+    end # /context without a provider in scope
+  end # /describe #patch_descendants_tracker
 end
