@@ -18,9 +18,7 @@ source 'https://rubygems.org/'
 
 gemspec
 
-def dev_gem(name, path: nil, github: nil)
-  path ||= File.join('..', name)
-  github ||= "#{name.include?('poise') ? 'poise' : 'coderanger'}/#{name}"
+def dev_gem(name, path: File.join('..', name), github: "poise/#{name}")
   github = "#{github}/#{name}" unless github.include?('/')
   path = File.expand_path(File.join('..', path), __FILE__)
   if File.exist?(path)
@@ -32,8 +30,7 @@ end
 
 dev_gem 'poise'
 dev_gem 'poise-boiler'
-dev_gem 'yard-classmethods'
-dev_gem 'rspec-command'
+dev_gem 'rspec-command', github: 'coderanger/rspec-command'
 
 # Test fixture gems
 Dir[File.expand_path('../spec/fixtures/gems/*', __FILE__)].each do |path|
