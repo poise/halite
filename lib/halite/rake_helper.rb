@@ -68,7 +68,7 @@ module Halite
       task 'chef:foodcritic' do
         Dir.mktmpdir('halite_test') do |path|
           Halite.convert(gemspec, path)
-          sh("foodcritic --chef-version #{Chef::VERSION} --epic-fail any '#{path}'")
+          sh("foodcritic --chef-version #{Chef::VERSION} --epic-fail any --tags ~FC054 '#{path}'")
         end
       end
 
