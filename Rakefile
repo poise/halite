@@ -20,7 +20,7 @@ require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = [].tap do |a|
     a << '--color'
-    a << '--format Fuubar'
+    a << "--format #{ENV['CI'] ? 'documentation' : 'Fuubar'}"
     a << '--tag ~slow'
     a << '--backtrace' if ENV['DEBUG']
     a << "--seed #{ENV['SEED']}" if ENV['SEED']
@@ -30,7 +30,7 @@ end
 RSpec::Core::RakeTask.new(:integration) do |t|
   t.rspec_opts = [].tap do |a|
     a << '--color'
-    a << '--format Fuubar'
+    a << "--format #{ENV['CI'] ? 'documentation' : 'Fuubar'}"
     a << '--backtrace' if ENV['DEBUG']
     a << "--seed #{ENV['SEED']}" if ENV['SEED']
   end.join(' ')
