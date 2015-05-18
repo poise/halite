@@ -21,6 +21,8 @@ require 'chef/provider'
 # A `halite_test_simple` resource for use in Halite's unit tests.
 class Chef
   class Resource::HaliteTestSimple < Resource
+    provides(:halite_test_simple) # For Chef >= 12.4
+
     def initialize(*args)
       super
       @resource_name = :halite_test_simple
@@ -31,6 +33,8 @@ class Chef
 
   class Provider::HaliteTestSimple < Provider
     include Chef::DSL::Recipe
+
+    provides(:halite_test_simple) # For Chef >= 12.4
 
     def load_current_resource
     end
