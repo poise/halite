@@ -47,6 +47,7 @@ module Halite
   #     it { is_expected.to create_file('/etc/thing').with(content: 'mixin stuff') }
   #   end
   module SpecHelper
+    autoload :Patcher, 'halite/spec_helper/patcher'
     autoload :Runner, 'halite/spec_helper/runner'
     extend RSpec::SharedContext
 
@@ -137,46 +138,6 @@ module Halite
     #    subject { provider(:my_provider) }
     def provider(name)
       self.class.providers[name.to_sym]
-    end
-
-    private
-
-    # Patch an object in to a global namespace for the duration of a block.
-    #
-    # @param mod [Module] Namespace to patch in to.
-    # @param name [String, Symbol] Name to create in snake-case (eg. :my_name).
-    # @param obj Object to patch in.
-    # @param block [Proc] Block to execute while the name is available.
-    def patch_module(mod, name, obj, &block)
-      class_name = Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
-      if mod.const_defined?(class_name, false)
-        old_class = mod.const_get(class_name, false)
-        # We are only allowed to patch over things installed by patch_module
-        raise "#{mod.name}::#{class_name} is already defined" if !old_class.instance_variable_get(:@poise_patch_module)
-        # Remove it before setting to avoid the redefinition warning
-        mod.send(:remove_const, class_name)
-      end
-      # Tag our objects so we know we are allowed to overwrite those, but not other stuff.
-      obj.instance_variable_set(:@poise_patch_module, true)
-      mod.const_set(class_name, obj)
-      begin
-        block.call
-      ensure
-        # Same as above, have to remove before set because warnings
-        mod.send(:remove_const, class_name)
-        mod.const_set(class_name, old_class) if old_class
-      end
-    end
-
-    def patch_descendants_tracker(klass, &block)
-      begin
-        # Re-add to tracking.
-        Chef::Mixin::DescendantsTracker.store_inherited(klass.superclass, klass)
-        block.call
-      ensure
-        # Clean up after ourselves.
-        Chef::Mixin::DescendantsTracker.direct_descendants(klass.superclass).delete(klass)
-      end
     end
 
     # @!classmethods
@@ -351,12 +312,11 @@ module Halite
         step_into(resource_class, name, unwrap_notifying_block: unwrap_notifying_block) if step_into
 
         around do |ex|
-          # Patch subclass tracking.
-          patch_descendants_tracker(resource_class) do
-            # Patch the resource in to Chef.
-            patch_module(Chef::Resource, name, resource_class) do
-              ex.run
-            end
+          if resource(name) == resource_class
+            # We haven't been overridden from a nested scope.
+            Patcher.patch(name, resource_class, Chef::Resource) { ex.run }
+          else
+            ex.run
           end
         end
       end
@@ -440,8 +400,11 @@ module Halite
         halite_helpers[:providers][name.to_sym] = provider_class
 
         around do |ex|
-          patch_descendants_tracker(provider_class) do
-            patch_module(Chef::Provider, name, provider_class) { ex.run }
+          if provider(name) == provider_class
+            # We haven't been overridden from a nested scope.
+            Patcher.patch(name, provider_class, Chef::Provider) { ex.run }
+          else
+            ex.run
           end
         end
       end
