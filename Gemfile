@@ -35,5 +35,3 @@ dev_gem 'poise-boiler'
 Dir[File.expand_path('../spec/fixtures/gems/*', __FILE__)].each do |path|
   gem File.basename(path), path: path
 end
-
-gem 'rspec-command', github: 'coderanger/rspec-command'
