@@ -323,9 +323,10 @@ module Halite
           # Evaluate the class body.
           class_exec(&block) if block
 
-          # Wrap some stuff around initialize because I'm lazy. Optional for
-          # special unicorn tests.
+
+          # Optional initialization steps. Disable for special unicorn tests.
           if auto
+            # Fill in a :run action by default.
             old_init = instance_method(:initialize)
             define_method(:initialize) do |*args|
               # Fill in the resource name because I know it
