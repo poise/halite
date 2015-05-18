@@ -5,6 +5,9 @@ rvm:
 - "2.0"
 - "2.1"
 - "2.2"
+gemfiles:
+- gemfiles/default.gemfile
+- gemfiles/master.gemfile
 env:
   global:
   - USE_SYSTEM_GECODE=true
