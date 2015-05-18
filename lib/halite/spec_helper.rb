@@ -19,8 +19,6 @@ require 'chef/provider'
 require 'chef/resource'
 require 'chefspec'
 
-require 'halite/spec_helper/runner'
-
 
 module Halite
   # A helper module for RSpec tests of resource-based cookbooks.
@@ -49,7 +47,9 @@ module Halite
   #     it { is_expected.to create_file('/etc/thing').with(content: 'mixin stuff') }
   #   end
   module SpecHelper
+    autoload :Runner, 'halite/spec_helper/runner'
     extend RSpec::SharedContext
+
     # @!attribute [r] step_into
     #   Resource names to step in to when running this example.
     #   @see https://github.com/sethvargo/chefspec#testing-lwrps
