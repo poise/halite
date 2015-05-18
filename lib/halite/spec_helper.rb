@@ -297,7 +297,7 @@ module Halite
       #     end
       #     it { is_expected.to run_my_resource('test').with(path: '/tmp') }
       #   end
-      def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, &block)
+      def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, defined_at: caller[0], &block)
         parent = resources[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{parent.inspect}") unless parent.is_a?(Class)
         # Pull out the example metadata for use in the class.
@@ -307,6 +307,11 @@ module Halite
           # Make the anonymous class pretend to have a name.
           define_singleton_method(:name) do
             'Chef::Resource::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
+          end
+
+          # Helper for debugging, shows where the class was defined.
+          define_singleton_method(:halite_defined_at) do
+            defined_at
           end
 
           # Create magic delegators for various metadata.
@@ -384,7 +389,7 @@ module Halite
       #     it { is_expected.to run_my_resource('test') }
       #     it { is_expected.to run_ruby_block('test') }
       #   end
-      def provider(name, auto: true, rspec: true, parent: Chef::Provider, &block)
+      def provider(name, auto: true, rspec: true, parent: Chef::Provider, defined_at: caller[0], &block)
         parent = providers[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless parent.is_a?(Class)
         # Pull out the example metadata for use in the class.
@@ -410,6 +415,11 @@ module Halite
           # Make the anonymous class pretend to have a name.
           define_singleton_method(:name) do
             'Chef::Provider::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
+          end
+
+          # Helper for debugging, shows where the class was defined.
+          define_singleton_method(:halite_defined_at) do
+            defined_at
           end
 
           # Create magic delegators for various metadata.
