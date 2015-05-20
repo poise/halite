@@ -2,7 +2,6 @@
 
 [![Build Status](https://img.shields.io/travis/coderanger/halite.svg)](https://travis-ci.org/coderanger/halite)
 [![Gem Version](https://img.shields.io/gem/v/halite.svg)](https://rubygems.org/gems/halite)
-[![Code Climate](https://img.shields.io/codeclimate/github/coderanger/halite.svg)](https://codeclimate.com/github/coderanger/halite)
 [![Coverage](https://img.shields.io/codecov/c/github/coderanger/halite.svg)](https://codecov.io/github/coderanger/halite)
 [![Gemnasium](https://img.shields.io/gemnasium/coderanger/halite.svg)](https://gemnasium.com/coderanger/halite)
 [![License](https://img.shields.io/badge/license-Apache_2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
@@ -18,6 +17,15 @@ converted cookbook will be written to `pkg/`.
 All Ruby code in the gem will be converted in to `libraries/` files. You can
 add cookbook-specific files by add them to a `chef/` folder in the root of the
 gem.
+
+## Why?
+
+Developing cookbooks as gems allows using the full Ruby development ecosystem
+and tooling more directly. This includes things like Simplecov for coverage
+testing, YARD for documentation, and Gemnasium for dependency monitoring. For
+a cookbook that is already mostly library files, this is a natural transition,
+with few cookbook-specific pieces to start with. This also allows using Bundler
+to manage versions instead of Berkshelf.
 
 ## Cookbook Dependencies
 
@@ -74,3 +82,96 @@ To activate it, include the extension in your `Berksfile`:
 ```ruby
 extension 'halite'
 ```
+
+## Spec Helper
+
+Halite includes a set of helpers for RSpec tests. You can enable them in your
+`spec_helper.rb`:
+
+```ruby
+require 'halite/spec_helper'
+
+RSpec.configure do |config|
+  config.include Halite::SpecHelper
+end
+```
+
+### `recipe`
+
+Recipes to converge for the test can be defined inline on example groups:
+
+```ruby
+describe 'cookbook recipe' do
+  recipe 'myrecipe'
+  it { is_expected.to create_file('/myfile') }
+end
+
+describe 'inline recipe' do
+  recipe do
+    file '/myfile' do
+      content 'mycontent'
+    end
+  end
+  it { is_expected.to create_file('/myfile') }
+end
+```
+
+### `step_into`
+
+A resource can be added to the list to step in to via the `step_into` helper:
+
+```ruby
+describe 'mycookbook' do
+  recipe 'mycookbook::server'
+  step_into :mycookbook_lwrp
+  it { is_expected.to ... }
+end
+```
+
+### `resource` and `provider`
+
+For testing mixin-based cookbooks, new resource and provider classes can be
+declared on an example group:
+
+```ruby
+describe MyMixin do
+  resource(:test_resource) do
+    include MyMixin
+    def foo(val=nil)
+      set_or_return(:foo, val, {})
+    end
+  end
+  provider(:test_resource) do
+    def action_run
+      # ...
+    end
+  end
+  recipe do
+    test_resource 'test' do
+      foo 1
+      action :run
+    end
+  end
+  it { is_expected.to ... }
+end
+```
+
+These helper resources and providers are only available within the scope of
+recipes defined on that example group or groups nested inside it. Helper
+resources are automatically `step_into`'d.
+
+## License
+
+Copyright 2015, Noah Kantrowitz
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
