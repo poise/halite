@@ -147,7 +147,7 @@ module Halite
       end
     end
 
-    # Search for a file like README.md or LICENSE.txt in the game.
+    # Search for a file like README.md or LICENSE.txt in the gem.
     #
     # @param name [String] Basename to search for.
     # @return [String, Array<String>]
