@@ -20,6 +20,7 @@ module Halite
     # Converter module to create the metadata.rb for the cookbook.
     #
     # @since 1.0.0
+    # @api private
     module Metadata
       # Generate a cookbook metadata file.
       #

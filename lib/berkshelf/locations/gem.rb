@@ -16,7 +16,12 @@
 
 require 'halite'
 
+
 module Berkshelf
+  # Berkshelf location plugin to install via Halite gems.
+  #
+  # @since 1.0.0
+  # @api private
   class GemLocation < BaseLocation
     attr_reader :gem_name
 
@@ -52,7 +57,7 @@ module Berkshelf
       end
     end
 
-    # @see BaseLocation#to_lock
+    # Lockfile rendering for Halite gem cookbooks.
     def to_lock
       "    gem: #{gem_name}\n"
     end

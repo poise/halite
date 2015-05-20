@@ -18,7 +18,10 @@
 require 'halite/berkshelf/helper'
 ::Halite::Berkshelf::Helper.install
 
-# Set up the :gem location type
+
+# Berkshelf plugin loading.
+# @api private
 module Berkshelf
+  # Set up the :gem location type.
   autoload :GemLocation, 'berkshelf/locations/gem'
 end

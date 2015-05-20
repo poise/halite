@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 
+
 module Halite
+  # Halite version.
   VERSION = '1.0.0'
 end

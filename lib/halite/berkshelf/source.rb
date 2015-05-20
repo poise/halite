@@ -18,11 +18,18 @@ require 'halite/gem'
 require 'berkshelf/source'
 require 'berkshelf/api_client/remote_cookbook'
 
+
 module Halite
   module Berkshelf
-
+    # Berkshelf global source to find all Halite cookbooks in the current
+    # gems environment.
+    #
+    # @since 1.0.0
+    # @api private
     class Source < ::Berkshelf::Source
       def initialize
+        # Pretend our URL is set even though it isn't used. Otherwise berks
+        # complains.
         super 'https://supermarket.chef.io'
       end
 
@@ -46,6 +53,7 @@ module Halite
         end
       end
 
+      # Show "... from Halite gems" when installing.
       def to_s
         "Halite gems"
       end

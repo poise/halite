@@ -455,6 +455,11 @@ module Halite
     extend ClassMethods
   end
 
+  # Method version of SpecHelper module. Used to inject a gem data to load
+  # a synthetic cookbook during testing.
+  #
+  # @see Halite::SpecHelper
+  # @param gemspec [Gem::Specification] Gem spec to load as cookbook.
   def self.SpecHelper(gemspec)
     # Create a new anonymous module
     mod = Module.new

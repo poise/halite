@@ -23,6 +23,7 @@ module Halite
     # from the chef/ directory in the gem.
     #
     # @since 1.0.0
+    # @api private
     module Chef
       # Copy all files in the chef/ directory in the gem.
       #

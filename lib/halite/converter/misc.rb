@@ -23,6 +23,7 @@ module Halite
     # and LICENSE.txt.
     #
     # @since 1.0.0
+    # @api private
     module Misc
       # Copy miscellaneous project-level files.
       #

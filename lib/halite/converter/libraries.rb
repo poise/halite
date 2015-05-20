@@ -22,6 +22,7 @@ module Halite
     # Converter methods for gem library code (ex. files under lib/).
     #
     # @since 1.0.0
+    # @api private
     module Libraries
       # Generate the bootstrap code for the Chef cookbook.
       #

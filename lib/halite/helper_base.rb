@@ -22,6 +22,7 @@ require 'thor/shell'
 require 'halite/error'
 require 'halite/gem'
 
+
 module Halite
   # Base class for helpers like Rake tasks.
   #

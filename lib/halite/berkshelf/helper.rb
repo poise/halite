@@ -19,9 +19,13 @@ require 'halite/berkshelf/source'
 require 'berkshelf/berksfile'
 require 'berkshelf/downloader'
 
+
 module Halite
   module Berkshelf
-
+    # Helper class to monkeypatch global gem support in to Berkshelf.
+    #
+    # @since 1.0.0
+    # @api private
     class Helper
       def self.install(*args)
         new(*args).install
@@ -30,8 +34,10 @@ module Halite
       def initialize
       end
 
+      # Install the two patches.
+      #
+      # @return [void]
       def install
-
         # Switch this to use Module#prepend at some point when I stop caring about Ruby 1.9.
         ::Berkshelf::Berksfile.class_exec do
           old_sources = instance_method(:sources)

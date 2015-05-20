@@ -24,7 +24,16 @@ require 'halite/helper_base'
 
 
 module Halite
+  # Helper class to install Halite rake tasks.
+  #
+  # @since 1.0.0
+  # @example Rakefile
+  #   require 'halite/rake_helper'
+  #   Halite::RakeHelper.install
   class RakeHelper < HelperBase
+    # Install all Rake tasks.
+    #
+    # @return [void]
     def install
       extend Rake::DSL
       # Core Halite tasks

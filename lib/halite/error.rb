@@ -14,7 +14,11 @@
 # limitations under the License.
 #
 
+
 module Halite
+  # Base class for Halite library errors.
+  #
+  # @since 1.0.0
   class Error < ::Exception
   end
 end

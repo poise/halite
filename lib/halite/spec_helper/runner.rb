@@ -25,6 +25,10 @@ require 'halite/gem'
 
 module Halite
   module SpecHelper
+    # ChefSpec runner class with Halite customizations. This adds attribute
+    # options, Halite synthetic cookbook injection, and block-based recipes.
+    #
+    # @since 1.0.0
     class Runner < ChefSpec::SoloRunner
       def self.converge(*recipe_names, &block)
         options = if recipe_names.last.is_a?(Hash)
