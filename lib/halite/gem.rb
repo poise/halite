@@ -157,7 +157,7 @@ module Halite
       [name, name.upcase, name.downcase].each do |base|
         ['.md', '', '.txt', '.html'].each do |suffix|
           path = File.join(spec.full_gem_path, base+suffix)
-          return path if File.exists?(path)
+          return path if File.exist?(path)
         end
       end
       # Didn't find anything

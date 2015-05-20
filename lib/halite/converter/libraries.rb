@@ -64,7 +64,7 @@ EOH
       # @return [Array<String>]
       def self.find_default_entry_points(gem_data)
         [].tap do |entry_points|
-          gem_data.each_library_file do |path, rel_path|
+          gem_data.each_library_file do |_path, rel_path|
             if File.basename(rel_path) == 'cheftie.rb'
               # Trim the .rb for cleanliness.
               entry_points << rel_path[0..-4]

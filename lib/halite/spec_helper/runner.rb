@@ -75,7 +75,7 @@ module Halite
           add_halite_cookbook(node, dep.spec) if dep.spec
         end
         # Load attributes if any.
-        gem_data.each_file('chef/attributes') do |full_path, rel_path|
+        gem_data.each_file('chef/attributes') do |_full_path, rel_path|
           raise Halite::Error.new("Chef does not support nested attribute files: #{rel_path}") if rel_path.include?(File::SEPARATOR)
           name = File.basename(rel_path, '.rb')
           node.include_attribute("#{gem_data.cookbook_name}::#{name}")
@@ -83,7 +83,7 @@ module Halite
       end
 
       # Don't try to autodetect the calling cookbook.
-      def calling_cookbook_path(kaller)
+      def calling_cookbook_path(_kaller)
         File.expand_path('../empty', __FILE__)
       end
     end

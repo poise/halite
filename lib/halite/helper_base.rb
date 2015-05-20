@@ -59,7 +59,7 @@ module Halite
         ::Rake.original_dir
       else
         Dir.pwd
-      end
+      end # rubocop:disable Lint/EndAlignment
       @gem_name = gem_name || find_gem_name(@base)
       @options = options
     end

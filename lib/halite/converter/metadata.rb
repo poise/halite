@@ -34,7 +34,7 @@ module Halite
           if gem_data.spec.description && !gem_data.spec.description.empty?
             buf << "description #{gem_data.spec.description.inspect}\n"
           end
-          if readme_path = gem_data.find_misc_path('Readme')
+          if readme_path = gem_data.find_misc_path('Readme') # rubocop:disable Lint/AssignmentInCondition
             buf << "long_description #{IO.read(readme_path).inspect}\n"
           end
           gem_data.cookbook_dependencies.each do |dep|

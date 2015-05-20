@@ -59,7 +59,7 @@ module Halite
       end
 
       # If a .kitchen.yml exists, install the Test Kitchen tasks.
-      unless options[:no_kitchen] || !File.exists?(File.join(@base, '.kitchen.yml'))
+      unless options[:no_kitchen] || !File.exist?(File.join(@base, '.kitchen.yml'))
         install_kitchen
       end
     end
