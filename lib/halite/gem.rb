@@ -33,12 +33,8 @@ module Halite
     # name can be either a string name, Gem::Dependency, or Gem::Specification
     # @param name [String, Gem::Dependency, Gem::Specification]
     def initialize(name, version=nil)
-      if name.is_a?(::Gem::Dependency)
-        # Allow passing a Dependency by just grabbing its spec.
-        dependency = name
-        name = dependency.to_spec || dependency.to_specs.last
-        raise Error.new("Cannot find a gem to satisfy #{dependency}") unless name
-      end
+      # Allow passing a Dependency by just grabbing its spec.
+      name = dependency_to_spec(name) if name.is_a?(::Gem::Dependency)
       if name.is_a?(::Gem::Specification)
         raise Error.new("Cannot pass version when using an explicit specficiation") if version
         @spec = name
@@ -51,7 +47,7 @@ module Halite
     end
 
     def spec
-      @spec ||= ::Gem::Dependency.new(@name, ::Gem::Requirement.new(@version)).to_spec
+      @spec ||= dependency_to_spec(::Gem::Dependency.new(@name, ::Gem::Requirement.new(@version)))
     end
 
     def version
@@ -168,6 +164,21 @@ module Halite
       end
       # Didn't find anything
       nil
+    end
+
+    private
+
+    # Find a spec given a dependency.
+    #
+    # @since 1.0.1
+    # @param dep [Gem::Dependency] Dependency to solve.
+    # @return [Gem::Specificiation]
+    def dependency_to_spec(dep)
+      # #to_spec doesn't allow prereleases unless the requirement is
+      # for a prerelease. Just use the last valid spec if possible.
+      spec = dep.to_spec || dep.to_specs.last
+      raise Error.new("Cannot find a gem to satisfy #{dep}") unless spec
+      spec
     end
   end
 end
