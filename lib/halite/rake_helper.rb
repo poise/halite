@@ -104,7 +104,7 @@ module Halite
 
     def release_cookbook
       Dir.chdir(pkg_path) do
-        #sh('stove --sign')
+        sh('stove --sign')
       end
     end
 
