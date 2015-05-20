@@ -17,6 +17,7 @@
 require 'chef/cookbook_version'
 
 require 'halite/dependencies'
+require 'halite/error'
 
 
 module Halite
@@ -32,7 +33,12 @@ module Halite
     # name can be either a string name, Gem::Dependency, or Gem::Specification
     # @param name [String, Gem::Dependency, Gem::Specification]
     def initialize(name, version=nil)
-      name = name.to_spec if name.is_a?(::Gem::Dependency) # Allow passing a Dependency by just grabbing its spec.
+      if name.is_a?(::Gem::Dependency)
+        # Allow passing a Dependency by just grabbing its spec.
+        dependency = name
+        name = dependency.to_spec || dependency.to_specs.last
+        raise Error.new("Cannot find a gem to satisfy #{dependency}") unless name
+      end
       if name.is_a?(::Gem::Specification)
         raise Error.new("Cannot pass version when using an explicit specficiation") if version
         @spec = name
