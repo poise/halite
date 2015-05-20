@@ -1,9 +1,9 @@
 # Halite
 
-[![Build Status](https://img.shields.io/travis/coderanger/halite.svg)](https://travis-ci.org/coderanger/halite)
+[![Build Status](https://img.shields.io/travis/poise/halite.svg)](https://travis-ci.org/poise/halite)
 [![Gem Version](https://img.shields.io/gem/v/halite.svg)](https://rubygems.org/gems/halite)
-[![Coverage](https://img.shields.io/codecov/c/github/coderanger/halite.svg)](https://codecov.io/github/coderanger/halite)
-[![Gemnasium](https://img.shields.io/gemnasium/coderanger/halite.svg)](https://gemnasium.com/coderanger/halite)
+[![Coverage](https://img.shields.io/codecov/c/github/poise/halite.svg)](https://codecov.io/github/poise/halite)
+[![Gemnasium](https://img.shields.io/gemnasium/poise/halite.svg)](https://gemnasium.com/poise/halite)
 [![License](https://img.shields.io/badge/license-Apache_2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 Write as a gem, release as a cookbook.
