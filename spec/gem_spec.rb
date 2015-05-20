@@ -127,6 +127,44 @@ describe Halite::Gem do
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
   end # /context when loading test3
 
+  context 'when loading a Gem::Dependency' do
+    let(:dependency) do
+      reqs = []
+      reqs << Gem::Requirement.create(gem_version) if gem_version
+      Gem::Dependency.new(gem_name, *reqs)
+    end
+    subject { described_class.new(dependency) }
+
+    context 'test1' do
+      let(:gem_name) { 'test1' }
+      its(:version) { is_expected.to eq '1.2.3' }
+    end # /context test1
+
+    context 'test1 > 1.2.0' do
+      let(:gem_name) { 'test1' }
+      let(:gem_version) { '> 1.2.0' }
+      its(:version) { is_expected.to eq '1.2.3' }
+    end # /context test1 > 1.2.0
+
+    context 'test1 > 1.3.0' do
+      let(:gem_name) { 'test1' }
+      let(:gem_version) { '> 1.3.0' }
+      it { expect { subject }.to raise_error Halite::Error }
+    end # /context test1 > 1.3.0
+
+    context 'test1 ~> 1.2' do
+      let(:gem_name) { 'test1' }
+      let(:gem_version) { '~> 1.2' }
+      its(:version) { is_expected.to eq '1.2.3' }
+    end # /context test1 ~> 1.2
+
+    context 'test4 ~> 2.3' do
+      let(:gem_name) { 'test4' }
+      let(:gem_version) { '~> 2.3' }
+      its(:version) { is_expected.to eq '2.3.1.rc.1' }
+    end # /context test4 ~> 2.3
+  end # /context when loading a Gem::Dependency
+
   describe '#cookbook_name' do
     let(:metadata) { {} }
     subject { described_class.new(Gem::Specification.new {|s| s.name = gem_name; s.metadata.update(metadata) }).cookbook_name }
@@ -170,5 +208,5 @@ describe Halite::Gem do
       let(:gem_name) { 'mycompany-mygem' }
       it { is_expected.to eq 'mycompany-mygem' }
     end
-  end
+  end # /describe #cookbook_name
 end
