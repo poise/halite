@@ -31,7 +31,7 @@ module Halite
       # @param output_path [String] Output path for the cookbook.
       # @return [void]
       def self.write(gem_data, output_path)
-        %w{Readme License Copying Contributing}.each do |name|
+        %w{Readme License Copying Contributing Changelog}.each do |name|
           if path = gem_data.find_misc_path(name) # rubocop:disable Lint/AssignmentInCondition
             FileUtils.copy(path, File.join(output_path, File.basename(path)), preserve: true)
           end
