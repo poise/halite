@@ -1,6 +1,10 @@
 sudo: false
 cache: bundler
 language: ruby
+addons:
+  apt:
+    packages:
+    - libgecode-dev
 rvm:
 - "2.0"
 - "2.1"
@@ -8,10 +12,6 @@ rvm:
 gemfile:
 - gemfiles/default.gemfile
 - gemfiles/master.gemfile
-addons:
-  apt:
-    packages:
-    - libgecode-dev
 env:
   global:
   - USE_SYSTEM_GECODE=true
