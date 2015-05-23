@@ -21,6 +21,7 @@ describe Halite::Converter::Metadata do
     let(:gem_name) { 'mygem' }
     let(:cookbook_name) { gem_name }
     let(:version) { '1.0.0' }
+    let(:cookbook_version) { version }
     let(:cookbook_dependencies) { [] }
     let(:spec) do
       instance_double('Gem::Specification', description: '')
@@ -34,6 +35,7 @@ describe Halite::Converter::Metadata do
         name: gem_name,
         spec: spec,
         version: version,
+        cookbook_version: cookbook_version,
       )
     end
     subject { described_class.generate(gem_data) }

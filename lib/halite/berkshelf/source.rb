@@ -43,7 +43,7 @@ module Halite
           # Build a fake "remote" cookbook
           ::Berkshelf::APIClient::RemoteCookbook.new(
             cook.cookbook_name,
-            cook.version,
+            cook.cookbook_version,
             {
               location_type: 'halite',
               location_path: cook.name,

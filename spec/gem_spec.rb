@@ -25,6 +25,7 @@ describe Halite::Gem do
 
   context 'when loading halite' do
     its(:name) { is_expected.to eq 'halite' }
+    its(:cookbook_name) { is_expected.to eq 'halite' }
     its(:version) { is_expected.to eq Halite::VERSION }
     its(:spec) { is_expected.to be_a Gem::Specification }
   end
@@ -32,6 +33,7 @@ describe Halite::Gem do
   context 'when loading halite with a version' do
     let(:gem_version) { Halite::VERSION }
     its(:name) { is_expected.to eq 'halite' }
+    its(:cookbook_name) { is_expected.to eq 'halite' }
     its(:version) { is_expected.to eq Halite::VERSION }
     its(:spec) { is_expected.to be_a Gem::Specification }
   end
@@ -46,8 +48,9 @@ describe Halite::Gem do
   context 'when loading test1' do
     let(:gem_name) { 'test1' }
     its(:name) { is_expected.to eq 'test1' }
-    its(:version) { is_expected.to eq '1.2.3' }
     its(:cookbook_name) { is_expected.to eq 'test1' }
+    its(:version) { is_expected.to eq '1.2.3' }
+    its(:cookbook_version) { is_expected.to eq '1.2.3' }
     its(:license_header) { is_expected.to eq "# coding: utf-8\n# Awesome license\n" }
     its(:each_library_file) { is_expected.to eq [
       [File.expand_path('../fixtures/gems/test1/lib/test1.rb', __FILE__), 'test1.rb'],
@@ -81,8 +84,9 @@ describe Halite::Gem do
   context 'when loading test2' do
     let(:gem_name) { 'test2' }
     its(:name) { is_expected.to eq 'test2' }
-    its(:version) { is_expected.to eq '4.5.6' }
     its(:cookbook_name) { is_expected.to eq 'test2' }
+    its(:version) { is_expected.to eq '4.5.6' }
+    its(:cookbook_version) { is_expected.to eq '4.5.6' }
     its(:license_header) { is_expected.to eq "# coding: utf-8\n" }
     its(:each_library_file) { is_expected.to eq [
       [File.expand_path('../fixtures/gems/test2/lib/test2.rb', __FILE__), 'test2.rb'],
@@ -126,6 +130,13 @@ describe Halite::Gem do
     its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('test2', '~> 4.5.6', :dependencies)] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
   end # /context when loading test3
+
+  context 'when loading test4' do
+    let(:gem_name) { 'test4' }
+    its(:cookbook_name) { is_expected.to eq 'test4' }
+    its(:version) { is_expected.to eq '2.3.1.rc.1' }
+    its(:cookbook_version) { is_expected.to eq '2.3.1' }
+  end # /context when loading test4
 
   context 'when loading a Gem::Dependency' do
     let(:dependency) do

@@ -30,7 +30,7 @@ module Halite
         ''.tap do |buf|
           buf << gem_data.license_header
           buf << "name #{gem_data.cookbook_name.inspect}\n"
-          buf << "version #{gem_data.version.inspect}\n"
+          buf << "version #{gem_data.cookbook_version.inspect}\n"
           if gem_data.spec.description && !gem_data.spec.description.empty?
             buf << "description #{gem_data.spec.description.inspect}\n"
           end

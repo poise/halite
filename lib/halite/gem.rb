@@ -62,6 +62,18 @@ module Halite
       end
     end
 
+    # Version of the gem sanitized for Chef. This means no non-numeric tags and
+    # only three numeric components.
+    #
+    # @return [String]
+    def cookbook_version
+      if match = version.match(/^(\d+\.\d+\.(\d+)?)/)
+        match[1]
+      else
+        raise Halite::Error.new("Unable to parse #{version.inspect} as a Chef cookbook version")
+      end
+    end
+
     # Path to the .gemspec for this gem. This is different from
     # Gem::Specification#spec_file because the Rubygems API is shit and just
     # assumes the file layout matches normal, which is not the case with Bundler
