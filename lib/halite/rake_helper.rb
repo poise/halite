@@ -114,6 +114,7 @@ module Halite
     def release_cookbook
       Dir.chdir(pkg_path) do
         sh('stove --no-git')
+        shell.say("Pushed #{gemspec.name} #{gemspec.version} to supermarket.chef.io.", :green)
       end
     end
 
