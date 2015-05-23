@@ -91,7 +91,7 @@ module Halite
     def install_kitchen
       desc 'Run all Test Kitchen tests'
       task 'chef:kitchen' do
-        sh 'kitchen test -d always'
+        sh(*%w{kitchen test -d always})
       end
 
       add_test_task('chef:kitchen')
