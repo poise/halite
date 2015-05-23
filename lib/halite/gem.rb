@@ -179,7 +179,7 @@ module Halite
       spec = dep.to_spec || dep.to_specs.last
       raise Error.new("Cannot find a gem to satisfy #{dep}") unless spec
       spec
-    rescue Gem::LoadError => ex
+    rescue ::Gem::LoadError => ex
       raise Error.new("Cannot find a gem to satisfy #{dep}: #{ex}")
     end
   end
