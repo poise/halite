@@ -38,7 +38,8 @@ module Halite
         ::Gem::Specification.stubs.map do |spec|
           Gem.new(spec)
         end.select do |cook|
-          cook.is_halite_cookbook?
+          # Make sure this is a cookbook, and that it isn't a pre-release.
+          cook.is_halite_cookbook? && cook.version == cook.cookbook_version
         end.map do |cook|
           # Build a fake "remote" cookbook
           ::Berkshelf::APIClient::RemoteCookbook.new(
