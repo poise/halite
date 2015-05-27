@@ -100,11 +100,15 @@ module Halite
     end
 
     def self.clean_version(ver)
-      segments = ver.segments
-      # Various ways Chef differs from Rubygems
+      segments = ver.segments.dup
+      # Various ways Chef differs from Rubygems.
+      # Strip any pre-release tags in the version.
+      segments = segments.take_while {|s| s.to_s =~ /^\d+$/ }
+      # Must be x or x.y or x.y.z.
       raise InvalidDependencyError.new("Chef only supports two or three version segments: #{ver}") if segments.length < 1 || segments.length > 3
-      segments.each {|s| raise InvalidDependencyError.new("Chef does not support pre-release version numbers: #{ver}") unless s.is_a?(Integer) }
+      # If x, convert to x.0 because Chef requires two segments.
       segments << 0 if segments.length == 1
+      # Convert 0.0 or 0.0.0 to just 0.
       segments = [0] if segments.all? {|s| s == 0 }
       ::Gem::Version.new(segments.join('.'))
     end

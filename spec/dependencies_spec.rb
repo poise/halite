@@ -205,7 +205,12 @@ describe Halite::Dependencies do
 
     context 'with 1.0.a' do
       let(:version) { '1.0.a' }
-      it { expect { subject }.to raise_error Halite::InvalidDependencyError }
+      it { is_expected.to eq '1.0' }
+    end
+
+    context 'with 2.3.rc.0' do
+      let(:version) { '2.3.rc.0' }
+      it { is_expected.to eq '2.3' }
     end
 
     context 'with 1.2.3.4' do
