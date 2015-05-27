@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.3
+
+* Never try to do universe installs of pre-release gems in the Berkshelf extension.
+
 ## v1.0.2
 
 * Handle converting cookbooks with pre-release version numbers and other
