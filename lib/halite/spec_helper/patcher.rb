@@ -35,14 +35,38 @@ module Halite
       def self.patch(name, klass, mod=nil, &block)
         patch_descendants_tracker(klass) do
           patch_node_map(name, klass) do
-            patch_recipe_dsl(name, klass) do
-              if mod
-                patch_module(mod, name, klass, &block)
-              else
-                block.call
+            patch_priority_map(name, klass) do
+              patch_recipe_dsl(name, klass) do
+                if mod
+                  patch_module(mod, name, klass, &block)
+                else
+                  block.call
+                end
               end
             end
           end
+        end
+      end
+
+      # Perform any post-class-creation cleanup tasks to deal with compile time
+      # global registrations.
+      #
+      # @since 1.0.4
+      # @param name [String, Symbol] Name of the class that was created in
+      #   snake-case (eg. :my_name).
+      # @param klass [Class] Newly created class.
+      # @return [void]
+      def self.post_create_cleanup(name, klass)
+        # Remove from DescendantsTracker.
+        Chef::Mixin::DescendantsTracker.direct_descendants(klass.superclass).delete(klass)
+        # Remove from the priority maps.
+        if priority_map = priority_map_for(klass)
+          # Make sure we add name in there too because anonymous classes don't
+          # get a priority map registration by default.
+          removed_keys = remove_from_node_map(priority_map.send(:priority_map), klass) | [name.to_sym]
+          # This ivar is used down in #patch_priority_map to re-add the correct
+          # keys based on the class definition.
+          klass.instance_variable_set(:@halite_original_priority_keys, removed_keys)
         end
       end
 
@@ -91,20 +115,20 @@ module Halite
         end
       end
 
-      # Patch a class in to its node_map.
+      # Patch a class in to its node_map. This is not used in 12.4+.
       #
       # @param name [Symbol] Name to patch in.
       # @param klass [Class] Resource class to patch in.
       # @param block [Proc] Block to execute while the patch is available.
       # @return [void]
       def self.patch_node_map(name, klass, &block)
+        return block.call unless defined?(klass.node_map)
         begin
           # Technically this is set to true on >=12.4, but this should work.
           klass.node_map.set(name, klass)
           block.call
         ensure
-          # Sigh.
-          klass.node_map.instance_variable_get(:@map).delete(name)
+          remove_from_node_map(klass.node_map, klass)
         end
       end
 
@@ -123,6 +147,66 @@ module Halite
         ensure
           Chef::DSL::Resources.remove_resource_dsl(name)
         end
+      end
+
+      # Patch a class in to the correct priority map for the duration of a code
+      # block. This is a no-op before Chef 12.4.
+      #
+      # @since 1.0.4
+      # @param name [Symbol] Name to patch in.
+      # @param klass [Class] Resource or provider class to patch in.
+      # @param block [Proc] Block to execute while the patch is available.
+      # @return [void]
+      def self.patch_priority_map(name, klass, &block)
+        priority_map = priority_map_for(klass)
+        return block.call unless priority_map
+        node_map = priority_map.send(:priority_map)
+        begin
+          # Unlike patch_node_map, this has to be an array!
+          klass.instance_variable_get(:@halite_original_priority_keys).each do |key|
+            node_map.set(key, [klass])
+          end
+          block.call
+        ensure
+          remove_from_node_map(node_map, klass)
+        end
+      end
+
+      private
+
+      # Find the global priority map for a class.
+      #
+      # @since 1.0.4
+      # @param klass [Class] Resource or provider class to look up.
+      # @return [nil, Chef::Platform::ResourcePriorityMap, Chef::Platform::ProviderPriorityMap]
+      def self.priority_map_for(klass)
+        if defined?(Chef.resource_priority_map) && klass < Chef::Resource
+          Chef.resource_priority_map
+        elsif defined?(Chef.provider_priority_map) && klass < Chef::Provider
+          Chef.provider_priority_map
+        end
+      end
+
+      # Remove a value from a Chef::NodeMap. Returns the keys that were removed.
+      #
+      # @since 1.0.4
+      # @param node_map [Chef::NodeMap] Node map to remove from.
+      # @param value [Object] Value to remove.
+      # @return [Array<Symbol>]
+      def self.remove_from_node_map(node_map, value)
+        # Sigh.
+        removed_keys = []
+        node_map.instance_variable_get(:@map).each do |key, matchers|
+          matchers.delete_if do |matcher|
+            # In 12.4+ this value is an array of classes, before that it is the class.
+            if matcher[:value].is_a?(Array)
+              matcher[:value].include?(value)
+            else
+              matcher[:value] == value
+            end && removed_keys << key # Track removed keys in a hacky way.
+          end
+        end
+        removed_keys
       end
 
     end

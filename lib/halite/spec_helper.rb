@@ -302,8 +302,8 @@ module Halite
           end
         end
 
-        # Remove from overall descendants tracker.
-        Chef::Mixin::DescendantsTracker.direct_descendants(parent).delete(resource_class)
+        # Clean up any global registration that happens on class compile.
+        Patcher.post_create_cleanup(name, resource_class)
 
         # Store for use up with the parent system
         halite_helpers[:resources][name.to_sym] = resource_class
@@ -393,8 +393,8 @@ module Halite
           class_exec(&block) if block
         end
 
-        # Remove from overall descendants tracker.
-        Chef::Mixin::DescendantsTracker.direct_descendants(parent).delete(provider_class)
+        # Clean up any global registration that happens on class compile.
+        Patcher.post_create_cleanup(name, provider_class)
 
         # Store for use up with the parent system
         halite_helpers[:providers][name.to_sym] = provider_class

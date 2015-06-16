@@ -66,7 +66,8 @@ describe Halite::SpecHelper do
       resource(:halite_test, auto: false)
       it { is_expected.to be_a(Class) }
       it { is_expected.to be < Chef::Resource }
-      it { expect(subject.new(nil, nil).resource_name).to be_nil }
+      # #resource_name was added upstream in 12.4 so ignore this test there.
+      it { expect(subject.new(nil, nil).resource_name).to be_nil } unless defined?(Chef::Resource.resource_name)
       it { expect(subject.new(nil, nil).action).to eq(:nothing) }
       it { expect(subject.new(nil, nil).allowed_actions).to eq([:nothing]) }
     end # /context with auto:false
@@ -193,7 +194,7 @@ describe Halite::SpecHelper do
       provider(:halite_test_help)
 
       context 'helper-created resource' do
-        resource(:halite_test_helper, step_into:false)
+        resource(:halite_test_helper, step_into: false)
         recipe do
           halite_test_helper 'test'
         end
@@ -201,7 +202,7 @@ describe Halite::SpecHelper do
       end # /context helper-created resource
 
       context 'helper-created resource with Poise' do
-        resource(:halite_test_helper_poise, step_into:false) do
+        resource(:halite_test_helper_poise, step_into: false) do
           include Poise
           provides(:halite_test_helper_poise)
         end
@@ -213,7 +214,8 @@ describe Halite::SpecHelper do
     end # describe without step-into there should be no ChefSpec resource-level matcher
   end # /describe #step_into
 
-  describe '#patch_descendants_tracker' do
+  describe 'patcher' do
+    #let(:chefspec_options) { {log_level: :debug} }
     resource(:halite_test)
     subject { resource(:halite_test).new('test', chef_run.run_context).provider_for_action(:run) }
 
@@ -234,5 +236,5 @@ describe Halite::SpecHelper do
     context 'without a provider in scope' do
       it { expect { subject }.to raise_error ArgumentError }
     end # /context without a provider in scope
-  end # /describe #patch_descendants_tracker
+  end # /describe patcher
 end
