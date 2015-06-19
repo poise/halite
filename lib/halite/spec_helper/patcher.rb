@@ -63,7 +63,7 @@ module Halite
         if priority_map = priority_map_for(klass)
           # Make sure we add name in there too because anonymous classes don't
           # get a priority map registration by default.
-          removed_keys = remove_from_node_map(priority_map.send(:priority_map), klass) | [name.to_sym]
+          removed_keys = remove_from_node_map(priority_map, klass) | [name.to_sym]
           # This ivar is used down in #patch_priority_map to re-add the correct
           # keys based on the class definition.
           klass.instance_variable_set(:@halite_original_priority_keys, removed_keys)
@@ -160,15 +160,14 @@ module Halite
       def self.patch_priority_map(name, klass, &block)
         priority_map = priority_map_for(klass)
         return block.call unless priority_map
-        node_map = priority_map.send(:priority_map)
         begin
           # Unlike patch_node_map, this has to be an array!
           klass.instance_variable_get(:@halite_original_priority_keys).each do |key|
-            node_map.set(key, [klass])
+            priority_map.set(key, [klass])
           end
           block.call
         ensure
-          remove_from_node_map(node_map, klass)
+          remove_from_node_map(priority_map, klass)
         end
       end
 
