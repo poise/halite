@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.4
+
+* Fixes to work with Chef 12.4.
+
 ## v1.0.3
 
 * Never try to do universe installs of pre-release gems in the Berkshelf extension.
