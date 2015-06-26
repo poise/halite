@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.5
+
+* Fix the spec helper for Chef <= 12.2.
+
 ## v1.0.4
 
 * Fixes to work with Chef 12.4.
