@@ -68,6 +68,12 @@ module Halite
           # keys based on the class definition.
           klass.instance_variable_set(:@halite_original_priority_keys, removed_keys)
         end
+        # Remove from the global node map.
+        if defined?(Chef::Resource.node_map)
+          removed_keys = remove_from_node_map(Chef::Resource.node_map, klass)
+          # Used down in patch_node_map.
+          klass.instance_variable_set(:@halite_original_nodemap_keys, removed_keys)
+        end
       end
 
       # Patch an object in to a global namespace for the duration of a block.
@@ -125,7 +131,10 @@ module Halite
         return block.call unless defined?(klass.node_map)
         begin
           # Technically this is set to true on >=12.4, but this should work.
-          klass.node_map.set(name, klass)
+          keys = klass.instance_variable_get(:@halite_original_nodemap_keys) | [name.to_sym]
+          keys.each do |key|
+            klass.node_map.set(key, klass)
+          end
           block.call
         ensure
           remove_from_node_map(klass.node_map, klass)
