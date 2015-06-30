@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.6
+
+* Minor fix for forward compatibility with 12.4.1+ and the spec helper's auto mode.
+
 ## v1.0.5
 
 * Fix the spec helper for Chef <= 12.2.
