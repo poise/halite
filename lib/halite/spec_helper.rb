@@ -294,7 +294,7 @@ module Halite
               @resource_name = name.to_sym
               old_init.bind(self).call(*args)
               # ChefSpec doesn't seem to work well with action :nothing
-              if @action == :nothing
+              if Array(@action) == [:nothing]
                 @action = :run
                 @allowed_actions |= [:run]
               end
