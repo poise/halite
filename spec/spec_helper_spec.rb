@@ -68,8 +68,8 @@ describe Halite::SpecHelper do
       it { is_expected.to be < Chef::Resource }
       # #resource_name was added upstream in 12.4 so ignore this test there.
       it { expect(subject.new(nil, nil).resource_name).to be_nil } unless defined?(Chef::Resource.resource_name)
-      it { expect(subject.new(nil, nil).action).to eq(:nothing) }
-      it { expect(subject.new(nil, nil).allowed_actions).to eq([:nothing]) }
+      it { expect(Array(subject.new(nil, nil).action)).to eq [:nothing] }
+      it { expect(subject.new(nil, nil).allowed_actions).to eq [:nothing] }
     end # /context with auto:false
 
     context 'with a parent' do
