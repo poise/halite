@@ -36,11 +36,13 @@ module Halite
         patch_descendants_tracker(klass) do
           patch_node_map(name, klass) do
             patch_priority_map(name, klass) do
-              patch_recipe_dsl(name, klass) do
-                if mod
-                  patch_module(mod, name, klass, &block)
-                else
-                  block.call
+              patch_handler_map(name, klass) do
+                patch_recipe_dsl(name, klass) do
+                  if mod
+                    patch_module(mod, name, klass, &block)
+                  else
+                    block.call
+                  end
                 end
               end
             end
@@ -59,14 +61,16 @@ module Halite
       def self.post_create_cleanup(name, klass)
         # Remove from DescendantsTracker.
         Chef::Mixin::DescendantsTracker.direct_descendants(klass.superclass).delete(klass)
-        # Remove from the priority maps.
-        if priority_map = priority_map_for(klass)
-          # Make sure we add name in there too because anonymous classes don't
-          # get a priority map registration by default.
-          removed_keys = remove_from_node_map(priority_map, klass) | [name.to_sym]
-          # This ivar is used down in #patch_priority_map to re-add the correct
-          # keys based on the class definition.
-          klass.instance_variable_set(:@halite_original_priority_keys, removed_keys)
+        # Remove from the priority and handler maps.
+        {priority: priority_map_for(klass), handler: handler_map_for(klass)}.each do |type, map|
+          if map
+            # Make sure we add name in there too because anonymous classes don't
+            # get a handler map registration by default.
+            removed_keys = remove_from_node_map(map, klass) | [name.to_sym]
+            # This ivar is used down in #patch_*_map to re-add the correct
+            # keys based on the class definition.
+            klass.instance_variable_set(:"@halite_original_#{type}_keys", removed_keys)
+          end
         end
         # Remove from the global node map.
         if defined?(Chef::Resource.node_map)
@@ -180,6 +184,28 @@ module Halite
         end
       end
 
+      # Patch a class in to the correct handler map for the duration of a code
+      # block. This is a no-op before Chef 12.4.1.
+      #
+      # @since 1.0.7
+      # @param name [Symbol] Name to patch in.
+      # @param klass [Class] Resource or provider class to patch in.
+      # @param block [Proc] Block to execute while the patch is available.
+      # @return [void]
+      def self.patch_handler_map(name, klass, &block)
+        handler_map = handler_map_for(klass)
+        return block.call unless handler_map
+        begin
+          # Unlike patch_node_map, this has to be an array!
+          klass.instance_variable_get(:@halite_original_handler_keys).each do |key|
+            handler_map.set(key, klass)
+          end
+          block.call
+        ensure
+          remove_from_node_map(handler_map, klass)
+        end
+      end
+
       private
 
       # Find the global priority map for a class.
@@ -192,6 +218,19 @@ module Halite
           Chef.resource_priority_map
         elsif defined?(Chef.provider_priority_map) && klass < Chef::Provider
           Chef.provider_priority_map
+        end
+      end
+
+      # Find the global handler map for a class.
+      #
+      # @since 1.0.7
+      # @param klass [Class] Resource or provider class to look up.
+      # @return [nil, Chef::Platform::ResourceHandlerMap, Chef::Platform::ProviderHandlerMap]
+      def self.handler_map_for(klass)
+        if defined?(Chef.resource_handler_map) && klass < Chef::Resource
+          Chef.resource_handler_map
+        elsif defined?(Chef.provider_handler_map) && klass < Chef::Provider
+          Chef.provider_handler_map
         end
       end
 
