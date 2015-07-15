@@ -10,7 +10,12 @@ rvm:
 - "2.1"
 - "2.2"
 gemfile:
-- gemfiles/default.gemfile
+- gemfiles/chef-12.0.gemfile
+- gemfiles/chef-12.1.gemfile
+- gemfiles/chef-12.2.gemfile
+- gemfiles/chef-12.3.gemfile
+- gemfiles/chef-12.4.0.gemfile
+- gemfiles/chef-12.gemfile
 - gemfiles/master.gemfile
 env:
   global:
