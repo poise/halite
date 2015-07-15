@@ -204,7 +204,13 @@ module Halite
       def self.remove_from_node_map(node_map, value)
         # Sigh.
         removed_keys = []
-        node_map.instance_variable_get(:@map).each do |key, matchers|
+        # 12.4.1+ switched this to a private accessor and lazy init.
+        map = if node_map.respond_to?(:map)
+          node_map.send(:map)
+        else
+          node_map.instance_variable_get(:@map)
+        end
+        map.each do |key, matchers|
           matchers.delete_if do |matcher|
             # In 12.4+ this value is an array of classes, before that it is the class.
             if matcher[:value].is_a?(Array)
