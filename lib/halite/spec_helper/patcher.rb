@@ -205,7 +205,7 @@ module Halite
         # Sigh.
         removed_keys = []
         # 12.4.1+ switched this to a private accessor and lazy init.
-        map = if node_map.respond_to?(:map)
+        map = if node_map.respond_to?(:map, true)
           node_map.send(:map)
         else
           node_map.instance_variable_get(:@map)
