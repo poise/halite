@@ -196,7 +196,6 @@ module Halite
         handler_map = handler_map_for(klass)
         return block.call unless handler_map
         begin
-          # Unlike patch_node_map, this has to be an array!
           klass.instance_variable_get(:@halite_original_handler_keys).each do |key|
             handler_map.set(key, klass)
           end
