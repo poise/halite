@@ -234,7 +234,8 @@ describe Halite::SpecHelper do
     end # /context with a named provider in scope
 
     context 'without a provider in scope' do
-      it { expect { subject }.to raise_error ArgumentError }
+      # 12.4.1+ uses Chef::Exceptions::ProviderNotFound, before that ArgumentError.
+      it { expect { subject }.to raise_error (defined?(Chef::Exceptions::ProviderNotFound) ? Chef::Exceptions::ProviderNotFound : ArgumentError) }
     end # /context without a provider in scope
   end # /describe patcher
 end
