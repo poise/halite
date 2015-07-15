@@ -257,6 +257,8 @@ module Halite
               matcher[:value] == value
             end && removed_keys << key # Track removed keys in a hacky way.
           end
+          # Clear empty matchers entirely.
+          map.delete(key) if matchers.empty?
         end
         removed_keys
       end
