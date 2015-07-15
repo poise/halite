@@ -104,6 +104,7 @@ describe Halite::SpecHelper do
           :parent
         end
       end
+      subject { resource(:halite_test).new(nil, nil).value }
 
       context 'sibling' do
         resource(:halite_parent) do
@@ -111,11 +112,14 @@ describe Halite::SpecHelper do
             :sibling
           end
         end
+        # Sanity check that this still works. Important test is below.
+        resource(:halite_test, parent: :halite_parent)
+        it { is_expected.to eq(:sibling) }
       end
 
       context 'inner' do
+        # The actual regression test.
         resource(:halite_test, parent: :halite_parent)
-        subject { resource(:halite_test).new(nil, nil).value }
         it { is_expected.to eq(:parent) }
       end
     end # /context regression test for finding the wrong parent in a sibling context
