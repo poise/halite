@@ -302,6 +302,11 @@ module Halite
           end
         end
 
+        # Try to set the resource name for 12.4+.
+        if defined?(resource_class.resource_name)
+          resource_class.resource_name(name)
+        end
+
         # Clean up any global registration that happens on class compile.
         Patcher.post_create_cleanup(name, resource_class)
 
