@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.7
+
+* More fixes for Chef 12.4.1.
+
 ## v1.0.6
 
 * Minor fix for forward compatibility with 12.4.1+ and the spec helper's auto mode.
