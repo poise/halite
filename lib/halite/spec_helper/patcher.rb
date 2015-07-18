@@ -59,6 +59,8 @@ module Halite
       # @param klass [Class] Newly created class.
       # @return [void]
       def self.post_create_cleanup(name, klass)
+        # Remove from DSL.
+        Chef::DSL::Resources.remove_resource_dsl(name) if defined?(Chef::DSL::Resources.remove_resource_dsl)
         # Remove from DescendantsTracker.
         Chef::Mixin::DescendantsTracker.direct_descendants(klass.superclass).delete(klass)
         # Remove from the priority and handler maps.
