@@ -281,16 +281,6 @@ module Halite
             define_singleton_method(key) { metadata[key] }
           end
 
-          # Allow using helpers defined in the example group.
-          # WARNING HERE BE DRAGONS! #module_for is a private method.
-          let_mod = RSpec::Core::MemoizedHelpers.module_for(example_group)
-          let_class = Class.new { include let_mod }
-          let_obj = let_class.new
-          let_mod.instance_methods.each do |key|
-            define_method(key) { let_obj.send(key) }
-            define_singleton_method(key) { let_obj.send(key) }
-          end
-
           # Evaluate the class body.
           class_exec(&block) if block
 
