@@ -261,8 +261,8 @@ module Halite
       def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, defined_at: caller[0], &block)
         parent = resources[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{parent.inspect}") unless parent.is_a?(Class)
-        # Pull out the example metadata for use in the class.
-        metadata = self.metadata
+        # Pull out the example group for use in the class.
+        example_group = self
         # Create the resource class.
         resource_class = Class.new(parent) do
           # Make the anonymous class pretend to have a name.
@@ -276,14 +276,16 @@ module Halite
           end
 
           # Create magic delegators for various metadata.
-          %i{described_class}.each do |key|
-            define_method(key) { metadata[key] }
-            define_singleton_method(key) { metadata[key] }
+          {
+            example_group: example_group,
+            described_class: example_group.metadata[:described_class],
+          }.each do |key, value|
+            define_method(key) { value }
+            define_singleton_method(key) { value }
           end
 
           # Evaluate the class body.
           class_exec(&block) if block
-
 
           # Optional initialization steps. Disable for special unicorn tests.
           if auto
@@ -358,8 +360,8 @@ module Halite
       def provider(name, auto: true, rspec: true, parent: Chef::Provider, defined_at: caller[0], &block)
         parent = providers[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless parent.is_a?(Class)
-        # Pull out the example metadata for use in the class.
-        metadata = self.metadata
+        # Pull out the example group for use in the class.
+        example_group = self
         # Create the provider class.
         provider_class = Class.new(parent) do
           # Pull in RSpec expectations.
@@ -389,9 +391,12 @@ module Halite
           end
 
           # Create magic delegators for various metadata.
-          %i{described_class}.each do |key|
-            define_method(key) { metadata[key] }
-            define_singleton_method(key) { metadata[key] }
+          {
+            example_group: example_group,
+            described_class: example_group.metadata[:described_class],
+          }.each do |key, value|
+            define_method(key) { value }
+            define_singleton_method(key) { value }
           end
 
           # Evaluate the class body.

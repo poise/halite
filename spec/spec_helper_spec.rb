@@ -142,6 +142,21 @@ describe Halite::SpecHelper do
       it { is_expected.to run_halite_test('test') }
       it { is_expected.to_not run_ruby_block('inner') }
     end # /context with step_into:false
+
+    describe 'with magic helpers' do
+      resource(:halite_test)
+
+      context 'on the class' do
+        its(:example_group) { is_expected.to be_truthy }
+        its(:described_class) { is_expected.to eq Halite::SpecHelper }
+      end # /context on the class
+
+      context 'on the instance' do
+        subject { super().new(nil, nil) }
+        its(:example_group) { is_expected.to be_truthy }
+        its(:described_class) { is_expected.to eq Halite::SpecHelper }
+      end # /context on the instance
+    end # /describe with magic helpers
   end # /describe #resource
 
   describe '#provider' do
@@ -153,6 +168,21 @@ describe Halite::SpecHelper do
       it { is_expected.to be < Chef::Provider }
       its(:instance_methods) { are_expected.to include(:action_run) }
     end # /context with defaults
+
+    context 'with magic helpers' do
+      provider(:halite_test)
+
+      context 'on the class' do
+        its(:example_group) { is_expected.to be_truthy }
+        its(:described_class) { is_expected.to eq Halite::SpecHelper }
+      end # /context on the class
+
+      context 'on the instance' do
+        subject { super().new(nil, nil) }
+        its(:example_group) { is_expected.to be_truthy }
+        its(:described_class) { is_expected.to eq Halite::SpecHelper }
+      end # /context on the instance
+    end # /describe with magic helpers
   end # /describe #provider
 
   describe '#step_into' do
