@@ -258,7 +258,7 @@ module Halite
       #     end
       #     it { is_expected.to run_my_resource('test').with(path: '/tmp') }
       #   end
-      def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, defined_at: caller[0], &block)
+      def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, defined_at: caller[0], patch_parent: true, &block)
         parent = resources[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{parent.inspect}") unless parent.is_a?(Class)
         # Pull out the example group for use in the class.
@@ -268,6 +268,11 @@ module Halite
           # Make the anonymous class pretend to have a name.
           define_singleton_method(:name) do
             'Chef::Resource::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
+          end
+
+          # Expose the name this class was defined with.
+          define_singleton_method(:halite_name) do
+            name
           end
 
           # Helper for debugging, shows where the class was defined.
@@ -284,8 +289,20 @@ module Halite
             define_singleton_method(key) { value }
           end
 
-          # Evaluate the class body.
-          class_exec(&block) if block
+          if block
+            # Wrap the class body in parent patching.
+            class_body = proc { class_exec(&block) }
+            if patch_parent
+              class_body = parent.ancestors.select do |cls|
+                cls.respond_to?(:halite_name)
+              end.inject(class_body) do |thunk, cls|
+                proc { Patcher.patch(cls.halite_name, cls, Chef::Resource) { thunk.call } }
+              end
+            end
+
+            # Evaluate the class body.
+            class_body.call
+          end
 
           # Optional initialization steps. Disable for special unicorn tests.
           if auto
@@ -358,7 +375,7 @@ module Halite
       #     it { is_expected.to run_my_resource('test') }
       #     it { is_expected.to run_ruby_block('test') }
       #   end
-      def provider(name, auto: true, rspec: true, parent: Chef::Provider, defined_at: caller[0], &block)
+      def provider(name, auto: true, rspec: true, parent: Chef::Provider, defined_at: caller[0], patch_parent: true, &block)
         parent = providers[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless parent.is_a?(Class)
         # Pull out the example group for use in the class.
@@ -386,6 +403,11 @@ module Halite
             'Chef::Provider::' + Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
           end
 
+          # Expose the name this class was defined with.
+          define_singleton_method(:halite_name) do
+            name
+          end
+
           # Helper for debugging, shows where the class was defined.
           define_singleton_method(:halite_defined_at) do
             defined_at
@@ -400,8 +422,31 @@ module Halite
             define_singleton_method(key) { value }
           end
 
-          # Evaluate the class body.
-          class_exec(&block) if block
+          if block
+            # Wrap the class body in parent patching.
+            class_body = proc { class_exec(&block) }
+            if patch_parent
+              # Also patch any related resource classes.
+              resource_names = patch_parent == true ? [name] : Array(patch_parent)
+              class_body = resource_names.inject(class_body) do |thunk, res_name|
+                res = example_group.resources[res_name]
+                if res
+                  proc { Patcher.patch(res_name, res, Chef::Resource) { thunk.call } }
+                else
+                  thunk
+                end
+              end
+
+              class_body = parent.ancestors.select do |cls|
+                cls.respond_to?(:halite_name)
+              end.inject(class_body) do |thunk, cls|
+                proc { Patcher.patch(cls.halite_name, cls, Chef::Provider) { thunk.call } }
+              end
+            end
+
+            # Evaluate the class body.
+            class_body.call
+          end
         end
 
         # Clean up any global registration that happens on class compile.

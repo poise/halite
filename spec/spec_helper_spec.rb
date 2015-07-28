@@ -162,6 +162,32 @@ describe Halite::SpecHelper do
         its(:described_class) { is_expected.to eq Halite::SpecHelper }
       end # /context on the instance
     end # /describe with magic helpers
+
+    describe 'patch_parent' do
+      resource(:halite_parent)
+
+      context 'with patch_parent:true' do
+        resource(:halite_test, parent: :halite_parent) do
+          def self.foobar
+            @foobar
+          end
+          @foobar = Chef::Resource::HaliteParent rescue nil
+        end
+        subject { resource(:halite_test) }
+        its(:foobar) { is_expected.to eq resource(:halite_parent) }
+      end # /context with patch_parent:true
+
+      context 'with patch_parent:false' do
+        resource(:halite_test, parent: :halite_parent, patch_parent: false) do
+          def self.foobar
+            @foobar
+          end
+          @foobar = Chef::Resource::HaliteParent rescue nil
+        end
+        subject { resource(:halite_test) }
+        its(:foobar) { is_expected.to be_nil }
+      end # /context with patch_parent:false
+    end # /describe patch_parent
   end # /describe #resource
 
   describe '#provider' do
@@ -188,6 +214,96 @@ describe Halite::SpecHelper do
         its(:described_class) { is_expected.to eq Halite::SpecHelper }
       end # /context on the instance
     end # /describe with magic helpers
+
+    describe 'patch_parent' do
+      resource(:halite_parent)
+      provider(:halite_parent)
+      resource(:halite_test)
+
+      context 'with patch_parent:true' do
+        provider(:halite_test, parent: :halite_parent) do
+          def self.foo_parent_resource
+            @foo_parent_resource
+          end
+          @foo_parent_resource = Chef::Resource::HaliteParent rescue nil
+          def self.foo_resource
+            @foo_resource
+          end
+          @foo_resource = Chef::Resource::HaliteTest rescue nil
+          def self.foo_provider
+            @foo_provider
+          end
+          @foo_provider = Chef::Provider::HaliteParent rescue nil
+        end
+        subject { provider(:halite_test) }
+        its(:foo_parent_resource) { is_expected.to be_nil }
+        its(:foo_resource) { is_expected.to eq resource(:halite_test) }
+        its(:foo_provider) { is_expected.to eq provider(:halite_parent) }
+      end # /context with patch_parent:true
+
+      context 'with patch_parent:false' do
+        provider(:halite_test, parent: :halite_parent, patch_parent: false) do
+          def self.foo_parent_resource
+            @foo_parent_resource
+          end
+          @foo_parent_resource = Chef::Resource::HaliteParent rescue nil
+          def self.foo_resource
+            @foo_resource
+          end
+          @foo_resource = Chef::Resource::HaliteTest rescue nil
+          def self.foo_provider
+            @foo_provider
+          end
+          @foo_provider = Chef::Provider::HaliteParent rescue nil
+        end
+        subject { provider(:halite_test) }
+        its(:foo_parent_resource) { is_expected.to be_nil }
+        its(:foo_resource) { is_expected.to be_nil }
+        its(:foo_provider) { is_expected.to be_nil }
+      end # /context with patch_parent:false
+
+      context 'with patch_parent:[]' do
+        provider(:halite_test, parent: :halite_parent, patch_parent: []) do
+          def self.foo_parent_resource
+            @foo_parent_resource
+          end
+          @foo_parent_resource = Chef::Resource::HaliteParent rescue nil
+          def self.foo_resource
+            @foo_resource
+          end
+          @foo_resource = Chef::Resource::HaliteTest rescue nil
+          def self.foo_provider
+            @foo_provider
+          end
+          @foo_provider = Chef::Provider::HaliteParent rescue nil
+        end
+        subject { provider(:halite_test) }
+        its(:foo_parent_resource) { is_expected.to be_nil }
+        its(:foo_resource) { is_expected.to be_nil }
+        its(:foo_provider) { is_expected.to eq provider(:halite_parent) }
+      end # /context with patch_parent:[]
+
+      context 'with patch_parent:[:halite_test, :halite_parent]' do
+        provider(:halite_test, parent: :halite_parent, patch_parent: [:halite_test, :halite_parent]) do
+          def self.foo_parent_resource
+            @foo_parent_resource
+          end
+          @foo_parent_resource = Chef::Resource::HaliteParent rescue nil
+          def self.foo_resource
+            @foo_resource
+          end
+          @foo_resource = Chef::Resource::HaliteTest rescue nil
+          def self.foo_provider
+            @foo_provider
+          end
+          @foo_provider = Chef::Provider::HaliteParent rescue nil
+        end
+        subject { provider(:halite_test) }
+        its(:foo_parent_resource) { is_expected.to eq resource(:halite_parent) }
+        its(:foo_resource) { is_expected.to eq resource(:halite_test) }
+        its(:foo_provider) { is_expected.to eq provider(:halite_parent) }
+      end # /context with patch_parent:[:halite_test, :halite_parent]
+    end # /describe patch_parent
   end # /describe #provider
 
   describe '#step_into' do
