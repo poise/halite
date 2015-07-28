@@ -57,6 +57,7 @@ describe Halite::SpecHelper do
       resource(:halite_test)
       it { is_expected.to be_a(Class) }
       it { is_expected.to be < Chef::Resource }
+      its(:resource_name) { is_expected.to eq :halite_test } if defined?(Chef::Resource.resource_name)
       it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
       it { expect(subject.new(nil, nil).action).to eq(:run) }
       it { expect(subject.new(nil, nil).allowed_actions).to eq([:nothing, :run]) }
@@ -77,6 +78,8 @@ describe Halite::SpecHelper do
       it { is_expected.to be_a(Class) }
       it { is_expected.to be < Chef::Resource }
       it { is_expected.to be < Chef::Resource::File }
+      its(:resource_name) { is_expected.to eq :halite_test } if defined?(Chef::Resource.resource_name)
+      it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
     end # /context with a parent
 
     context 'with a helper-defined parent' do
@@ -85,6 +88,8 @@ describe Halite::SpecHelper do
       it { is_expected.to be_a(Class) }
       it { is_expected.to be < Chef::Resource }
       it { is_expected.to be < Chef::Resource::HaliteParent }
+      its(:resource_name) { is_expected.to eq :halite_test } if defined?(Chef::Resource.resource_name)
+      it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
     end # /context with a helper-defined parent
 
     context 'with a helper-defined parent in an enclosing context' do
