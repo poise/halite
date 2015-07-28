@@ -292,10 +292,10 @@ module Halite
             # Fill in a :run action by default.
             old_init = instance_method(:initialize)
             define_method(:initialize) do |*args|
+              old_init.bind(self).call(*args)
               # Fill in the resource name because I know it, but don't
               # overwrite because a parent might have done this already.
-              @resource_name ||= name.to_sym
-              old_init.bind(self).call(*args)
+              @resource_name = name.to_sym
               # ChefSpec doesn't seem to work well with action :nothing
               if Array(@action) == [:nothing]
                 @action = :run
