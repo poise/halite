@@ -160,6 +160,41 @@ These helper resources and providers are only available within the scope of
 recipes defined on that example group or groups nested inside it. Helper
 resources are automatically `step_into`'d.
 
+## Using a Prerelease Version of a Halite-based Cookbook
+
+When a Halite-based cookbook is released, a converted copy is generally uploaded
+to [the Supermarket](https://supermarket.chef.io/). To use unreleased versions,
+you need to pull in the code from git via bundler and then tell the Berkshelf
+extension to convert it for you.
+
+To grab the prerelease gem, add a line like the following to your Gemfile:
+
+```ruby
+gem 'poise-application', github: 'poise/application'
+```
+
+You will need one `gem` line for each Halite-based cookbook you want to use,
+possibly including dependencies if you want to use prerelease versions of
+those as well.
+
+Next you need to use Berkshelf to convert the gem to its cookbook form:
+
+```ruby
+source 'https://supermarket.chef.io/'
+extension 'halite'
+cookbook 'application', gem: 'poise-application'
+```
+
+Again you will need one `cookbook` line per Halite based cookbook you want to
+use. Also make sure to check the correct names for the gem and cookbook, they
+may not be the same though for other Poise cookbooks they generally follow the
+same pattern.
+
+If you are using something that integrates with Berkshelf like Test-Kitchen or
+ChefSpec, this is all you need to do. You could use `berks upload` to push a
+converted copy of all cookbooks to a Chef Server, though running prerelease
+code in production should be done with great care.
+
 ## License
 
 Copyright 2015, Noah Kantrowitz
