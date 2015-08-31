@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.8
+
+* Expose `example_group` inside `SpecHelper`-created resources and providers.
+* Handle `StubSpecifications` in the gem environment.
+
 ## v1.0.7
 
 * More fixes for Chef 12.4.1.
