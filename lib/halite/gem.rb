@@ -14,7 +14,11 @@
 # limitations under the License.
 #
 
-require 'bundler/stub_specification'
+begin
+  require 'bundler/stub_specification'
+rescue LoadError
+  # Bundler too old.
+end
 require 'chef/cookbook_version'
 
 require 'halite/dependencies'
@@ -37,7 +41,7 @@ module Halite
       # Allow passing a Dependency by just grabbing its spec.
       name = dependency_to_spec(name) if name.is_a?(::Gem::Dependency)
       # Stubs don't load enough data for us, grab the real spec. RIP IOPS.
-      name = name.to_spec if name.is_a?(::Gem::StubSpecification) || name.is_a?(Bundler::StubSpecification)
+      name = name.to_spec if name.is_a?(::Gem::StubSpecification) || (defined?(Bundler::StubSpecification) && name.is_a?(Bundler::StubSpecification))
       if name.is_a?(::Gem::Specification)
         raise Error.new("Cannot pass version when using an explicit specficiation") if version
         @spec = name
