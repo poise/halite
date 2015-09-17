@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.9
+
+* Additional `StubSpecifications` fixes.
+
 ## v1.0.8
 
 * Expose `example_group` inside `SpecHelper`-created resources and providers.
