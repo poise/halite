@@ -37,20 +37,25 @@ module Halite
     def install
       extend Rake::DSL
       # Core Halite tasks
-      desc "Convert #{gemspec.name}-#{gemspec.version} to a cookbook in the pkg directory"
-      task 'chef:build' do
-        build_cookbook
-      end
-
-      desc "Push #{gemspec.name}-#{gemspec.version} to Supermarket"
-      task 'chef:release' => ['chef:build'] do
-        release_cookbook
-      end
-
-      # Patch the core gem tasks to run ours too
       unless options[:no_gem]
+        desc "Convert #{gemspec.name}-#{gemspec.version} to a cookbook in the pkg directory"
+        task 'chef:build' do
+          build_cookbook
+        end
+
+        desc "Push #{gemspec.name}-#{gemspec.version} to Supermarket"
+        task 'chef:release' => ['chef:build'] do
+          release_cookbook(pkg_path)
+        end
+
+        # Patch the core gem tasks to run ours too
         task 'build' => ['chef:build']
         task 'release' => ['chef:release']
+      else
+        desc "Push #{gem_name} to Supermarket"
+        task 'chef:release' do
+          release_cookbook(base)
+        end
       end
 
       # Foodcritic doesn't have a config file, so just always try to add it.
@@ -75,9 +80,14 @@ module Halite
 
       desc 'Run Foodcritic linter'
       task 'chef:foodcritic' do
-        Dir.mktmpdir('halite_test') do |path|
-          Halite.convert(gemspec, path)
-          sh("foodcritic --chef-version #{Chef::VERSION} --epic-fail any --tags ~FC054 '#{path}'")
+        foodcritic_cmd = "foodcritic --chef-version #{Chef::VERSION} --epic-fail any --tags ~FC054 '%{path}'"
+        if options[:no_gem]
+          sh(foodcritic_cmd % {path: base})
+        else
+          Dir.mktmpdir('halite_test') do |path|
+            Halite.convert(gemspec, path)
+            sh(foodcritic_cmd % {path: path})
+          end
         end
       end
 
@@ -111,10 +121,10 @@ module Halite
       shell.say("#{gemspec.name} #{gemspec.version} converted to pkg/#{gemspec.name}-#{gemspec.version}/.", :green)
     end
 
-    def release_cookbook
-      Dir.chdir(pkg_path) do
+    def release_cookbook(path)
+      Dir.chdir(path) do
         sh('stove --no-git')
-        shell.say("Pushed #{gemspec.name} #{gemspec.version} to supermarket.chef.io.", :green)
+        shell.say("Pushed #{gemspec.name} #{gemspec.version} to supermarket.chef.io.", :green) unless options[:no_gem]
       end
     end
 
