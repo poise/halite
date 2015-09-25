@@ -56,7 +56,7 @@ module Halite
       def converge(*recipe_names, &block)
         raise Halite::Error.new('Cannot pass both recipe names and a recipe block to converge') if !recipe_names.empty? && block
         super(*recipe_names) do
-          add_halite_cookbook(node, @halite_gemspec) if @halite_gemspec
+          add_halite_cookbooks(node, @halite_gemspec) if @halite_gemspec
           if block
             recipe = Chef::Recipe.new(nil, nil, run_context)
             recipe.instance_exec(&block)
@@ -66,19 +66,21 @@ module Halite
 
       private
 
-      def add_halite_cookbook(node, gemspec)
-        gem_data = Halite::Gem.new(gemspec)
-        # Catch any dependency loops.
-        return if run_context.cookbook_collection.include?(gem_data.cookbook_name)
-        run_context.cookbook_collection[gem_data.cookbook_name] = gem_data.as_cookbook_version
-        gem_data.cookbook_dependencies.each do |dep|
-          add_halite_cookbook(node, dep.spec) if dep.spec
-        end
-        # Load attributes if any.
-        gem_data.each_file('chef/attributes') do |_full_path, rel_path|
-          raise Halite::Error.new("Chef does not support nested attribute files: #{rel_path}") if rel_path.include?(File::SEPARATOR)
-          name = File.basename(rel_path, '.rb')
-          node.include_attribute("#{gem_data.cookbook_name}::#{name}")
+      def add_halite_cookbooks(node, gemspecs)
+        Array(gemspecs).each do |gemspec|
+          gem_data = Halite::Gem.new(gemspec)
+          # Catch any dependency loops.
+          next if run_context.cookbook_collection.include?(gem_data.cookbook_name) && run_context.cookbook_collection[gem_data.cookbook_name].respond_to?(:halite_root)
+          run_context.cookbook_collection[gem_data.cookbook_name] = gem_data.as_cookbook_version
+          gem_data.cookbook_dependencies.each do |dep|
+            add_halite_cookbooks(node, dep.spec) if dep.spec
+          end
+          # Load attributes if any.
+          gem_data.each_file('chef/attributes') do |_full_path, rel_path|
+            raise Halite::Error.new("Chef does not support nested attribute files: #{rel_path}") if rel_path.include?(File::SEPARATOR)
+            name = File.basename(rel_path, '.rb')
+            node.include_attribute("#{gem_data.cookbook_name}::#{name}")
+          end
         end
       end
 
