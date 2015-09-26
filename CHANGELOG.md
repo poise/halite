@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.0.10
+
+* Fewer potential pitfalls when using the Halite spec helper in a non-gem
+  cookbook. Still not 100%, but better.
+
 ## v1.0.9
 
 * Additional `StubSpecifications` fixes.
