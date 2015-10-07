@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.12
+
+* Further 12.0 fixes.
+
 ## v1.0.11
 
 * Ensure Halite works under Chef 12.0.
