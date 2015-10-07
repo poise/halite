@@ -14,6 +14,11 @@
 # limitations under the License.
 #
 
+# Because Chef 12.0 never got a backport of https://github.com/chef/chef/commit/04ba9182cda51b79630aab2918bbc6bba2d99c23
+# and requiring chef/cookbook_version below can trigger the bug if singleton
+# already loaded. Remove this when dropping support for 12.0.
+require 'singleton'
+
 begin
   require 'bundler/stub_specification'
 rescue LoadError

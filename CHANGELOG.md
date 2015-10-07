@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.11
+
+* Ensure Halite works under Chef 12.0.
+
 ## v1.0.10
 
 * Fewer potential pitfalls when using the Halite spec helper in a non-gem
