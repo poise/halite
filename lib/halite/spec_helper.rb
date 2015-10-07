@@ -14,6 +14,9 @@
 # limitations under the License.
 #
 
+# Fix load ordering bug in Chef 12.0.1. Remove this when dropping support for 12.0.
+require 'chef/providers'
+
 require 'chef/node'
 require 'chef/provider'
 require 'chef/resource'
