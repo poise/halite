@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email = %w{noah@coderanger.net}
   spec.description = %q||
   spec.summary = %q||
-  spec.homepage = ''
+  spec.homepage = 'http://example.com/'
   spec.license = 'Apache 2.0'
 
   spec.files = `cd #{File.expand_path('..', __FILE__)} && git ls-files`.split($/)

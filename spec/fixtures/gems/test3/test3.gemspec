@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email = %w{noah@coderanger.net}
   spec.description = %q||
   spec.summary = %q||
-  spec.homepage = ''
+  spec.homepage = 'http://example.com/'
   spec.license = 'Apache 2.0'
   spec.metadata['halite_entry_point'] = 'test3/dsl'
 

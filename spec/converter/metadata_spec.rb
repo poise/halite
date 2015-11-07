@@ -24,7 +24,15 @@ describe Halite::Converter::Metadata do
     let(:cookbook_version) { version }
     let(:cookbook_dependencies) { [] }
     let(:spec) do
-      instance_double('Gem::Specification', description: '')
+      instance_double('Gem::Specification',
+        author: nil,
+        authors: [],
+        description: '',
+        email: nil,
+        homepage: nil,
+        license: nil,
+        licenses: [],
+      )
     end
     let(:gem_data) do
       instance_double('Halite::Gem',
