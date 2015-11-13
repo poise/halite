@@ -1,4 +1,8 @@
-# Changelog
+# Halite Changelog
+
+## v1.0.13
+
+* Additional cookbook metadata to work with Foodcritic 5.1.
 
 ## v1.0.12
 
