@@ -48,6 +48,17 @@ automatically converted to cookbook dependencies.
 Any files under `chef/` in the gem will be written as is in to the cookbook.
 For example you can add a recipe to your gem via `chef/recipes/default.rb`.
 
+## Chef Version
+
+By default cookbooks will be generated with `chef_version '~> 12'` to require
+Chef 12.x. This can be overridden using the `halite_chef_version` metadata field:
+
+```ruby
+Gem::Specification.new do |spec|
+  spec.metadata['halite_dependencies'] = '>= 12.0.0'
+end
+```
+
 ## Rake Tasks
 
 The `halite/rake_tasks` module provides quick defaults. Gem name will be

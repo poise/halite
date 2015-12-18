@@ -23,6 +23,7 @@ describe Halite::Converter::Metadata do
     let(:version) { '1.0.0' }
     let(:cookbook_version) { version }
     let(:cookbook_dependencies) { [] }
+    let(:gem_metadata) { {} }
     let(:spec) do
       instance_double('Gem::Specification',
         author: nil,
@@ -32,6 +33,7 @@ describe Halite::Converter::Metadata do
         homepage: nil,
         license: nil,
         licenses: [],
+        metadata: gem_metadata,
       )
     end
     let(:gem_data) do
@@ -52,6 +54,7 @@ describe Halite::Converter::Metadata do
       it { is_expected.to eq <<-EOH }
 name "mygem"
 version "1.0.0"
+chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with simple data
 
@@ -63,6 +66,7 @@ EOH
 # header
 name "mygem"
 version "1.0.0"
+chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with a license header
 
@@ -72,6 +76,7 @@ EOH
 name "mygem"
 version "1.0.0"
 depends "other"
+chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with one dependency
 
@@ -82,6 +87,7 @@ name "mygem"
 version "1.0.0"
 depends "other", "~> 1.0"
 depends "another", "~> 2.0.0"
+chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with two dependencies
 
@@ -94,6 +100,7 @@ EOH
 name "mygem"
 version "1.0.0"
 description "My awesome library!"
+chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with a description
 
@@ -103,12 +110,23 @@ EOH
         allow(IO).to receive(:read).with('/source/README.md').and_return("My awesome readme!\nCopyright me.\n")
       end
 
-      it { is_expected.to eq <<-'EOH' }
+      it { is_expected.to eq <<-EOH }
 name "mygem"
 version "1.0.0"
-long_description "My awesome readme!\nCopyright me.\n"
+long_description "My awesome readme!\\nCopyright me.\\n"
+chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with a readme
+
+    context 'with a chef_version' do
+      let(:gem_metadata) { {'halite_chef_version' => '>= 0'} }
+
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+chef_version ">= 0" if defined?(chef_version)
+EOH
+    end # /context with a chef_version
   end # /describe #generate
 
   describe '#write' do
