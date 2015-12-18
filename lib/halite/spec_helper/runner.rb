@@ -75,6 +75,10 @@ module Halite
           gem_data.cookbook_dependencies.each do |dep|
             add_halite_cookbooks(node, dep.spec) if dep.spec
           end
+          # Add to the compiler for RunContext#unreachable_cookbook?
+          cookbook_order = run_context.instance_variable_get(:@cookbook_compiler).cookbook_order
+          name_sym = gem_data.cookbook_name.to_sym
+          cookbook_order << name_sym unless cookbook_order.include?(name_sym)
           # Load attributes if any.
           gem_data.each_file('chef/attributes') do |_full_path, rel_path|
             raise Halite::Error.new("Chef does not support nested attribute files: #{rel_path}") if rel_path.include?(File::SEPARATOR)
