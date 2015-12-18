@@ -304,6 +304,9 @@ module Halite
                 @action = :run
                 @allowed_actions |= [:run]
               end
+              if defined?(self.class.default_action) && Array(self.class.default_action) == [:nothing]
+                self.class.default_action(:run)
+              end
             end
           end
         end
