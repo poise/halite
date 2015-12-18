@@ -1,5 +1,14 @@
 # Halite Changelog
 
+## v1.1.0
+
+* Support the new `chef_version` metadata field through gem metadata. Defaults
+  to `~> 12` for now.
+* Make spec helper resources look more like normal Chef resources when in auto
+  mode.
+* Add Halite's synthetic cookbooks to the cookbook compiler too, for
+  include_recipe and friends.
+
 ## v1.0.13
 
 * Additional cookbook metadata to work with Foodcritic 5.1.
