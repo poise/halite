@@ -59,7 +59,7 @@ describe Halite::SpecHelper do
       it { is_expected.to be < Chef::Resource }
       its(:resource_name) { is_expected.to eq :halite_test } if defined?(Chef::Resource.resource_name)
       it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
-      it { expect(subject.new(nil, nil).action).to eq(:run) }
+      it { expect(Array(subject.new(nil, nil).action)).to eq([:run]) }
       it { expect(subject.new(nil, nil).allowed_actions).to eq([:nothing, :run]) }
     end # /context with defaults
 
