@@ -80,7 +80,14 @@ module Halite
 
       desc 'Run Foodcritic linter'
       task 'chef:foodcritic' do
-        foodcritic_cmd = "foodcritic --chef-version #{Chef::VERSION} --epic-fail any --tags ~FC054 '%{path}'"
+        foodcritic_cmd = "foodcritic --chef-version #{Chef::VERSION} --epic-fail any --tags ~FC054"
+        foodcritic_config = File.join(base, '.foodcritic')
+        if File.exist?(foodcritic_config)
+          IO.readlines(foodcritic_config).each do |line|
+            foodcritic_cmd << " --tags #{line.strip}"
+          end
+        end
+        foodcritic_cmd << " '%{path}'"
         if options[:no_gem]
           sh(foodcritic_cmd % {path: base})
         else
