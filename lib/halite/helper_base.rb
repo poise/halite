@@ -17,6 +17,7 @@
 
 # Much inspiration from Bundler's GemHelper. Thanks!
 require 'bundler'
+require 'thor'
 require 'thor/shell'
 
 require 'halite/error'
