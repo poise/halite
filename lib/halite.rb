@@ -37,6 +37,11 @@ module Halite
   # @example Converting a gem from a loaded gemspec
   #   Halite.convert(Bundler.load_gemspec('mygem.gemspec'), 'dest')
   def self.convert(gem_name, base_path)
-    Converter.write(Gem.new(gem_name), base_path)
+    gem_data = if gem_name.is_a?(Gem)
+      gem_name
+    else
+      Gem.new(gem_name)
+    end
+    Converter.write(gem_data, base_path)
   end
 end
