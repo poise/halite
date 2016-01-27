@@ -1,5 +1,12 @@
 # Halite Changelog
 
+## v1.2.0
+
+* Allow passing a `Halite::Gem` object to `Halite.convert`.
+* Allow disabling the stove push as part of `rake release` by setting
+  `$cookbook_push=false` as an environment variable.
+* Process `.foodcritic` when running `rake chef:foodcritic`.
+
 ## v1.1.0
 
 * Support the new `chef_version` metadata field through gem metadata. Defaults
