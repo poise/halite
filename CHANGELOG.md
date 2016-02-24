@@ -1,5 +1,12 @@
 # Halite Changelog
 
+## v1.2.1
+
+* Compatibility with Foodcritic 6.0. `issues_url` will be added to the generated
+  `metadata.rb`. This can be set via `metadata['issues_url']` or auto-detected
+  if the spec's `homepage` is set to a GitHub project.
+* Compatibility with RubyGems 2.2.
+
 ## v1.2.0
 
 * Allow passing a `Halite::Gem` object to `Halite.convert`.
