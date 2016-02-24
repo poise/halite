@@ -22,4 +22,6 @@ env:
   - USE_SYSTEM_GECODE=true
   - secure: bNxYOvi85lnPIPO1qR6NnhfqlREfMXSjmd+xCH01e/gg3x00D+3uyQIotQtglgHRItVIR36GqX70q2g/reudxBsCjfUhH2vDgbtmrWe1ow78rt1xZRlFMQs7JfBpfWKkox5i9mrdzZDekZACA0HUMI1pRM0MYQmkuol/oZw5H4A=
   - secure: ecX52GLF7IHCiaPEDzPtztiEmu2mNPfyyPrM7aaNsufat7DdsZqPP9LKpCTOoJC+Jgz9sdbQ6Hf61CeZAsrqZ8sKKdiXUoBUXdcBhvuPdpIbfwq97hjOoqQV7rLSD4EW58fipJU8Rl5P1ijFJizHIyxNB+VWBow3niIMGjIEUSE=
+before_install:
+- if [[ $BUNDLE_GEMFILE == *master.gemfile ]]; then gem update --system && gem install bundler; fi
 script: bundle exec rake integration
