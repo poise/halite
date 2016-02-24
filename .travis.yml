@@ -14,6 +14,7 @@ gemfile:
 - gemfiles/chef-12.4.gemfile
 - gemfiles/chef-12.5.gemfile
 - gemfiles/chef-12.6.gemfile
+- gemfiles/chef-12.7.gemfile
 - gemfiles/chef-12.gemfile
 - gemfiles/master.gemfile
 env:
