@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.email = %w{noah@coderanger.net}
   spec.description = 'A set of helpers to write Chef cookbooks as Ruby gems.'
   spec.summary = spec.description
-  spec.homepage = 'https://github.com/coderanger/halite'
+  spec.homepage = 'https://github.com/poise/halite'
   spec.license = 'Apache 2.0'
 
   spec.files = `git ls-files`.split($/)
