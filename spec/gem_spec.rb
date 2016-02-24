@@ -28,6 +28,7 @@ describe Halite::Gem do
     its(:cookbook_name) { is_expected.to eq 'halite' }
     its(:version) { is_expected.to eq Halite::VERSION }
     its(:spec) { is_expected.to be_a Gem::Specification }
+    its(:issues_url) { is_expected.to eq 'https://github.com/poise/halite/issues' }
   end
 
   context 'when loading halite with a version' do
@@ -58,6 +59,7 @@ describe Halite::Gem do
     ] }
     its(:cookbook_dependencies) { is_expected.to eq [] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
+    its(:issues_url) { is_expected.to be_nil }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -95,6 +97,7 @@ describe Halite::Gem do
     ] }
     its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('testdep', '>= 0', :requirements)] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
+    its(:issues_url) { is_expected.to be_nil }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -129,6 +132,7 @@ describe Halite::Gem do
     its(:cookbook_name) { is_expected.to eq 'test3' }
     its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('test2', '~> 4.5.6', :dependencies)] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
+    its(:issues_url) { is_expected.to be_nil }
   end # /context when loading test3
 
   context 'when loading test4' do
@@ -136,6 +140,7 @@ describe Halite::Gem do
     its(:cookbook_name) { is_expected.to eq 'test4' }
     its(:version) { is_expected.to eq '2.3.1.rc.1' }
     its(:cookbook_version) { is_expected.to eq '2.3.1' }
+    its(:issues_url) { is_expected.to eq 'http://issues' }
   end # /context when loading test4
 
   context 'when loading a Gem::Dependency' do

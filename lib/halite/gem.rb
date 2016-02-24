@@ -96,8 +96,23 @@ module Halite
       File.join(spec.full_gem_path, spec.name + '.gemspec')
     end
 
+    # License header extacted from the gemspec. Suitable for inclusion in other
+    # Ruby source files.
+    #
+    # @return [String]
     def license_header
       IO.readlines(spec_file).take_while { |line| line.strip.empty? || line.strip.start_with?('#') }.join('')
+    end
+
+    # URL to the issue tracker for this project.
+    #
+    # @return [String, nil]
+    def issues_url
+      if spec.metadata['issues_url']
+        spec.metadata['issues_url']
+      elsif spec.homepage =~ /^http(s)?:\/\/(www\.)?github\.com/
+        spec.homepage.chomp('/') + '/issues'
+      end
     end
 
     # Iterate over all the files in the gem, with an optional prefix. Each

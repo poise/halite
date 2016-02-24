@@ -22,6 +22,7 @@ describe Halite::Converter::Metadata do
     let(:cookbook_name) { gem_name }
     let(:version) { '1.0.0' }
     let(:cookbook_version) { version }
+    let(:issues_url) { nil }
     let(:cookbook_dependencies) { [] }
     let(:gem_metadata) { {} }
     let(:spec) do
@@ -46,6 +47,7 @@ describe Halite::Converter::Metadata do
         spec: spec,
         version: version,
         cookbook_version: cookbook_version,
+        issues_url: issues_url,
       )
     end
     subject { described_class.generate(gem_data) }
@@ -127,6 +129,17 @@ version "1.0.0"
 chef_version ">= 0" if defined?(chef_version)
 EOH
     end # /context with a chef_version
+
+    context 'with an issues_url' do
+      let(:issues_url) { 'http://issues' }
+
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+issues_url "http://issues" if defined?(issues_url)
+chef_version "~> 12" if defined?(chef_version)
+EOH
+    end # /context with an issues_url
   end # /describe #generate
 
   describe '#write' do

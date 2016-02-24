@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary = %q||
   spec.homepage = 'http://example.com/'
   spec.license = 'Apache 2.0'
+  spec.metadata['issues_url'] = 'http://issues'
 
   spec.files = `cd #{File.expand_path('..', __FILE__)} && git ls-files`.split($/)
   spec.executables = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }

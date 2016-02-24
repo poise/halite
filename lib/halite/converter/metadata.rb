@@ -40,6 +40,7 @@ module Halite
           buf << "maintainer #{gem_data.spec.authors.join(', ').inspect}\n" unless gem_data.spec.authors.empty?
           buf << "maintainer_email #{Array(gem_data.spec.email).join(',').inspect}\n" if gem_data.spec.email
           buf << "source_url #{gem_data.spec.homepage.inspect} if defined?(source_url)\n" if gem_data.spec.homepage
+          buf << "issues_url #{gem_data.issues_url.inspect} if defined?(issues_url)\n" if gem_data.issues_url
           buf << "license #{gem_data.spec.licenses.join(', ').inspect}\n" unless gem_data.spec.licenses.empty?
           gem_data.cookbook_dependencies.each do |dep|
             buf << "depends #{dep.name.inspect}"
