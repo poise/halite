@@ -36,6 +36,9 @@ describe Halite::Dependencies do
 
   before do
     allow(Gem::Specification).to receive(:stubs).and_return(gem_stubs)
+    allow(Gem::Specification).to receive(:stubs_for) do |name|
+      gem_stubs.select {|stub| stub.name == name }
+    end
   end
 
   describe '#extract_from_requirements' do
