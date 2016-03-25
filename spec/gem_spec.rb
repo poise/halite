@@ -23,11 +23,17 @@ describe Halite::Gem do
   let(:gem_name) { 'halite' }
   let(:gem_version) { nil }
 
+  # Because the default uses .inspect which is spammy.
+  RSpec::Matchers.define :quiet_be_a do |expected|
+    match {|actual| actual.is_a?(expected) }
+    description { "be a #{expected.name}" }
+  end
+
   context 'when loading halite' do
     its(:name) { is_expected.to eq 'halite' }
     its(:cookbook_name) { is_expected.to eq 'halite' }
     its(:version) { is_expected.to eq Halite::VERSION }
-    its(:spec) { is_expected.to be_a Gem::Specification }
+    its(:spec) { is_expected.to quiet_be_a Gem::Specification }
     its(:issues_url) { is_expected.to eq 'https://github.com/poise/halite/issues' }
   end
 
@@ -36,13 +42,13 @@ describe Halite::Gem do
     its(:name) { is_expected.to eq 'halite' }
     its(:cookbook_name) { is_expected.to eq 'halite' }
     its(:version) { is_expected.to eq Halite::VERSION }
-    its(:spec) { is_expected.to be_a Gem::Specification }
+    its(:spec) { is_expected.to quiet_be_a Gem::Specification }
   end
 
   context 'when loading rspec' do
     let(:gem_name) { 'rspec' }
     its(:name) { is_expected.to eq 'rspec' }
-    its(:spec) { is_expected.to be_a Gem::Specification }
+    its(:spec) { is_expected.to quiet_be_a Gem::Specification }
     its(:is_halite_cookbook?) { is_expected.to be_falsey }
   end
 
