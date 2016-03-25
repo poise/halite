@@ -25,4 +25,5 @@ env:
 before_install:
 - if [[ $BUNDLE_GEMFILE == *master.gemfile ]]; then gem update --system; fi
 - gem install bundler
+- bundle --version
 script: bundle exec rake integration
