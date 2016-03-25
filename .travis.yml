@@ -24,6 +24,7 @@ env:
   - secure: ecX52GLF7IHCiaPEDzPtztiEmu2mNPfyyPrM7aaNsufat7DdsZqPP9LKpCTOoJC+Jgz9sdbQ6Hf61CeZAsrqZ8sKKdiXUoBUXdcBhvuPdpIbfwq97hjOoqQV7rLSD4EW58fipJU8Rl5P1ijFJizHIyxNB+VWBow3niIMGjIEUSE=
 before_install:
 - if [[ $BUNDLE_GEMFILE == *master.gemfile ]]; then gem update --system; fi
+- gem uninstall bundler
 - gem install bundler
 - bundle --version
 script: bundle exec rake integration
