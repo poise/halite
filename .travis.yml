@@ -25,9 +25,7 @@ env:
 before_install:
 - if [[ $BUNDLE_GEMFILE == *master.gemfile ]]; then gem update --system; fi
 - gem --version
-- gem uninstall bundler
 - gem install bundler
 - bundle --version
-script:
-- bundle exec chef-solo --version
-- bundle exec rake integration
+install: bundle install --jobs=3 --retry=3
+script: bundle exec rake integration
