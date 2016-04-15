@@ -2,9 +2,9 @@ sudo: false
 cache: bundler
 language: ruby
 rvm:
-- "2.0"
 - "2.1"
 - "2.2"
+- "2.3"
 gemfile:
 - gemfiles/chef-12.0.gemfile
 - gemfiles/chef-12.1.gemfile
@@ -22,12 +22,6 @@ env:
   - USE_SYSTEM_GECODE=true
   - secure: bNxYOvi85lnPIPO1qR6NnhfqlREfMXSjmd+xCH01e/gg3x00D+3uyQIotQtglgHRItVIR36GqX70q2g/reudxBsCjfUhH2vDgbtmrWe1ow78rt1xZRlFMQs7JfBpfWKkox5i9mrdzZDekZACA0HUMI1pRM0MYQmkuol/oZw5H4A=
   - secure: ecX52GLF7IHCiaPEDzPtztiEmu2mNPfyyPrM7aaNsufat7DdsZqPP9LKpCTOoJC+Jgz9sdbQ6Hf61CeZAsrqZ8sKKdiXUoBUXdcBhvuPdpIbfwq97hjOoqQV7rLSD4EW58fipJU8Rl5P1ijFJizHIyxNB+VWBow3niIMGjIEUSE=
-matrix:
-  exclude:
-  - rvm: "2.0"
-    gemfile: gemfiles/chef-12.gemfile
-  - rvm: "2.0"
-    gemfile: gemfiles/master.gemfile
 before_install:
 - if [[ $BUNDLE_GEMFILE == *master.gemfile ]]; then gem update --system 2.6.1; fi
 - gem --version
