@@ -20,6 +20,7 @@
 require 'singleton'
 
 begin
+  require 'bundler' # Pull in the bundler top-level because of missing requires.
   require 'bundler/stub_specification'
 rescue LoadError
   # Bundler too old.
