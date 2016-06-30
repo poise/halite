@@ -1,5 +1,11 @@
 # Halite Changelog
 
+## v1.3.0
+
+* Include extended metadata with stove pushes.
+* Fix `uninitialized constant Bundler::RemoteSpecification::MatchPlatform` when
+  using the Berkshelf extension with ChefDK.
+
 ## v1.2.1
 
 * Compatibility with Foodcritic 6.0. `issues_url` will be added to the generated
