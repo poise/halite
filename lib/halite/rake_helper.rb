@@ -132,7 +132,7 @@ module Halite
       # To match the behavior of Bundler's release task w.r.t $gem_push.
       return if %w{n no nil false off 0}.include?(ENV['cookbook_push'].to_s.downcase)
       Dir.chdir(path) do
-        sh('stove --no-git')
+        sh('stove --no-git --extended-metadata')
         shell.say("Pushed #{gemspec.name} #{gemspec.version} to supermarket.chef.io.", :green) unless options[:no_gem]
       end
     end
