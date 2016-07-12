@@ -35,4 +35,4 @@ Dir[File.expand_path('../spec/fixtures/gems/*', __FILE__)].each do |path|
 end
 
 # Until I sort out Ruby 2.1 support.
-gem 'chef-zero', '>= 4.7.1'
+gem 'rack', '< 2'
