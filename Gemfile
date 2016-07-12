@@ -33,3 +33,6 @@ dev_gem 'poise-profiler'
 Dir[File.expand_path('../spec/fixtures/gems/*', __FILE__)].each do |path|
   gem File.basename(path), path: path
 end
+
+# Until I sort out Ruby 2.1 support.
+gem 'chef-zero', '>= 4.7.1'
