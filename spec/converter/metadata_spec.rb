@@ -24,6 +24,7 @@ describe Halite::Converter::Metadata do
     let(:cookbook_version) { version }
     let(:issues_url) { nil }
     let(:cookbook_dependencies) { [] }
+    let(:gem_dependencies) { [] }
     let(:gem_metadata) { {} }
     let(:spec) do
       instance_double('Gem::Specification',
@@ -40,6 +41,7 @@ describe Halite::Converter::Metadata do
     let(:gem_data) do
       instance_double('Halite::Gem',
         cookbook_dependencies: cookbook_dependencies.map {|dep| Halite::Dependencies::Dependency.new(*dep) },
+        gem_dependencies: gem_dependencies.map {|dep| Halite::Dependencies::Dependency.new(*dep) },
         cookbook_name: cookbook_name,
         find_misc_path: nil,
         license_header: '',
@@ -72,7 +74,7 @@ chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with a license header
 
-    context 'with one dependency' do
+    context 'with one cookbook dependency' do
       let(:cookbook_dependencies) { [['other', '>= 0']] }
       it { is_expected.to eq <<-EOH }
 name "mygem"
@@ -82,7 +84,7 @@ chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with one dependency
 
-    context 'with two dependencies' do
+    context 'with two cookbook dependencies' do
       let(:cookbook_dependencies) { [['other', '~> 1.0'], ['another', '~> 2.0.0']] }
       it { is_expected.to eq <<-EOH }
 name "mygem"
@@ -93,6 +95,40 @@ chef_version "~> 12" if defined?(chef_version)
 EOH
     end # /context with two dependencies
 
+    context 'with one gem dependency' do
+      let(:gem_dependencies) { [['other', '>= 0']] }
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+gem "other"
+chef_version "~> 12" if defined?(chef_version)
+EOH
+    end # /context with one dependency
+
+    context 'with two gem dependencies' do
+      let(:gem_dependencies) { [['other', '~> 1.0'], ['another', '~> 2.0.0']] }
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+gem "other", "~> 1.0"
+gem "another", "~> 2.0.0"
+chef_version "~> 12" if defined?(chef_version)
+EOH
+    end # /context with two dependencies
+
+    context 'with two gem dependencies and two cookbook dependencies' do
+      let(:gem_dependencies) { [['gem1', '~> 1.0'], ['gem2', '~> 2.0.0']] }
+      let(:cookbook_dependencies) { [['cookbook1', '~> 1.0'], ['cookbook2', '~> 2.0.0']] }
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+depends "cookbook1", "~> 1.0"
+depends "cookbook2", "~> 2.0.0"
+gem "gem1", "~> 1.0"
+gem "gem2", "~> 2.0.0"
+chef_version "~> 12" if defined?(chef_version)
+EOH
+    end # /context with two dependencies
     context 'with a description' do
       before do
         allow(spec).to receive(:description).and_return('My awesome library!')

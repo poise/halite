@@ -157,12 +157,22 @@ module Halite
     end
 
     def cookbook_dependencies
-      @cookbook_dependencies ||= Dependencies.extract(spec)
+      @cookbook_dependencies ||= Dependencies.extract_cookbooks(spec)
+    end
+
+    # List gem dependencies.
+    def gem_dependencies
+      @gem_dependencies ||= Dependencies.extract_gems(spec)
     end
 
     # Is this gem really a cookbook? (anything that depends directly on halite and doesn't have the ignore flag)
     def is_halite_cookbook?
       spec.dependencies.any? {|subdep| subdep.name == 'halite'} && !spec.metadata.include?('halite_ignore')
+    end
+
+    # Is this gem halite itself? We don't want to add this as a gem dep.
+    def is_halite_gem?
+      spec.name == 'halite'
     end
 
     # Create a Chef::CookbookVersion object that represents this gem. This can

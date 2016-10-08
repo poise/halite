@@ -80,9 +80,9 @@ describe Halite::Dependencies do
     end
   end # /describe #extract_from_metadata
 
-  describe '#extract_from_dependencies' do
+  describe '#extract_cookbooks_from_dependencies' do
     let(:gemspec) { }
-    subject { described_class.extract_from_dependencies(gemspec) }
+    subject { described_class.extract_cookbooks_from_dependencies(gemspec) }
 
     context 'with a halite-ish dependency' do
       let(:gemspec) { fake_gem {|s| s.add_dependency 'gem3' } }
@@ -98,7 +98,27 @@ describe Halite::Dependencies do
       let(:gemspec) { fake_gem {|s| s.add_development_dependency 'gem1' } }
       it { is_expected.to eq [] }
     end
-  end # /describe #extract_from_dependencies
+  end # /describe #extract_cookbooks_from_dependencies
+
+  describe '#extract_gems_from_dependencies' do
+    let(:gemspec) { }
+    subject { described_class.extract_gems_from_dependencies(gemspec) }
+
+    context 'with a halite-ish dependency' do
+      let(:gemspec) { fake_gem {|s| s.add_dependency 'gem3' } }
+      it { is_expected.to eq [] }
+    end
+
+    context 'with a development dependency' do
+      let(:gemspec) { fake_gem {|s| s.add_development_dependency 'gem3' } }
+      it { is_expected.to eq [] }
+    end
+
+    context 'with a non-halite runtime dependency' do
+      let(:gemspec) { fake_gem {|s| s.add_dependency 'gem1' } }
+      it { is_expected.to eq [['gem1', '>= 0', gem_stubs[0]]] }
+    end
+  end # /describe #extract_gems_from_dependencies
 
   describe '#clean' do
     let(:dependency) { nil }

@@ -77,4 +77,11 @@ describe 'integration tests' do
     let(:expect_output) { '!!!!!!!!!!test34.5.6' }
     it_should_behave_like 'an integration test', 'test3', '7.8.9', [['testdep', '1.0.0']]
   end # /context with test3 gem
+
+  context 'with test5 gem', integration: true do
+    let(:extra_gems) { ['test2', 'test6'] }
+    let(:recipes) { ['test5'] }
+    let(:expect_output) { '!!!!!!!!!!test54.5.6' }
+    it_should_behave_like 'an integration test', 'test5', '7.8.9', [['testdep', '1.0.0']]
+  end # /context with test5 gem
 end
