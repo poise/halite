@@ -100,6 +100,9 @@ module Halite
           normal_attributes: normal_attributes,
           override_attributes: override_attributes,
           halite_gemspec: halite_gemspec,
+          # Default platform and version.
+          platform: 'ubuntu',
+          version: '16.04',
         }.merge(chefspec_options)
       )
     end
