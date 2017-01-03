@@ -55,7 +55,7 @@ Chef 12.x. This can be overridden using the `halite_chef_version` metadata field
 
 ```ruby
 Gem::Specification.new do |spec|
-  spec.metadata['halite_dependencies'] = '>= 12.0.0'
+  spec.metadata['halite_chef_version'] = '>= 12.0.0'
 end
 ```
 
