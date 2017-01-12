@@ -1,0 +1,1 @@
+require 'halite/rake_tasks'
