@@ -1,5 +1,11 @@
 # Halite Changelog
 
+## v1.4.0
+
+* Set a default platform and version in ChefSpec because Fauxhai is trying to
+  deprecate the `chefspec` platform. This may break some tests that relied on
+  the nil defaults.
+
 ## v1.3.0
 
 * Include extended metadata with stove pushes.
