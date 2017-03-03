@@ -43,6 +43,9 @@ module Halite
       end
 
       def initialize(options={})
+        # Repeating the detault platform.
+        options[:platform] ||= 'ubuntu'
+        options[:version] ||= '16.04'
         super(options) do |node|
           # Allow inserting arbitrary attribute data in to the node
           node.attributes.default = Chef::Mixin::DeepMerge.merge(node.attributes.default, options[:default_attributes]) if options[:default_attributes]
