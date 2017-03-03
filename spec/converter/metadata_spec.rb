@@ -25,6 +25,7 @@ describe Halite::Converter::Metadata do
     let(:issues_url) { nil }
     let(:cookbook_dependencies) { [] }
     let(:gem_metadata) { {} }
+    let(:chef_version_requirement) { ['>= 12'] }
     let(:spec) do
       instance_double('Gem::Specification',
         author: nil,
@@ -48,6 +49,7 @@ describe Halite::Converter::Metadata do
         version: version,
         cookbook_version: cookbook_version,
         issues_url: issues_url,
+        chef_version_requirement: chef_version_requirement,
       )
     end
     subject { described_class.generate(gem_data) }
@@ -56,7 +58,7 @@ describe Halite::Converter::Metadata do
       it { is_expected.to eq <<-EOH }
 name "mygem"
 version "1.0.0"
-chef_version "~> 12" if defined?(chef_version)
+chef_version(*[">= 12"]) if defined?(chef_version)
 EOH
     end # /context with simple data
 
@@ -68,7 +70,7 @@ EOH
 # header
 name "mygem"
 version "1.0.0"
-chef_version "~> 12" if defined?(chef_version)
+chef_version(*[">= 12"]) if defined?(chef_version)
 EOH
     end # /context with a license header
 
@@ -78,7 +80,7 @@ EOH
 name "mygem"
 version "1.0.0"
 depends "other"
-chef_version "~> 12" if defined?(chef_version)
+chef_version(*[">= 12"]) if defined?(chef_version)
 EOH
     end # /context with one dependency
 
@@ -89,7 +91,7 @@ name "mygem"
 version "1.0.0"
 depends "other", "~> 1.0"
 depends "another", "~> 2.0.0"
-chef_version "~> 12" if defined?(chef_version)
+chef_version(*[">= 12"]) if defined?(chef_version)
 EOH
     end # /context with two dependencies
 
@@ -102,7 +104,7 @@ EOH
 name "mygem"
 version "1.0.0"
 description "My awesome library!"
-chef_version "~> 12" if defined?(chef_version)
+chef_version(*[">= 12"]) if defined?(chef_version)
 EOH
     end # /context with a description
 
@@ -116,17 +118,17 @@ EOH
 name "mygem"
 version "1.0.0"
 long_description "My awesome readme!\\nCopyright me.\\n"
-chef_version "~> 12" if defined?(chef_version)
+chef_version(*[">= 12"]) if defined?(chef_version)
 EOH
     end # /context with a readme
 
     context 'with a chef_version' do
-      let(:gem_metadata) { {'halite_chef_version' => '>= 0'} }
+      let(:chef_version_requirement) { ['>= 0'] }
 
       it { is_expected.to eq <<-EOH }
 name "mygem"
 version "1.0.0"
-chef_version ">= 0" if defined?(chef_version)
+chef_version(*[">= 0"]) if defined?(chef_version)
 EOH
     end # /context with a chef_version
 
@@ -137,7 +139,7 @@ EOH
 name "mygem"
 version "1.0.0"
 issues_url "http://issues" if defined?(issues_url)
-chef_version "~> 12" if defined?(chef_version)
+chef_version(*[">= 12"]) if defined?(chef_version)
 EOH
     end # /context with an issues_url
   end # /describe #generate

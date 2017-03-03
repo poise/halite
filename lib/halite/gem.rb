@@ -206,6 +206,21 @@ module Halite
       nil
     end
 
+    # Figure out which version of Chef this cookbook requires. Returns an array
+    # of Gem::Requirement-style string like `~> 12.0`.
+    #
+    # @return [Array<String>]
+    def chef_version_requirement
+      if spec.metadata['halite_chef_version']
+        # Manually overridden by gem metadata, use that.
+        [spec.metadata['halite_chef_version']]
+      elsif dep = spec.dependencies.find {|dep| dep.name == 'chef' && !dep.requirement.none? }
+        dep.requirement.as_list
+      else
+        ['>= 12']
+      end
+    end
+
     private
 
     # Find a spec given a dependency.

@@ -47,7 +47,7 @@ module Halite
             buf << ", #{dep.requirement.inspect}" if dep.requirement != '>= 0'
             buf << "\n"
           end
-          buf << "chef_version #{(gem_data.spec.metadata['halite_chef_version'] || '~> 12').inspect} if defined?(chef_version)\n"
+          buf << "chef_version(*#{gem_data.chef_version_requirement.inspect}) if defined?(chef_version)\n"
         end
       end
 
