@@ -27,7 +27,7 @@ module Halite
     # @api private
     module Patcher
       # Flag to disable module-name patching.
-      DISABLE_PATCH_MODULE = ::Gem::Requirement.create('> 12').satisfied_by?(::Gem::Version.create(Chef::VERSION))
+      DISABLE_PATCH_MODULE = ::Gem::Requirement.create('>= 13').satisfied_by?(::Gem::Version.create(Chef::VERSION))
 
       # Patch a class in to Chef for the duration of a block.
       #
