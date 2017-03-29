@@ -3,7 +3,7 @@ cache: bundler
 language: ruby
 rvm:
 - "2.3.3"
-- "2.4.1"
+# - "2.4.1"
 gemfile:
 - gemfiles/chef-12.0.gemfile
 - gemfiles/chef-12.1.gemfile
@@ -26,5 +26,5 @@ before_install:
 - gem --version
 - gem install bundler
 - bundle --version
-install: bundle update --jobs=3 --retry=3
+install: bundle update --jobs=3 --retry=3 --path=${BUNDLE_PATH:-vendor/bundle}
 script: bundle exec rake integration
