@@ -1,5 +1,17 @@
 # Halite Changelog
 
+## v1.5.0
+
+* Set the default spec platform and version even when using the Halite runner
+  API directly.
+* Allow setting the chef_version constraints on a cookbook through a normal
+  gem dependency on the `chef` gem.
+* The default chef_version constraint has been changed from `~> 12.0` to `>= 12`
+  to allow for better interaction with the upcoming Chef 13 release.
+* Bump Stove dependency from 4.x to 5.x. This removes Ruby 2.0 compat. Sorry.
+* No longer testing on Ruby 2.2, which happens to be entering security-maintenance
+  mode today. Don't use it.
+
 ## v1.4.0
 
 * Set a default platform and version in ChefSpec because Fauxhai is trying to
