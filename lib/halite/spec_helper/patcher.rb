@@ -15,6 +15,7 @@
 #
 
 require 'chef/resource'
+require 'chef/version'
 
 
 module Halite
@@ -25,6 +26,9 @@ module Halite
     # @since 1.0.0
     # @api private
     module Patcher
+      # Flag to disable module-name patching.
+      DISABLE_PATCH_MODULE = ::Gem::Requirement.create('> 12').satisfied_by?(::Gem::Version.create(Chef::VERSION))
+
       # Patch a class in to Chef for the duration of a block.
       #
       # @param name [String, Symbol] Name to create in snake-case (eg. :my_name).
@@ -90,6 +94,7 @@ module Halite
       # @param block [Proc] Block to execute while the name is available.
       # @return [void]
       def self.patch_module(mod, name, obj, &block)
+        return block.call if DISABLE_PATCH_MODULE
         class_name = Chef::Mixin::ConvertToClassName.convert_to_class_name(name.to_s)
         if mod.const_defined?(class_name, false)
           old_class = mod.const_get(class_name, false)
