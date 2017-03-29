@@ -264,7 +264,7 @@ module Halite
       #     end
       #     it { is_expected.to run_my_resource('test').with(path: '/tmp') }
       #   end
-      def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, defined_at: caller[0], &block)
+      def resource(name, auto: true, parent: Chef::Resource, step_into: true, unwrap_notifying_block: true, patch: true, defined_at: caller[0], &block)
         parent = resources[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{parent.inspect}") unless parent.is_a?(Class)
         # Pull out the example group for use in the class.
@@ -320,7 +320,7 @@ module Halite
         end
 
         # Clean up any global registration that happens on class compile.
-        Patcher.post_create_cleanup(name, resource_class)
+        Patcher.post_create_cleanup(name, resource_class) if patch
 
         # Store for use up with the parent system
         halite_helpers[:resources][name.to_sym] = resource_class
@@ -329,7 +329,7 @@ module Halite
         step_into(resource_class, name, unwrap_notifying_block: unwrap_notifying_block) if step_into
 
         around do |ex|
-          if resource(name) == resource_class
+          if patch && resource(name) == resource_class
             # We haven't been overridden from a nested scope.
             Patcher.patch(name, resource_class, Chef::Resource) { ex.run }
           else
@@ -367,7 +367,7 @@ module Halite
       #     it { is_expected.to run_my_resource('test') }
       #     it { is_expected.to run_ruby_block('test') }
       #   end
-      def provider(name, auto: true, rspec: true, parent: Chef::Provider, defined_at: caller[0], &block)
+      def provider(name, auto: true, rspec: true, parent: Chef::Provider, patch: true, defined_at: caller[0], &block)
         parent = providers[parent] if parent.is_a?(Symbol)
         raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless parent.is_a?(Class)
         # Pull out the example group for use in the class.
@@ -414,13 +414,13 @@ module Halite
         end
 
         # Clean up any global registration that happens on class compile.
-        Patcher.post_create_cleanup(name, provider_class)
+        Patcher.post_create_cleanup(name, provider_class) if patch
 
         # Store for use up with the parent system
         halite_helpers[:providers][name.to_sym] = provider_class
 
         around do |ex|
-          if provider(name) == provider_class
+          if patch && provider(name) == provider_class
             # We haven't been overridden from a nested scope.
             Patcher.patch(name, provider_class, Chef::Provider) { ex.run }
           else
