@@ -23,4 +23,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'chef', '>= 1'
 
   spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'test2', '~> 4.5.6'
 end

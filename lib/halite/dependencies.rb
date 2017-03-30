@@ -39,11 +39,17 @@ module Halite
       end
     end
 
-    def self.extract(spec)
+    # Extract the cookbook dependencies from a gem specification.
+    #
+    # @since 1.6.0 Added development parameter.
+    # @param spec [Gem::Specification] Gem to extract from.
+    # @param development [Boolean] If true, consider development depencies.
+    # @return [Array<Halite::Dependencies::Dependency>]
+    def self.extract(spec, development: false)
       deps = []
       deps += clean_and_tag(extract_from_requirements(spec), :requirements)
       deps += clean_and_tag(extract_from_metadata(spec), :metadata)
-      deps += clean_and_tag(extract_from_dependencies(spec), :dependencies)
+      deps += clean_and_tag(extract_from_dependencies(spec, development: development), :dependencies)
       deps
     end
 
@@ -58,10 +64,10 @@ module Halite
       spec.metadata.fetch('halite_dependencies', '').split(/,/)
     end
 
-    def self.extract_from_dependencies(spec)
+    def self.extract_from_dependencies(spec, development: false)
       # Find any gem dependencies that are cookbooks in disguise.
       spec.dependencies.select do |dep|
-        dep.type == :runtime && Gem.new(dep).is_halite_cookbook?
+        (development || dep.type == :runtime) && Gem.new(dep).is_halite_cookbook?
       end.map do |dep|
         gem = Gem.new(dep)
         [gem.cookbook_name] + dep.requirements_list + [gem.spec]

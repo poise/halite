@@ -156,8 +156,8 @@ module Halite
       each_file(spec.require_paths, &block)
     end
 
-    def cookbook_dependencies
-      @cookbook_dependencies ||= Dependencies.extract(spec)
+    def cookbook_dependencies(development: false)
+      Dependencies.extract(spec, development: development)
     end
 
     # Is this gem really a cookbook? (anything that depends directly on halite and doesn't have the ignore flag)

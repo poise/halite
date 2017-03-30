@@ -98,6 +98,25 @@ describe Halite::Dependencies do
       let(:gemspec) { fake_gem {|s| s.add_development_dependency 'gem1' } }
       it { is_expected.to eq [] }
     end
+
+    context 'with development mode' do
+      subject { described_class.extract_from_dependencies(gemspec, development: true) }
+
+      context 'with a halite-ish dependency' do
+        let(:gemspec) { fake_gem {|s| s.add_dependency 'gem3' } }
+        it { is_expected.to eq [['gem3', '>= 0', gem_stubs[2]]] }
+      end
+
+      context 'with a development dependency' do
+        let(:gemspec) { fake_gem {|s| s.add_development_dependency 'gem3' } }
+        it { is_expected.to eq [['gem3', '>= 0', gem_stubs[2]]] }
+      end
+
+      context 'with a non-halite dependency' do
+        let(:gemspec) { fake_gem {|s| s.add_development_dependency 'gem1' } }
+        it { is_expected.to eq [] }
+      end
+    end # /context with development mode
   end # /describe #extract_from_dependencies
 
   describe '#clean' do

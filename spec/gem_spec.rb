@@ -147,6 +147,8 @@ describe Halite::Gem do
   context 'when loading test4' do
     let(:gem_name) { 'test4' }
     its(:cookbook_name) { is_expected.to eq 'test4' }
+    its(:cookbook_dependencies) { is_expected.to eq [] }
+    it { expect(subject.cookbook_dependencies(development: true)).to eq [Halite::Dependencies::Dependency.new('test2', '~> 4.5.6', :dependencies)] }
     its(:version) { is_expected.to eq '2.3.1.rc.1' }
     its(:cookbook_version) { is_expected.to eq '2.3.1' }
     its(:issues_url) { is_expected.to eq 'http://issues' }
