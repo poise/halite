@@ -369,7 +369,7 @@ module Halite
       #   end
       def provider(name, auto: true, rspec: true, parent: Chef::Provider, patch: true, defined_at: caller[0], &block)
         parent = providers[parent] if parent.is_a?(Symbol)
-        raise Halite::Error.new("Parent class for #{name} is not a class: #{options[:parent].inspect}") unless parent.is_a?(Class)
+        raise Halite::Error.new("Parent class for #{name} is not a class: #{parent.inspect}") unless parent.is_a?(Class)
         # Pull out the example group for use in the class.
         example_group = self
         # Create the provider class.
