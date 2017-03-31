@@ -175,10 +175,17 @@ module Halite
       # Put this in a local variable for a closure below.
       path = spec.full_gem_path
       Chef::CookbookVersion.new(cookbook_name, File.join(path, 'chef')).tap do |c|
-        c.attribute_filenames = each_file('chef/attributes').map(&:first)
-        c.file_filenames = each_file('chef/files').map(&:first)
-        c.recipe_filenames = each_file('chef/recipes').map(&:first)
-        c.template_filenames = each_file('chef/templates').map(&:first)
+        # Use CookbookVersion#files_for as a feature test for ManifestV2. This
+        # can be changed to ::Gem::Requirement.create('>= 13').satisfied_by?(::Gem::Version.create(Chef::VERSION))
+        # once https://github.com/chef/chef/pull/5929 is merged.
+        if defined?(c.files_for)
+          c.all_files = each_file('chef').map(&:first)
+        else
+          c.attribute_filenames = each_file('chef/attributes').map(&:first)
+          c.file_filenames = each_file('chef/files').map(&:first)
+          c.recipe_filenames = each_file('chef/recipes').map(&:first)
+          c.template_filenames = each_file('chef/templates').map(&:first)
+        end
         # Haxx, rewire the filevendor for this cookbook to look up in our folder.
         # This is touching two different internal interfaces, but ¯\_(ツ)_/¯
         c.send(:file_vendor).define_singleton_method(:get_filename) do |filename|
