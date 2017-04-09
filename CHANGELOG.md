@@ -1,5 +1,10 @@
 # Halite Changelog
 
+## v1.6.0
+
+* Chef 13 compatibility.
+* Structural supports for gathering development dependencies for cookbook gems.
+
 ## v1.5.0
 
 * Set the default spec platform and version even when using the Halite runner
