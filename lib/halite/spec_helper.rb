@@ -14,13 +14,15 @@
 # limitations under the License.
 #
 
+# This must come first to ensure ChefSpec can patch in for matcher loading.
+require 'chefspec'
+
 # Fix load ordering bug in Chef 12.0.1. Remove this when dropping support for 12.0.
 require 'chef/providers'
 
 require 'chef/node'
 require 'chef/provider'
 require 'chef/resource'
-require 'chefspec'
 
 
 module Halite
