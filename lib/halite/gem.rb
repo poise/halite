@@ -238,6 +238,7 @@ module Halite
         # Manually overridden by gem metadata, use that.
         [spec.metadata['halite_chef_version']]
       elsif dep = spec.dependencies.find {|inner_dep| inner_dep.name == 'chef' && !inner_dep.requirement.none? }
+        # Parse through the dependencies looking for something like `spec.add_dependency 'chef', '>= 12.1''`.
         dep.requirement.as_list
       else
         ['>= 12']
