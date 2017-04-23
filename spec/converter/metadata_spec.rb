@@ -50,6 +50,7 @@ describe Halite::Converter::Metadata do
         cookbook_version: cookbook_version,
         issues_url: issues_url,
         chef_version_requirement: chef_version_requirement,
+        platforms: [],
       )
     end
     subject { described_class.generate(gem_data) }
@@ -132,6 +133,16 @@ chef_version ">= 0" if defined?(chef_version)
 EOH
     end # /context with a chef_version
 
+    context 'with a complex chef_version' do
+      let(:chef_version_requirement) { ['< 15', '>= 12.5'] }
+
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+chef_version "< 15", ">= 12.5" if defined?(chef_version)
+EOH
+    end # /context with a complex chef_version
+
     context 'with an issues_url' do
       let(:issues_url) { 'http://issues' }
 
@@ -142,6 +153,36 @@ issues_url "http://issues" if defined?(issues_url)
 chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with an issues_url
+
+    context 'with platforms' do
+      before do
+        allow(gem_data).to receive(:platforms).and_return([%w{ubuntu}, %w{debian}, %w{redhat}])
+      end
+
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+chef_version ">= 12" if defined?(chef_version)
+supports "ubuntu"
+supports "debian"
+supports "redhat"
+EOH
+    end # /context with platforms
+
+    context 'with complex platforms' do
+      before do
+        allow(gem_data).to receive(:platforms).and_return([['ubuntu', '>= 16.04'], ['debian', '>= 6', '< 9'], %w{redhat}])
+      end
+
+      it { is_expected.to eq <<-EOH }
+name "mygem"
+version "1.0.0"
+chef_version ">= 12" if defined?(chef_version)
+supports "ubuntu", ">= 16.04"
+supports "debian", ">= 6", "< 9"
+supports "redhat"
+EOH
+    end # /context with complex platforms
   end # /describe #generate
 
   describe '#write' do

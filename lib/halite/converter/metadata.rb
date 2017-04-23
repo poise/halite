@@ -48,6 +48,9 @@ module Halite
             buf << "\n"
           end
           buf << "chef_version #{gem_data.chef_version_requirement.map(&:inspect).join(', ')} if defined?(chef_version)\n"
+          gem_data.platforms.each do |platform|
+            buf << "supports #{platform.map(&:inspect).join(', ')}\n"
+          end
         end
       end
 

@@ -7,3 +7,4 @@ source_url "http://example.com/" if defined?(source_url)
 license "Apache 2.0"
 depends "testdep"
 chef_version ">= 12" if defined?(chef_version)
+supports "ubuntu"

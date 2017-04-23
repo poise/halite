@@ -35,6 +35,7 @@ describe Halite::Gem do
     its(:version) { is_expected.to eq Halite::VERSION }
     its(:spec) { is_expected.to quiet_be_a Gem::Specification }
     its(:issues_url) { is_expected.to eq 'https://github.com/poise/halite/issues' }
+    its(:platforms) { is_expected.to eq [] }
   end
 
   context 'when loading halite with a version' do
@@ -67,6 +68,7 @@ describe Halite::Gem do
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
     its(:issues_url) { is_expected.to be_nil }
     its(:chef_version_requirement) { is_expected.to eq ['>= 12'] }
+    its(:platforms) { is_expected.to eq [] }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -106,6 +108,7 @@ describe Halite::Gem do
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
     its(:issues_url) { is_expected.to be_nil }
     its(:chef_version_requirement) { is_expected.to eq ['>= 12'] }
+    its(:platforms) { is_expected.to eq [%w{ubuntu}] }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -142,6 +145,7 @@ describe Halite::Gem do
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
     its(:issues_url) { is_expected.to be_nil }
     its(:chef_version_requirement) { is_expected.to eq [">= 3"] }
+    its(:platforms) { is_expected.to eq [['ubuntu', '>= 16.04'], %w{redhat}] }
   end # /context when loading test3
 
   context 'when loading test4' do
@@ -153,6 +157,7 @@ describe Halite::Gem do
     its(:cookbook_version) { is_expected.to eq '2.3.1' }
     its(:issues_url) { is_expected.to eq 'http://issues' }
     its(:chef_version_requirement) { is_expected.to eq ['< 99', '>= 1'] }
+    its(:platforms) { is_expected.to eq [%w{ubuntu}, %w{debian}, %w{centos}, %w{redhat}, %w{fedora}] }
   end # /context when loading test4
 
   context 'when loading a Gem::Dependency' do

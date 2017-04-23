@@ -116,6 +116,22 @@ module Halite
       end
     end
 
+    # Platform support to be used in the Chef metadata.
+    #
+    # @return [Array<Array<String>>]
+    def platforms
+      raw_platforms = spec.metadata.fetch('platforms', '')
+      if raw_platforms =~ /\A\s*\Z/
+        []
+      elsif raw_platforms =~ /,/
+        # Comma split mode. String looks like "name, name constraint, name constraint"
+        raw_platforms.split(/\s*,\s*/).map {|p| p.split(/\s+/, 2) }
+      else
+        # Whitepace split mode, assume no constraints.
+        raw_platforms.split(/\s+/).map {|p| [p] }
+      end
+    end
+
     # Iterate over all the files in the gem, with an optional prefix. Each
     # element in the iterable will be [full_path, relative_path], where
     # relative_path is relative to the prefix or gem path.

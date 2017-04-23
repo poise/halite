@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
   spec.license = 'Apache 2.0'
   spec.metadata['halite_entry_point'] = 'test3/dsl'
   spec.metadata['halite_chef_version'] = '>= 3'
+  spec.metadata['platforms'] = 'ubuntu >= 16.04, redhat'
 
   spec.files = `cd #{File.expand_path('..', __FILE__)} && git ls-files`.split($/)
   spec.executables = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
