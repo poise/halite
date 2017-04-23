@@ -66,7 +66,7 @@ describe Halite::Gem do
     its(:cookbook_dependencies) { is_expected.to eq [] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
     its(:issues_url) { is_expected.to be_nil }
-    its(:chef_version_requirement) { is_expected.to eq [">= 12"] }
+    its(:chef_version_requirement) { is_expected.to eq ['>= 12'] }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -105,7 +105,7 @@ describe Halite::Gem do
     its(:cookbook_dependencies) { is_expected.to eq [Halite::Dependencies::Dependency.new('testdep', '>= 0', :requirements)] }
     its(:is_halite_cookbook?) { is_expected.to be_truthy }
     its(:issues_url) { is_expected.to be_nil }
-    its(:chef_version_requirement) { is_expected.to eq [">= 12"] }
+    its(:chef_version_requirement) { is_expected.to eq ['>= 12'] }
 
     describe '#each_file' do
       context 'with no prefixes' do
@@ -152,7 +152,7 @@ describe Halite::Gem do
     its(:version) { is_expected.to eq '2.3.1.rc.1' }
     its(:cookbook_version) { is_expected.to eq '2.3.1' }
     its(:issues_url) { is_expected.to eq 'http://issues' }
-    its(:chef_version_requirement) { is_expected.to eq [">= 1"] }
+    its(:chef_version_requirement) { is_expected.to eq ['< 99', '>= 1'] }
   end # /context when loading test4
 
   context 'when loading a Gem::Dependency' do

@@ -58,7 +58,7 @@ describe Halite::Converter::Metadata do
       it { is_expected.to eq <<-EOH }
 name "mygem"
 version "1.0.0"
-chef_version(*[">= 12"]) if defined?(chef_version)
+chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with simple data
 
@@ -70,7 +70,7 @@ EOH
 # header
 name "mygem"
 version "1.0.0"
-chef_version(*[">= 12"]) if defined?(chef_version)
+chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with a license header
 
@@ -80,7 +80,7 @@ EOH
 name "mygem"
 version "1.0.0"
 depends "other"
-chef_version(*[">= 12"]) if defined?(chef_version)
+chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with one dependency
 
@@ -91,7 +91,7 @@ name "mygem"
 version "1.0.0"
 depends "other", "~> 1.0"
 depends "another", "~> 2.0.0"
-chef_version(*[">= 12"]) if defined?(chef_version)
+chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with two dependencies
 
@@ -104,7 +104,7 @@ EOH
 name "mygem"
 version "1.0.0"
 description "My awesome library!"
-chef_version(*[">= 12"]) if defined?(chef_version)
+chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with a description
 
@@ -118,7 +118,7 @@ EOH
 name "mygem"
 version "1.0.0"
 long_description "My awesome readme!\\nCopyright me.\\n"
-chef_version(*[">= 12"]) if defined?(chef_version)
+chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with a readme
 
@@ -128,7 +128,7 @@ EOH
       it { is_expected.to eq <<-EOH }
 name "mygem"
 version "1.0.0"
-chef_version(*[">= 0"]) if defined?(chef_version)
+chef_version ">= 0" if defined?(chef_version)
 EOH
     end # /context with a chef_version
 
@@ -139,7 +139,7 @@ EOH
 name "mygem"
 version "1.0.0"
 issues_url "http://issues" if defined?(issues_url)
-chef_version(*[">= 12"]) if defined?(chef_version)
+chef_version ">= 12" if defined?(chef_version)
 EOH
     end # /context with an issues_url
   end # /describe #generate
