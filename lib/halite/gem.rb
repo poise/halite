@@ -237,7 +237,7 @@ module Halite
       if spec.metadata['halite_chef_version']
         # Manually overridden by gem metadata, use that.
         [spec.metadata['halite_chef_version']]
-      elsif dep = spec.dependencies.find {|dep| dep.name == 'chef' && !dep.requirement.none? }
+      elsif dep = spec.dependencies.find {|inner_dep| inner_dep.name == 'chef' && !inner_dep.requirement.none? }
         dep.requirement.as_list
       else
         ['>= 12']
