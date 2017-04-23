@@ -21,7 +21,6 @@ require 'thor'
 require 'thor/shell'
 
 require 'halite/error'
-require 'halite/gem'
 
 
 module Halite
@@ -124,6 +123,7 @@ module Halite
     #
     # @return [Halite::Gem]
     def cookbook
+      require 'halite/gem'
       @cookbook ||= Halite::Gem.new(gemspec)
     end
   end
