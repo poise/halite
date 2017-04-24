@@ -242,4 +242,75 @@ describe Halite::Gem do
       it { is_expected.to eq 'mycompany-mygem' }
     end
   end # /describe #cookbook_name
+
+  describe '#platforms' do
+    let(:platforms) { '' }
+    let(:metadata) { {'platforms' => platforms} }
+    subject { described_class.new(Gem::Specification.new {|s| s.metadata.update(metadata) }).platforms }
+
+    context 'with no metadata' do
+      let(:metadata) { {} }
+      it { is_expected.to eq [] }
+    end # /context with no metadata
+
+    context 'with ""' do
+      let(:platforms) { '' }
+      it { is_expected.to eq [] }
+    end # /context with ""
+
+    context 'with " "' do
+      let(:platforms) { ' ' }
+      it { is_expected.to eq [] }
+    end # /context with " "
+
+    context 'with "name1"' do
+      let(:platforms) { 'name1' }
+      it { is_expected.to eq [%w{name1}] }
+    end # /context with "name1"
+
+    context 'with "name1 "' do
+      let(:platforms) { 'name1 ' }
+      it { is_expected.to eq [%w{name1}] }
+    end # /context with "name1 "
+
+    context 'with " name1"' do
+      let(:platforms) { ' name1' }
+      it { is_expected.to eq [%w{name1}] }
+    end # /context with " name1"
+
+    context 'with "name1 name2"' do
+      let(:platforms) { 'name1 name2' }
+      it { is_expected.to eq [%w{name1}, %w{name2}] }
+    end # /context with "name1 name2"
+
+    context 'with "name1, name2"' do
+      let(:platforms) { 'name1, name2' }
+      it { is_expected.to eq [%w{name1}, %w{name2}] }
+    end # /context with "name1, name2"
+
+    context 'with "name1 >= 1.0, name2"' do
+      let(:platforms) { 'name1 >= 1.0, name2' }
+      it { is_expected.to eq [['name1', '>= 1.0'], %w{name2}] }
+    end # /context with "name1 >= 1.0, name2"
+
+    context 'with "name1 >= 1.0, name2 <= 2.0"' do
+      let(:platforms) { 'name1 >= 1.0, name2 <= 2.0' }
+      it { is_expected.to eq [['name1', '>= 1.0'], ['name2', '<= 2.0']] }
+    end # /context with "name1 >= 1.0, name2 <= 2.0"
+
+    context 'with "any"' do
+      let(:platforms) { 'any' }
+      it { is_expected.to eq [%w{aix}, %w{amazon}, %w{arch}, %w{centos}, %w{chefspec}, %w{debian}, %w{dragonfly4}, %w{fedora}, %w{freebsd}, %w{gentoo}, %w{ios_xr}, %w{mac_os_x}, %w{nexus}, %w{omnios}, %w{openbsd}, %w{opensuse}, %w{oracle}, %w{raspbian}, %w{redhat}, %w{slackware}, %w{smartos}, %w{solaris2}, %w{suse}, %w{ubuntu}, %w{windows}] }
+    end # /context with "any"
+
+    context 'with "all"' do
+      let(:platforms) { 'all' }
+      it { is_expected.to eq [%w{aix}, %w{amazon}, %w{arch}, %w{centos}, %w{chefspec}, %w{debian}, %w{dragonfly4}, %w{fedora}, %w{freebsd}, %w{gentoo}, %w{ios_xr}, %w{mac_os_x}, %w{nexus}, %w{omnios}, %w{openbsd}, %w{opensuse}, %w{oracle}, %w{raspbian}, %w{redhat}, %w{slackware}, %w{smartos}, %w{solaris2}, %w{suse}, %w{ubuntu}, %w{windows}] }
+    end # /context with "all"
+
+    context 'with "*"' do
+      let(:platforms) { '*' }
+      it { is_expected.to eq [%w{aix}, %w{amazon}, %w{arch}, %w{centos}, %w{chefspec}, %w{debian}, %w{dragonfly4}, %w{fedora}, %w{freebsd}, %w{gentoo}, %w{ios_xr}, %w{mac_os_x}, %w{nexus}, %w{omnios}, %w{openbsd}, %w{opensuse}, %w{oracle}, %w{raspbian}, %w{redhat}, %w{slackware}, %w{smartos}, %w{solaris2}, %w{suse}, %w{ubuntu}, %w{windows}] }
+    end # /context with "*"
+  end # /describe #platforms
 end
