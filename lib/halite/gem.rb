@@ -120,10 +120,16 @@ module Halite
     #
     # @return [Array<Array<String>>]
     def platforms
-      raw_platforms = spec.metadata.fetch('platforms', '')
-      if raw_platforms =~ /\A\s*\Z/
+      raw_platforms = spec.metadata.fetch('platforms', '').strip
+      case raw_platforms
+      when ''
         []
-      elsif raw_platforms =~ /,/
+      when 'any', 'all', '*'
+        # Based on `ls lib/fauxhai/platforms  | xargs echo`.
+        %w{aix amazon arch centos chefspec debian dragonfly4 fedora freebsd gentoo
+           ios_xr mac_os_x nexus omnios openbsd opensuse oracle raspbian redhat
+           slackware smartos solaris2 suse ubuntu windows}.map {|p| [p] }
+      when /,/
         # Comma split mode. String looks like "name, name constraint, name constraint"
         raw_platforms.split(/\s*,\s*/).map {|p| p.split(/\s+/, 2) }
       else
