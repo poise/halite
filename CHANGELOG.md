@@ -1,5 +1,11 @@
 # Halite Changelog
 
+## v1.7.0
+
+* Allow specifying which platforms a cookbook supports via gem metadata:
+  `spec.metadata['platforms'] = 'ubuntu centos'`.
+* Support for automatic ChefSpec matchers in the future.
+
 ## v1.6.0
 
 * Chef 13 compatibility.
