@@ -61,7 +61,12 @@ module Halite
         super(*recipe_names) do
           add_halite_cookbooks(node, @halite_gemspec) if @halite_gemspec
           if block
-            recipe = Chef::Recipe.new(nil, nil, run_context)
+            cookbook_name = if @halite_gemspec
+              Halite::Gem.new(Array(@halite_gemspec).first).cookbook_name + '_spec'
+            else
+              nil
+            end
+            recipe = Chef::Recipe.new(cookbook_name, nil, run_context)
             recipe.instance_exec(&block)
           end
         end
