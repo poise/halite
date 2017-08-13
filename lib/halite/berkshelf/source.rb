@@ -27,10 +27,12 @@ module Halite
     # @since 1.0.0
     # @api private
     class Source < ::Berkshelf::Source
-      def initialize
-        # Pretend our URL is set even though it isn't used. Otherwise berks
-        # complains.
-        super 'https://supermarket.chef.io'
+      def initialize(berksfile)
+          # 6.1+ mode.
+        super(berksfile, {halite: 'halite://'})
+      rescue ArgumentError
+        # Legacy mode.
+        super('halite://')
       end
 
       def build_universe

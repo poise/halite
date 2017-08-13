@@ -49,7 +49,7 @@ module Halite
               []
             end
             # Make sure we never add two halite sources.
-            original_sources.reject {|s| s.is_a?(::Halite::Berkshelf::Source) } + [::Halite::Berkshelf::Source.new]
+            original_sources.reject {|s| s.is_a?(::Halite::Berkshelf::Source) } + [::Halite::Berkshelf::Source.new(self)]
           end
         end
 
