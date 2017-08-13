@@ -1,5 +1,11 @@
 # Halite Changelog
 
+## v1.8.0
+
+* Give recipes created using the block helper (`recipe do ... end`) a name when
+  possible.
+* Fix support for the Berkshelf plugin on Berks 6.1 and above.
+
 ## v1.7.0
 
 * Allow specifying which platforms a cookbook supports via gem metadata:
