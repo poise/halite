@@ -77,7 +77,7 @@ optional:
 
 ```ruby
 require 'halite/rake_helper'
-Halite::RakeHelper.install_tasks(
+Halite::RakeHelper.install(
   gem_name: 'name', # Name of the gem to convert
   base: File.basename(__FILE__), # Base folder for the gem
 )
