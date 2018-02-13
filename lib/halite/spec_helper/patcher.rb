@@ -261,7 +261,7 @@ module Halite
         map.each do |key, matchers|
           matchers.delete_if do |matcher|
             # in 13.7.16 the :value key in the hash was renamed to :klass
-            vkey = matcher[:value].nil? ? :klass : :value
+            vkey = matcher.key?(:klass) ? :klass : :value
 
             # In 12.4+ this value is an array of classes, before that it is the class.
             if matcher[vkey].is_a?(Array)
