@@ -4,31 +4,31 @@ language: ruby
 matrix:
   include:
     - rvm: 2.3.1
-      gemfile: test/gemfiles/chef-12.gemfile
+      gemfile: gemfiles/chef-12.gemfile
     - rvm: 2.4.3
-      gemfile: test/gemfiles/chef-13.gemfile
+      gemfile: gemfiles/chef-13.gemfile
     - rvm: 2.1.4
-      gemfile: test/gemfiles/chef-12.0.gemfile
+      gemfile: gemfiles/chef-12.0.gemfile
     - rvm: 2.1.4
-      gemfile: test/gemfiles/chef-12.1.gemfile
+      gemfile: gemfiles/chef-12.1.gemfile
     - rvm: 2.1.4
-      gemfile: test/gemfiles/chef-12.2.gemfile
+      gemfile: gemfiles/chef-12.2.gemfile
     - rvm: 2.1.4
-      gemfile: test/gemfiles/chef-12.3.gemfile
+      gemfile: gemfiles/chef-12.3.gemfile
     - rvm: 2.1.6
-      gemfile: test/gemfiles/chef-12.4.gemfile
+      gemfile: gemfiles/chef-12.4.gemfile
     - rvm: 2.1.6
-      gemfile: test/gemfiles/chef-12.4.0.gemfile
+      gemfile: gemfiles/chef-12.4.0.gemfile
     - rvm: 2.1.6
-      gemfile: test/gemfiles/chef-12.5.gemfile
+      gemfile: gemfiles/chef-12.5.gemfile
     - rvm: 2.1.6
-      gemfile: test/gemfiles/chef-12.6.gemfile
+      gemfile: gemfiles/chef-12.6.gemfile
     - rvm: 2.1.6
-      gemfile: test/gemfiles/chef-12.7.gemfile
+      gemfile: gemfiles/chef-12.7.gemfile
     - rvm: 2.4.3
-      gemfile: test/gemfiles/chef-13.7.6.gemfile
+      gemfile: gemfiles/chef-13.7.6.gemfile
     - rvm: 2.5.0
-      gemfile: test/gemfiles/master.gemfile
+      gemfile: gemfiles/master.gemfile
 env:
   global:
   - USE_SYSTEM_GECODE=true
