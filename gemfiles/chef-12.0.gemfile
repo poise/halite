@@ -16,6 +16,4 @@
 
 eval_gemfile File.expand_path('../../Gemfile', __FILE__)
 
-# this tests a very specific node_map edge case that existed only in 13.7.16 in
-# the released gem line and which affected halite.
-gem 'chef', '= 13.7.16'
+gem 'chef', '~> 12.0.3'
