@@ -1,4 +1,4 @@
-#
+.#
 # Copyright 2015, Noah Kantrowitz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@ def dev_gem(name, path: File.join('..', name))
   end
 end
 
-dev_gem 'chef'
 dev_gem 'poise'
 dev_gem 'poise-boiler'
 dev_gem 'poise-profiler'
