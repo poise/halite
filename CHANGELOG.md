@@ -1,5 +1,9 @@
 # Halite Changelog
 
+## v1.8.1
+
+* Fix compatibility with new Chef API for unregistering resources.
+
 ## v1.8.0
 
 * Give recipes created using the block helper (`recipe do ... end`) a name when
