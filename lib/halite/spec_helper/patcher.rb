@@ -247,6 +247,9 @@ module Halite
       # @param value [Object] Value to remove.
       # @return [Array<Symbol>]
       def self.remove_from_node_map(node_map, value)
+        # Chef sometime after 13.7.16 supports Chef::NodeMap#delete_class
+        return node_map.delete_class(value).keys if node_map.respond_to?(:delete_class)
+
         # Sigh.
         removed_keys = []
         # 12.4.1+ switched this to a private accessor and lazy init.
@@ -257,11 +260,14 @@ module Halite
         end
         map.each do |key, matchers|
           matchers.delete_if do |matcher|
+            # in 13.7.16 the :value key in the hash was renamed to :klass
+            vkey = matcher.key?(:klass) ? :klass : :value
+
             # In 12.4+ this value is an array of classes, before that it is the class.
-            if matcher[:value].is_a?(Array)
-              matcher[:value].include?(value)
+            if matcher[vkey].is_a?(Array)
+              matcher[vkey].include?(value)
             else
-              matcher[:value] == value
+              matcher[vkey] == value
             end && removed_keys << key # Track removed keys in a hacky way.
           end
           # Clear empty matchers entirely.
