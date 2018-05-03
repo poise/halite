@@ -183,7 +183,7 @@ describe Halite::SpecHelper do
       end # /context on the class
 
       context 'on the instance' do
-        subject { super().new(nil, nil) }
+        subject { super().new(double(name: 'test', cookbook_name: 'test'), nil) }
         its(:example_group) { is_expected.to be_truthy }
         its(:described_class) { is_expected.to eq Halite::SpecHelper }
       end # /context on the instance
