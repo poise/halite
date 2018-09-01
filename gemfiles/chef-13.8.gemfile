@@ -1,5 +1,5 @@
 #
-# Copyright 2015, Noah Kantrowitz
+# Copyright 2018, Noah Kantrowitz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
 # limitations under the License.
 #
 
-eval_gemfile File.expand_path('../../Gemfile', __FILE__)
+eval_gemfile File.expand_path('../../../Gemfile', __FILE__)
 
-# this tests a very specific node_map edge case that existed only in 13.7.16 in
-# the released gem line and which affected halite.
-gem 'chef', '= 13.7.16'
+gem 'chef', '~> 13.8.0'

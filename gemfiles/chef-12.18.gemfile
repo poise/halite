@@ -16,4 +16,4 @@
 
 eval_gemfile File.expand_path('../../../Gemfile', __FILE__)
 
-gem 'chef', '~> 13.10'
+gem 'chef', '~> 12.18.31'
