@@ -228,6 +228,25 @@ describe Halite::SpecHelper do
         it { expect(chef_run.halite_test_poise('test')).to be_a(Chef::Resource) }
       end # /context without step_into
     end # /context with a Poise resource
+
+    context 'with a custom resource' do
+      recipe do
+        halite_test_custom 'test'
+      end
+
+      context 'with step_into' do
+        step_into(:halite_test_custom)
+        it { is_expected.to run_halite_test_custom('test') }
+        it { is_expected.to run_ruby_block('test') }
+        it { expect(chef_run.halite_test_custom('test')).to be_a(Chef::Resource) }
+      end # /context with step_into
+
+      context 'without step_into' do
+        it { is_expected.to run_halite_test_custom('test') }
+        it { is_expected.to_not run_ruby_block('test') }
+        it { expect(chef_run.halite_test_custom('test')).to be_a(Chef::Resource) }
+      end # /context without step_into
+    end # /context with a custom resource
   end # /describe #step_into
 
   describe 'patcher' do

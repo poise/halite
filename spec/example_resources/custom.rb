@@ -1,5 +1,5 @@
 #
-# Copyright 2015, Noah Kantrowitz
+# Copyright 2018, Noah Kantrowitz
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,16 @@
 # limitations under the License.
 #
 
-require 'poise_boiler/helpers/spec_helper'
-PoiseBoiler::Helpers::SpecHelper.install(no_halite: true)
-require 'halite'
-require 'example_resources/simple'
-require 'example_resources/poise'
-require 'example_resources/custom'
+require 'chef/resource'
+require 'chef/provider'
+
+
+# A `halite_test_custom` resource for use in Halite's unit tests.
+class HaliteTestCustom < Chef::Resource
+  resource_name(:halite_test_custom)
+  action(:run) do
+    ruby_block new_resource.name do
+      block { }
+    end
+  end
+end
