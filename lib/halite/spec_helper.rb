@@ -55,6 +55,8 @@ module Halite
     autoload :Patcher, 'halite/spec_helper/patcher'
     autoload :Runner, 'halite/spec_helper/runner'
     extend RSpec::SharedContext
+    def self.described_class; nil; end
+    include ChefSpec::API
 
     # @!attribute [r] step_into
     #   Resource names to step in to when running this example.
@@ -91,29 +93,17 @@ module Halite
     #   @example Enable Fauxhai attributes
     #     let(:chefspec_options) { {platform: 'ubuntu', version: '12.04'} }
     let(:chefspec_options) { Hash.new }
-    # @!attribute [r] chef_runner
-    #   ChefSpec runner for this example.
-    #   @return [ChefSpec::SoloRunner]
-    let(:chef_runner) do
-      Halite::SpecHelper::Runner.new(
-        {
-          step_into: step_into,
-          default_attributes: default_attributes,
-          normal_attributes: normal_attributes,
-          override_attributes: override_attributes,
-          halite_gemspec: halite_gemspec,
-          # Default platform and version.
-          platform: 'ubuntu',
-          version: '16.04',
-        }.merge(chefspec_options)
-      )
+
+    # Inject legacy Halite spec_helper options into newer ChefSpec.
+    before do
+      chef_runner.options[:halite_gemspec] = halite_gemspec
+      chef_runner.options[:step_into] |= step_into if step_into
+      chef_runner.options[:default_attributes].update(default_attributes) unless default_attributes.empty?
+      chef_runner.options[:normal_attributes].update(normal_attributes) unless normal_attributes.empty?
+      chef_runner.options[:override_attributes].update(override_attributes) unless override_attributes.empty?
+      chef_runner.options[:platform] ||= 'ubuntu'
+      chef_runner.options.update(chefspec_options) unless chefspec_options.empty?
     end
-    # @!attribute [r] chef_run
-    #   Trigger a Chef converge. By default no resources are converged. This is
-    #   normally overwritten by the {#recipe} helper.
-    #   @return [ChefSpec::SoloRunner]
-    #   @see #recipe
-    let(:chef_run) { chef_runner.converge() }
 
     # An alias for slightly more semantic meaning, just forces the lazy #subject
     # to run.
@@ -172,7 +162,7 @@ module Halite
       #   end
       def recipe(*recipe_names, subject: true, &block)
         # Keep the actual logic in a let in case I want to define the subject as something else
-        let(:chef_run) { chef_runner.converge(*recipe_names, &block) }
+        let(:chef_run) { recipe_names.empty? ? chef_runner.converge_block(&block) : chef_runner.converge(*recipe_names) }
         subject { chef_run } if subject
       end
 
@@ -192,7 +182,8 @@ module Halite
       #     end
       #     it { is_expected.to run_ruby_block('test') }
       #   end
-      def step_into(name, resource_name=nil, unwrap_notifying_block: true)
+      def step_into(name=nil, resource_name=nil, unwrap_notifying_block: true)
+        return super if name.nil?
         resource_class = if name.is_a?(Class)
           name
         elsif resources[name.to_sym]
@@ -208,16 +199,6 @@ module Halite
           resource_class.resource_name
         else
           Chef::Mixin::ConvertToClassName.convert_to_snake_case(resource_class.name.split('::').last)
-        end
-
-        # Add a resource-level matcher to ChefSpec.
-        ChefSpec.define_matcher(resource_name)
-
-        # Figure out the available actions and create ChefSpec matchers.
-        resource_class.new(nil, nil).allowed_actions.each do |action|
-          define_method("#{action}_#{resource_name}") do |instance_name|
-            ChefSpec::Matchers::ResourceMatcher.new(resource_name, action, instance_name)
-          end
         end
 
         # Patch notifying_block from Poise::Provider to just run directly.
@@ -238,7 +219,7 @@ module Halite
         end
 
         # Add to the let variable passed in to ChefSpec.
-        before { step_into << resource_name }
+        super(resource_name)
       end
 
       # Define a resource class for use in an example group. By default the
@@ -333,7 +314,7 @@ module Halite
         around do |ex|
           if patch && resource(name) == resource_class
             # We haven't been overridden from a nested scope.
-            Patcher.patch(name, resource_class, Chef::Resource) { ex.run }
+            Patcher.patch(name, resource_class) { ex.run }
           else
             ex.run
           end
@@ -424,7 +405,7 @@ module Halite
         around do |ex|
           if patch && provider(name) == provider_class
             # We haven't been overridden from a nested scope.
-            Patcher.patch(name, provider_class, Chef::Provider) { ex.run }
+            Patcher.patch(name, provider_class) { ex.run }
           else
             ex.run
           end

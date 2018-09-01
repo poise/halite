@@ -17,6 +17,7 @@
 require 'poise_boiler/helpers/spec_helper'
 PoiseBoiler::Helpers::SpecHelper.install(no_halite: true)
 require 'halite'
+require 'chefspec'
 require 'example_resources/simple'
 require 'example_resources/poise'
 require 'example_resources/custom'

@@ -58,9 +58,9 @@ describe Halite::SpecHelper do
       it { is_expected.to be_a(Class) }
       it { is_expected.to be < Chef::Resource }
       its(:resource_name) { is_expected.to eq :halite_test } if defined?(Chef::Resource.resource_name)
-      it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
-      it { expect(Array(subject.new(nil, nil).action)).to eq([:run]) }
-      it { expect(subject.new(nil, nil).allowed_actions).to eq([:nothing, :run]) }
+      it { expect(subject.new('test', nil).resource_name).to eq(:halite_test) }
+      it { expect(Array(subject.new('test', nil).action)).to eq([:run]) }
+      it { expect(subject.new('test', nil).allowed_actions).to eq([:nothing, :run]) }
     end # /context with defaults
 
     context 'with auto:false' do
@@ -68,9 +68,9 @@ describe Halite::SpecHelper do
       it { is_expected.to be_a(Class) }
       it { is_expected.to be < Chef::Resource }
       # #resource_name was added upstream in 12.4 so ignore this test there.
-      it { expect(subject.new(nil, nil).resource_name).to be_nil } unless defined?(Chef::Resource.resource_name)
-      it { expect(Array(subject.new(nil, nil).action)).to eq [:nothing] }
-      it { expect(subject.new(nil, nil).allowed_actions).to eq [:nothing] }
+      it { expect(subject.new('test', nil).resource_name).to be_nil } unless defined?(Chef::Resource.resource_name)
+      it { expect(Array(subject.new('test', nil).action)).to eq [:nothing] }
+      it { expect(subject.new('test', nil).allowed_actions).to eq [:nothing] }
     end # /context with auto:false
 
     context 'with a parent' do
@@ -79,7 +79,7 @@ describe Halite::SpecHelper do
       it { is_expected.to be < Chef::Resource }
       it { is_expected.to be < Chef::Resource::File }
       its(:resource_name) { is_expected.to eq :halite_test } if defined?(Chef::Resource.resource_name)
-      it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
+      it { expect(subject.new('test', nil).resource_name).to eq(:halite_test) }
     end # /context with a parent
 
     context 'with a helper-defined parent' do
@@ -89,7 +89,7 @@ describe Halite::SpecHelper do
       it { is_expected.to be < Chef::Resource }
       it { is_expected.to be < resource('halite_parent') }
       its(:resource_name) { is_expected.to eq :halite_test } if defined?(Chef::Resource.resource_name)
-      it { expect(subject.new(nil, nil).resource_name).to eq(:halite_test) }
+      it { expect(subject.new('test', nil).resource_name).to eq(:halite_test) }
     end # /context with a helper-defined parent
 
     context 'with a helper-defined parent in an enclosing context' do
@@ -109,7 +109,7 @@ describe Halite::SpecHelper do
           :parent
         end
       end
-      subject { resource(:halite_test).new(nil, nil).value }
+      subject { resource(:halite_test).new('test', nil).value }
 
       context 'sibling' do
         resource(:halite_parent) do
@@ -157,7 +157,7 @@ describe Halite::SpecHelper do
       end # /context on the class
 
       context 'on the instance' do
-        subject { super().new(nil, nil) }
+        subject { super().new('test', nil) }
         its(:example_group) { is_expected.to be_truthy }
         its(:described_class) { is_expected.to eq Halite::SpecHelper }
       end # /context on the instance
@@ -183,7 +183,7 @@ describe Halite::SpecHelper do
       end # /context on the class
 
       context 'on the instance' do
-        subject { super().new(double(name: 'test', cookbook_name: 'test'), nil) }
+        subject { super().new(double(name: 'test', cookbook_name: 'test', resource_name: :halite_test), nil) }
         its(:example_group) { is_expected.to be_truthy }
         its(:described_class) { is_expected.to eq Halite::SpecHelper }
       end # /context on the instance
@@ -252,7 +252,10 @@ describe Halite::SpecHelper do
   describe 'patcher' do
     #let(:chefspec_options) { {log_level: :debug} }
     resource(:halite_test)
-    subject { resource(:halite_test).new('test', chef_run.run_context).provider_for_action(:run) }
+    subject do
+      chef_runner.converge
+      resource(:halite_test).new('test', chef_runner.run_context).provider_for_action(:run)
+    end
 
     context 'with a provider in scope' do
       provider(:halite_test)

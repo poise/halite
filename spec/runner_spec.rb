@@ -22,40 +22,10 @@ require 'halite/spec_helper/runner'
 
 describe Halite::SpecHelper::Runner do
   let(:options) { Hash.new }
-  subject { described_class.new(options) }
-
-  describe 'Runner.converge' do
-    let(:instance) { double('Runner instance') }
-    before do
-      expect(described_class).to receive(:new).with(options).and_return(instance)
-    end
-
-    context 'with a block' do
-      it do
-        expect(instance).to receive(:converge) do |&block|
-          expect(block).to be_a(Proc)
-        end
-        described_class.converge { ruby_block 'test' }
-      end
-    end # /context with a block
-
-    context 'with a recipe' do
-      it do
-        expect(instance).to receive(:converge).with('test')
-        described_class.converge('test')
-      end
-    end # /context with a recipe
-
-    context 'with options' do
-      let(:options) { {dry_run: true} }
-      it do
-        expect(instance).to receive(:converge).with('test')
-        described_class.converge('test', dry_run: true)
-      end
-    end # /context with options
-  end # /describe Runner.converge
+  subject { described_class.new(options.merge(platform: 'ubuntu')) }
 
   describe '#initialize' do
+    before { subject.converge }
 
     context 'with a simple option' do
       let(:options) { {dry_run: true} }
@@ -64,7 +34,7 @@ describe Halite::SpecHelper::Runner do
 
     context 'with default_attributes' do
       let(:options) { {default_attributes: {halite: 'test'}} }
-      it { expect(subject.node.default['halite']).to eq('test') }
+      it { expect(subject.node.role_default['halite']).to eq('test') }
       it { expect(subject.node['halite']).to eq('test') }
     end # /context with default_attributes
 
@@ -76,33 +46,25 @@ describe Halite::SpecHelper::Runner do
 
     context 'with override_attributes' do
       let(:options) { {override_attributes: {halite: 'test'}} }
-      it { expect(subject.node.override['halite']).to eq('test') }
+      it { expect(subject.node.role_override['halite']).to eq('test') }
       it { expect(subject.node['halite']).to eq('test') }
     end # /context with override_attributes
   end # /describe #initialize
 
   describe '#converge' do
-    context 'with a block' do
-      it do
-        sentinel = [false]
-        subject.converge { sentinel[0] = true }
-        expect(sentinel[0]).to eq(true)
-      end
-    end # /context with a block
+    let(:options) { {dry_run: true} }
 
-    context 'with a recipe' do
-      let(:options) { {dry_run: true} }
-
-      it do
-        expect(subject.node.run_list).to receive(:add).with('test')
-        subject.converge('test')
-      end
-    end # /context with a recipe
-
-    context 'with both a block and a recipe' do
-      it do
-        expect { subject.converge('test') { } }.to raise_error(Halite::Error)
-      end
-    end # /context with both a block and a recipe
+    it do
+      expect(subject.node.run_list).to receive(:add).with('test')
+      subject.converge('test')
+    end
   end # /describe #converge
+
+  describe '#converge_block' do
+    it do
+      sentinel = [false]
+      subject.converge_block { sentinel[0] = true }
+      expect(sentinel[0]).to eq(true)
+    end
+  end # /describe #converge_block
 end

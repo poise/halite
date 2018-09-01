@@ -30,46 +30,15 @@ module Halite
     #
     # @since 1.0.0
     class Runner < ChefSpec::SoloRunner
-      def self.converge(*recipe_names, &block)
-        options = if recipe_names.last.is_a?(Hash)
-          # Was called with options
-          recipe_names.pop
-        else
-          {}
-        end
-        new(options).tap do |instance|
-          instance.converge(*recipe_names, &block)
-        end
-      end
-
       def initialize(options={})
-        # Repeating the detault platform.
-        options[:platform] ||= 'ubuntu'
-        options[:version] ||= '16.04'
-        super(options) do |node|
-          # Allow inserting arbitrary attribute data in to the node
-          node.attributes.default = Chef::Mixin::DeepMerge.merge(node.attributes.default, options[:default_attributes]) if options[:default_attributes]
-          node.attributes.normal = Chef::Mixin::DeepMerge.merge(node.attributes.normal, options[:normal_attributes]) if options[:normal_attributes]
-          node.attributes.override = Chef::Mixin::DeepMerge.merge(node.attributes.override, options[:override_attributes]) if options[:override_attributes]
-          # Store the gemspec for later use
-          @halite_gemspec = options[:halite_gemspec]
-        end
+        # Store the gemspec for later use
+        @halite_gemspec = options[:halite_gemspec]
+        super
       end
 
-      def converge(*recipe_names, &block)
-        raise Halite::Error.new('Cannot pass both recipe names and a recipe block to converge') if !recipe_names.empty? && block
-        super(*recipe_names) do
-          add_halite_cookbooks(node, @halite_gemspec) if @halite_gemspec
-          if block
-            cookbook_name = if @halite_gemspec
-              Halite::Gem.new(Array(@halite_gemspec).first).cookbook_name + '_spec'
-            else
-              nil
-            end
-            recipe = Chef::Recipe.new(cookbook_name, nil, run_context)
-            recipe.instance_exec(&block)
-          end
-        end
+      def preload!
+        super
+        add_halite_cookbooks(node, @halite_gemspec) if @halite_gemspec
       end
 
       private
@@ -96,8 +65,20 @@ module Halite
         end
       end
 
+      # Override the normal cookbook loading behavior.
+      def cookbook
+        if @halite_gemspec
+          halite_gem = Halite::Gem.new(Array(@halite_gemspec).first)
+          Chef::Cookbook::Metadata.new.tap do |metadata|
+            metadata.name(halite_gem.cookbook_name)
+          end
+        else
+          super
+        end
+      end
+
       # Don't try to autodetect the calling cookbook.
-      def calling_cookbook_path(_kaller)
+      def calling_cookbook_path(*args)
         File.expand_path('../empty', __FILE__)
       end
     end
