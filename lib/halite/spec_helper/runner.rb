@@ -37,8 +37,13 @@ module Halite
       end
 
       def preload!
-        super
-        add_halite_cookbooks(node, @halite_gemspec) if @halite_gemspec
+      end
+
+      def converge(*args, &block)
+        super(*args) do |node|
+          add_halite_cookbooks(node, @halite_gemspec) if @halite_gemspec
+          block.call(node) if block
+        end
       end
 
       private
@@ -81,6 +86,15 @@ module Halite
       def calling_cookbook_path(*args)
         File.expand_path('../empty', __FILE__)
       end
+
+      # Inject a better chefspec_cookbook_root option.
+      def apply_chef_config!
+        super
+        if @halite_gemspec
+          Chef::Config[:chefspec_cookbook_root] = Array(@halite_gemspec).first.full_gem_path
+        end
+      end
+
     end
   end
 end

@@ -94,15 +94,34 @@ module Halite
     #     let(:chefspec_options) { {platform: 'ubuntu', version: '12.04'} }
     let(:chefspec_options) { Hash.new }
 
-    # Inject legacy Halite spec_helper options into newer ChefSpec.
-    before do
-      chef_runner.options[:halite_gemspec] = halite_gemspec
-      chef_runner.options[:step_into] |= step_into if step_into
-      chef_runner.options[:default_attributes].update(default_attributes) unless default_attributes.empty?
-      chef_runner.options[:normal_attributes].update(normal_attributes) unless normal_attributes.empty?
-      chef_runner.options[:override_attributes].update(override_attributes) unless override_attributes.empty?
-      chef_runner.options[:platform] ||= 'ubuntu'
-      chef_runner.options.update(chefspec_options) unless chefspec_options.empty?
+    # Cross-link the Halite and ChefSpec data.
+    let(:chefspec_platform) do
+      chefspec_options[:platform] || 'ubuntu'
+    end
+    let(:chefspec_platform_version) do
+      chefspec_options[:version]
+    end
+
+    # Merge in extra options data.
+    def chef_runner_options
+      super.tap do |options|
+        options[:halite_gemspec] = halite_gemspec
+        # And some legacy data.
+        options[:default_attributes].update(default_attributes)
+        options[:normal_attributes].update(normal_attributes)
+        options[:override_attributes].update(override_attributes)
+        options.update(chefspec_options)
+      end
+    end
+
+    # Custom runner class.
+    def chef_runner_class
+      Halite::SpecHelper::Runner
+    end
+
+    # Don't try to converge any recipes, even by default.
+    let(:chef_run) do
+      chef_runner.converge
     end
 
     # An alias for slightly more semantic meaning, just forces the lazy #subject
@@ -183,7 +202,7 @@ module Halite
       #     it { is_expected.to run_ruby_block('test') }
       #   end
       def step_into(name=nil, resource_name=nil, unwrap_notifying_block: true)
-        return super if name.nil?
+        return super() if name.nil?
         resource_class = if name.is_a?(Class)
           name
         elsif resources[name.to_sym]
