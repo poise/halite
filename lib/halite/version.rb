@@ -17,5 +17,5 @@
 
 module Halite
   # Halite version.
-  VERSION = '1.8.2.pre'
+  VERSION = '1.8.2'
 end

@@ -1,5 +1,9 @@
 # Halite Changelog
 
+## v1.8.2
+
+* Update for newer ChefSpec.
+
 ## v1.8.1
 
 * Fix compatibility with new Chef API for unregistering resources.
