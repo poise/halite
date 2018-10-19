@@ -108,7 +108,11 @@ module Halite
     def install_kitchen
       desc 'Run all Test Kitchen tests'
       task 'chef:kitchen' do
-        sh(*%w{kitchen test -d always})
+        if ENV['KITCHEN_CONCURRENCY']
+          sh(*%W{kitchen test -d always -c #{ENV['KITCHEN_CONCURRENCY']}})
+        else
+          sh(*%w{kitchen test -d always})
+        end
       end
 
       add_test_task('chef:kitchen')
